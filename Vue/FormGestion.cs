@@ -1082,7 +1082,7 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Permet d'utiliser les fameux raccourcis CTRL+X pour couper,CTRL+C pour copier, CTRL+V pour coller.
+        ///  Permet d'utiliser les fameux raccourcis CTRL+X pour couper, CTRL+C pour copier, CTRL+V pour coller.
         /// </summary>
         private void dgv_Inventaire_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1119,6 +1119,52 @@ namespace FranceInformatiqueInventaire
             gestionControlleurRef.SauvegarderSous();
         }
 
-        
+        private void btn_AjoutFacture_Click(object sender, EventArgs e)
+        {
+            listBox_Factures.Items.Add(txt_FactureAjout.Text);
+        }
+
+        private void listBox_Factures_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listBox_Factures.SelectedIndex != -1)
+            {
+                btn_ModifFacture.Enabled = true;
+                btn_SupprFacture.Enabled = true;
+            }
+            else
+            {
+                btn_ModifFacture.Enabled = false;
+                btn_SupprFacture.Enabled = false;
+            }
+        }
+
+        private void txt_FactureAjout_TextChanged(object sender, EventArgs e)
+        {
+            if (txt_FactureAjout.Text != "")
+            {
+                btn_AjoutFacture.Enabled = true;
+            }
+            else
+            {
+                btn_AjoutFacture.Enabled = false;
+            }
+        }
+
+        private void btn_SupprFacture_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Êtes vous sur de supprimer cette facture ?", "Confirmation", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                listBox_Factures.Items.RemoveAt(listBox_Factures.SelectedIndex);
+            }
+        }
+
+        private void listBox_Factures_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                listBox_Factures.SelectedIndex = -1;
+            }
+        }
     }
 }

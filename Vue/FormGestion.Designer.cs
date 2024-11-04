@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormGestion));
-            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             menuStrip1 = new MenuStrip();
             testToolStripMenuItem = new ToolStripMenuItem();
             TSMenuItem_Fichier_Nouveau = new ToolStripMenuItem();
@@ -94,14 +94,19 @@
             btn_SupprimerType = new Button();
             btn_AjouterType = new Button();
             OngletFactureNette = new TabPage();
+            tableLayoutPanel4 = new TableLayoutPanel();
+            listBox_Factures = new ListBox();
+            tableLayoutPanel5 = new TableLayoutPanel();
+            txt_FactureTotalHT = new TextBox();
+            btn_SupprFacture = new Button();
+            btn_ModifFacture = new Button();
+            btn_AjoutFacture = new Button();
+            txt_FactureAjout = new TextBox();
+            tableLayoutPanel6 = new TableLayoutPanel();
+            comboBox1 = new ComboBox();
+            label1 = new Label();
             tableLayoutPanel3 = new TableLayoutPanel();
             colorDialog1 = new ColorDialog();
-            listBox1 = new ListBox();
-            textBox1 = new TextBox();
-            label1 = new Label();
-            label2 = new Label();
-            textBox2 = new TextBox();
-            listBox2 = new ListBox();
             menuStrip1.SuspendLayout();
             tlp_Haut.SuspendLayout();
             ts_Inventaire.SuspendLayout();
@@ -119,6 +124,9 @@
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             OngletFactureNette.SuspendLayout();
+            tableLayoutPanel4.SuspendLayout();
+            tableLayoutPanel5.SuspendLayout();
+            tableLayoutPanel6.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             SuspendLayout();
             // 
@@ -493,6 +501,7 @@
             // 
             // OngletInventaire
             // 
+            OngletInventaire.BackColor = Color.DimGray;
             OngletInventaire.Controls.Add(tabControl_Inventaire);
             OngletInventaire.Location = new Point(4, 24);
             OngletInventaire.Name = "OngletInventaire";
@@ -500,7 +509,6 @@
             OngletInventaire.Size = new Size(1030, 262);
             OngletInventaire.TabIndex = 0;
             OngletInventaire.Text = "Inventaire";
-            OngletInventaire.UseVisualStyleBackColor = true;
             // 
             // tabControl_Inventaire
             // 
@@ -535,14 +543,14 @@
             dgv_Inventaire.AllowUserToAddRows = false;
             dgv_Inventaire.AllowUserToDeleteRows = false;
             dgv_Inventaire.BackgroundColor = SystemColors.ControlDarkDark;
-            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = SystemColors.Control;
-            dataGridViewCellStyle5.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle5.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle5.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
-            dgv_Inventaire.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = SystemColors.Control;
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            dgv_Inventaire.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dgv_Inventaire.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgv_Inventaire.Columns.AddRange(new DataGridViewColumn[] { Index, Type, Marque, Nom, Annee, Prix, DateEntree, DateSortie, Commentaire });
             dgv_Inventaire.Dock = DockStyle.Fill;
@@ -811,19 +819,161 @@
             // 
             // OngletFactureNette
             // 
-            OngletFactureNette.Controls.Add(label2);
-            OngletFactureNette.Controls.Add(textBox2);
-            OngletFactureNette.Controls.Add(listBox2);
-            OngletFactureNette.Controls.Add(label1);
-            OngletFactureNette.Controls.Add(textBox1);
-            OngletFactureNette.Controls.Add(listBox1);
+            OngletFactureNette.BackColor = Color.FromArgb(48, 50, 54);
+            OngletFactureNette.Controls.Add(tableLayoutPanel4);
             OngletFactureNette.Location = new Point(4, 24);
             OngletFactureNette.Name = "OngletFactureNette";
             OngletFactureNette.Padding = new Padding(3);
             OngletFactureNette.Size = new Size(1030, 262);
             OngletFactureNette.TabIndex = 1;
             OngletFactureNette.Text = "Facture nette de charges";
-            OngletFactureNette.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel4
+            // 
+            tableLayoutPanel4.ColumnCount = 2;
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.Controls.Add(listBox_Factures, 0, 0);
+            tableLayoutPanel4.Controls.Add(tableLayoutPanel5, 1, 0);
+            tableLayoutPanel4.Dock = DockStyle.Fill;
+            tableLayoutPanel4.ForeColor = Color.FromArgb(48, 50, 54);
+            tableLayoutPanel4.Location = new Point(3, 3);
+            tableLayoutPanel4.Name = "tableLayoutPanel4";
+            tableLayoutPanel4.RowCount = 1;
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel4.Size = new Size(1024, 256);
+            tableLayoutPanel4.TabIndex = 6;
+            // 
+            // listBox_Factures
+            // 
+            listBox_Factures.Dock = DockStyle.Fill;
+            listBox_Factures.FormattingEnabled = true;
+            listBox_Factures.ItemHeight = 15;
+            listBox_Factures.Items.AddRange(new object[] { "F2400044" });
+            listBox_Factures.Location = new Point(3, 3);
+            listBox_Factures.Name = "listBox_Factures";
+            listBox_Factures.Size = new Size(506, 250);
+            listBox_Factures.TabIndex = 1;
+            listBox_Factures.SelectedIndexChanged += listBox_Factures_SelectedIndexChanged;
+            listBox_Factures.KeyDown += listBox_Factures_KeyDown;
+            // 
+            // tableLayoutPanel5
+            // 
+            tableLayoutPanel5.BackColor = Color.FromArgb(48, 50, 54);
+            tableLayoutPanel5.ColumnCount = 1;
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel5.Controls.Add(txt_FactureTotalHT, 0, 1);
+            tableLayoutPanel5.Controls.Add(btn_SupprFacture, 0, 5);
+            tableLayoutPanel5.Controls.Add(btn_ModifFacture, 0, 4);
+            tableLayoutPanel5.Controls.Add(btn_AjoutFacture, 0, 3);
+            tableLayoutPanel5.Controls.Add(txt_FactureAjout, 0, 0);
+            tableLayoutPanel5.Controls.Add(tableLayoutPanel6, 0, 2);
+            tableLayoutPanel5.Dock = DockStyle.Fill;
+            tableLayoutPanel5.Location = new Point(515, 3);
+            tableLayoutPanel5.Name = "tableLayoutPanel5";
+            tableLayoutPanel5.RowCount = 7;
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle());
+            tableLayoutPanel5.Size = new Size(506, 250);
+            tableLayoutPanel5.TabIndex = 2;
+            // 
+            // txt_FactureTotalHT
+            // 
+            txt_FactureTotalHT.Dock = DockStyle.Fill;
+            txt_FactureTotalHT.Location = new Point(3, 33);
+            txt_FactureTotalHT.Name = "txt_FactureTotalHT";
+            txt_FactureTotalHT.PlaceholderText = "Entrer le total HT";
+            txt_FactureTotalHT.Size = new Size(500, 23);
+            txt_FactureTotalHT.TabIndex = 12;
+            // 
+            // btn_SupprFacture
+            // 
+            btn_SupprFacture.Dock = DockStyle.Fill;
+            btn_SupprFacture.Enabled = false;
+            btn_SupprFacture.ForeColor = Color.FromArgb(48, 50, 54);
+            btn_SupprFacture.Location = new Point(3, 193);
+            btn_SupprFacture.Name = "btn_SupprFacture";
+            btn_SupprFacture.Size = new Size(500, 44);
+            btn_SupprFacture.TabIndex = 11;
+            btn_SupprFacture.Text = "Supprimer";
+            btn_SupprFacture.UseVisualStyleBackColor = true;
+            btn_SupprFacture.Click += btn_SupprFacture_Click;
+            // 
+            // btn_ModifFacture
+            // 
+            btn_ModifFacture.Dock = DockStyle.Fill;
+            btn_ModifFacture.Enabled = false;
+            btn_ModifFacture.Location = new Point(3, 143);
+            btn_ModifFacture.Name = "btn_ModifFacture";
+            btn_ModifFacture.Size = new Size(500, 44);
+            btn_ModifFacture.TabIndex = 10;
+            btn_ModifFacture.Text = "Modifier";
+            btn_ModifFacture.UseVisualStyleBackColor = true;
+            // 
+            // btn_AjoutFacture
+            // 
+            btn_AjoutFacture.Dock = DockStyle.Fill;
+            btn_AjoutFacture.Enabled = false;
+            btn_AjoutFacture.Location = new Point(3, 93);
+            btn_AjoutFacture.Name = "btn_AjoutFacture";
+            btn_AjoutFacture.Size = new Size(500, 44);
+            btn_AjoutFacture.TabIndex = 2;
+            btn_AjoutFacture.Text = "Ajouter";
+            btn_AjoutFacture.UseVisualStyleBackColor = true;
+            btn_AjoutFacture.Click += btn_AjoutFacture_Click;
+            // 
+            // txt_FactureAjout
+            // 
+            txt_FactureAjout.Dock = DockStyle.Fill;
+            txt_FactureAjout.Location = new Point(3, 3);
+            txt_FactureAjout.Name = "txt_FactureAjout";
+            txt_FactureAjout.PlaceholderText = "Entrer le nom de la facture à ajouter";
+            txt_FactureAjout.Size = new Size(500, 23);
+            txt_FactureAjout.TabIndex = 3;
+            txt_FactureAjout.TextChanged += txt_FactureAjout_TextChanged;
+            // 
+            // tableLayoutPanel6
+            // 
+            tableLayoutPanel6.ColumnCount = 2;
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
+            tableLayoutPanel6.Controls.Add(comboBox1, 1, 0);
+            tableLayoutPanel6.Controls.Add(label1, 0, 0);
+            tableLayoutPanel6.Dock = DockStyle.Fill;
+            tableLayoutPanel6.Location = new Point(3, 63);
+            tableLayoutPanel6.Name = "tableLayoutPanel6";
+            tableLayoutPanel6.RowCount = 1;
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel6.Size = new Size(500, 24);
+            tableLayoutPanel6.TabIndex = 13;
+            // 
+            // comboBox1
+            // 
+            comboBox1.Dock = DockStyle.Fill;
+            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Items.AddRange(new object[] { "Vente", "Reparation" });
+            comboBox1.Location = new Point(153, 3);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new Size(344, 23);
+            comboBox1.TabIndex = 0;
+            // 
+            // label1
+            // 
+            label1.Anchor = AnchorStyles.Left;
+            label1.AutoSize = true;
+            label1.BackColor = Color.Transparent;
+            label1.ForeColor = Color.Transparent;
+            label1.Location = new Point(3, 4);
+            label1.Name = "label1";
+            label1.Size = new Size(103, 15);
+            label1.TabIndex = 1;
+            label1.Text = "Type de prestation";
             // 
             // tableLayoutPanel3
             // 
@@ -838,56 +988,6 @@
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableLayoutPanel3.Size = new Size(1057, 347);
             tableLayoutPanel3.TabIndex = 11;
-            // 
-            // listBox1
-            // 
-            listBox1.FormattingEnabled = true;
-            listBox1.ItemHeight = 15;
-            listBox1.Location = new Point(18, 15);
-            listBox1.Name = "listBox1";
-            listBox1.Size = new Size(195, 229);
-            listBox1.TabIndex = 0;
-            // 
-            // textBox1
-            // 
-            textBox1.Location = new Point(233, 40);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(144, 23);
-            textBox1.TabIndex = 1;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(380, 44);
-            label1.Name = "label1";
-            label1.Size = new Size(17, 15);
-            label1.TabIndex = 2;
-            label1.Text = "%";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(834, 44);
-            label2.Name = "label2";
-            label2.Size = new Size(17, 15);
-            label2.TabIndex = 5;
-            label2.Text = "%";
-            // 
-            // textBox2
-            // 
-            textBox2.Location = new Point(687, 40);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(144, 23);
-            textBox2.TabIndex = 4;
-            // 
-            // listBox2
-            // 
-            listBox2.FormattingEnabled = true;
-            listBox2.ItemHeight = 15;
-            listBox2.Location = new Point(472, 15);
-            listBox2.Name = "listBox2";
-            listBox2.Size = new Size(195, 229);
-            listBox2.TabIndex = 3;
             // 
             // FormGestion
             // 
@@ -928,7 +1028,11 @@
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
             OngletFactureNette.ResumeLayout(false);
-            OngletFactureNette.PerformLayout();
+            tableLayoutPanel4.ResumeLayout(false);
+            tableLayoutPanel5.ResumeLayout(false);
+            tableLayoutPanel5.PerformLayout();
+            tableLayoutPanel6.ResumeLayout(false);
+            tableLayoutPanel6.PerformLayout();
             tableLayoutPanel3.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -1001,11 +1105,16 @@
         private TabControl tabControl_Onglets;
         private TabPage OngletInventaire;
         private TabPage OngletFactureNette;
-        private Label label2;
-        private TextBox textBox2;
-        private ListBox listBox2;
+        private TableLayoutPanel tableLayoutPanel4;
+        private ListBox listBox_Factures;
+        private TableLayoutPanel tableLayoutPanel5;
+        private TextBox txt_FactureAjout;
+        private Button btn_AjoutFacture;
+        private Button btn_ModifFacture;
+        private Button btn_SupprFacture;
+        private TextBox txt_FactureTotalHT;
+        private TableLayoutPanel tableLayoutPanel6;
+        private ComboBox comboBox1;
         private Label label1;
-        private TextBox textBox1;
-        private ListBox listBox1;
     }
 }
