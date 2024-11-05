@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SQLite;
 using System.Windows.Forms;
+using FranceInformatiqueInventaire.Model;
 
-namespace FranceInformatiqueInventaire.bddmanager
+namespace FranceInformatiqueInventaire.dal
 {
     /// <summary>
     ///  Classe utilisée comme pont pour communiquer avec les bases de données (fichier .db) en utilisant l'extension SQLite.
@@ -41,23 +42,23 @@ namespace FranceInformatiqueInventaire.bddmanager
         }
 
         /// <summary>
-        ///  Permet de lire le fichier .db directement, puis de retourner un ValueTuple qui contient elle même des listes pour chaque colonne.
+        ///  Permet de lire le fichier .db directement, puis de retourner une liste des instances de l'entité InventaireLigne.
         /// </summary>
         /// <param name="connectionTexteTemp">Le texte qui permet la connexion temporaire avec le fichier .db .</param>
-        /// <returns>Le ValueTuple qui contient chaque colonne.</returns>
-        public (List<int>, List<string>, List<string>, List<string>, List<string>, List<float>, List<string>, List<string>, List<string>) RecupererInventaireTable(string connectionTexteTemp)
+        /// <returns>Une liste des instances de l'entité InventaireLigne récupérées grace au curseur SQL.</returns>
+        public List<InventaireLigne> RecupererInventaireTable(string connectionTexteTemp)
         {
             connectionTexte = connectionTexteTemp;
-            List<int> listeId = new List<int>();
-            List<string> listeType = new List<string>();
-            List<string> listeMarque = new List<string>();
-            List<string> listeNom = new List<string>();
-            List<string> listeAnnee = new List<string>();
-            List<float> listePrix = new List<float>();
-            List<string> listeDateEntree = new List<string>();
-            List<string> listeDateSortie = new List<string>();
-            List<string> listeCommentaire = new List<string>();
-            
+            List<InventaireLigne> inventaireLignes = new List<InventaireLigne>();
+            int id;
+            string type;
+            string marque;
+            string nom;
+            string annee;
+            float prix;
+            string dateEntree;
+            string dateSortie;
+            string commentaire;
             using (SQLiteConnection connection = new SQLiteConnection(connectionTexte))
             {
                 connection.Open();
@@ -68,45 +69,33 @@ namespace FranceInformatiqueInventaire.bddmanager
                     {
                         while (reader.Read())
                         {
-                            int id = reader.GetInt32(reader.GetOrdinal("Id"));
-                            string type = reader.GetString(reader.GetOrdinal("Type"));
-                            string marque = reader.GetString(reader.GetOrdinal("Marque"));
-                            string nom = reader.GetString(reader.GetOrdinal("Nom"));
-                            string annee = reader.GetString(reader.GetOrdinal("Annee"));
-                            float prix = reader.IsDBNull(reader.GetOrdinal("Prix")) ? -1f : reader.GetFloat(reader.GetOrdinal("Prix"));
-                            string dateEntree = reader.GetString(reader.GetOrdinal("DateEntree"));
-                            string dateSortie = reader.GetString(reader.GetOrdinal("DateSortie"));
-                            string commentaire = reader.GetString(reader.GetOrdinal("Commentaire"));
-
-                            listeId.Add(id);
-                            listeType.Add(type);
-                            listeMarque.Add(marque);
-                            listeNom.Add(nom);
-                            listeAnnee.Add(annee);
-                            listePrix.Add(prix);
-                            listeDateEntree.Add(dateEntree);
-                            listeDateSortie.Add(dateSortie);
-                            listeCommentaire.Add(commentaire);
+                            id = reader.GetInt32(reader.GetOrdinal("Id"));
+                            type = reader.GetString(reader.GetOrdinal("Type"));
+                            marque = reader.GetString(reader.GetOrdinal("Marque"));
+                            nom = reader.GetString(reader.GetOrdinal("Nom"));
+                            annee = reader.GetString(reader.GetOrdinal("Annee"));
+                            prix = reader.IsDBNull(reader.GetOrdinal("Prix")) ? -1f : reader.GetFloat(reader.GetOrdinal("Prix"));
+                            dateEntree = reader.GetString(reader.GetOrdinal("DateEntree"));
+                            dateSortie = reader.GetString(reader.GetOrdinal("DateSortie"));
+                            commentaire = reader.GetString(reader.GetOrdinal("Commentaire"));
+                            InventaireLigne nouvelleLigne = new InventaireLigne(id, type, marque, nom, annee, prix, dateEntree, dateSortie, commentaire);
+                            inventaireLignes.Add(nouvelleLigne);
                         }
                     }
-
-
                 }
-                return (listeId, listeType, listeMarque, listeNom, listeAnnee, listePrix, listeDateEntree, listeDateSortie, listeCommentaire);
+                return inventaireLignes;
             }
-
-            
         }
 
         /// <summary>
-        ///  Permet de lire le fichier .db directement, puis de retourner une liste correspondant aux marques.
+        ///  Permet de lire le fichier .db directement, puis de retourner une liste des instances de l'entité InventaireMarque.
         /// </summary>
         /// <param name="connectionTexteTemp">Le texte qui permet la connexion temporaire avec le fichier .db .</param>
-        /// <returns>La liste correspondant aux marques.</returns>
-        public List<string> RecupererMarqueTable(string connectionTexteTemp)
+        /// <returns>La liste des instances de type InventaireMarque récupéré à partir du curseur SQL.</returns>
+        public List<InventaireMarque> RecupererMarqueTable(string connectionTexteTemp)
         {
             connectionTexte = connectionTexteTemp;
-            List<string> lesMarques = new List<string>();
+            List<InventaireMarque> marqueLignes = new List<InventaireMarque>();
             using (SQLiteConnection connection = new SQLiteConnection(connectionTexte))
             {
                 connection.Open();
@@ -117,24 +106,24 @@ namespace FranceInformatiqueInventaire.bddmanager
                     {
                         while (reader.Read())
                         {
-                            string uneMarque = reader.GetString(reader.GetOrdinal("Nom"));
-                            lesMarques.Add(uneMarque);
+                            string marqueNom = reader.GetString(reader.GetOrdinal("Nom"));
+                            marqueLignes.Add(new InventaireMarque(marqueNom));
                         }
                     }
                 }
             }
-            return (lesMarques);
+            return marqueLignes;
         }
 
         /// <summary>
-        ///  Permet de lire le fichier .db directement, puis de retourner une liste correspondant aux types.
+        ///  Permet de lire le fichier .db directement, puis de retourner une liste des instances de l'entité InventaireType.
         /// </summary>
         /// <param name="connectionTexteTemp">Le texte qui permet la connexion temporaire avec le fichier .db .</param>
-        /// <returns>La liste correspondant aux types.</returns>
-        public List<string> RecupererTypeTable(string connectionTexteTemp)
+        /// <returns>La liste des instances de type InventaireType récupéré à partir du curseur SQL.</returns>
+        public List<InventaireType> RecupererTypeTable(string connectionTexteTemp)
         {
             connectionTexte = connectionTexteTemp;
-            List<string> lesTypes = new List<string>();
+            List<InventaireType> typeLignes = new List<InventaireType>();
             using (SQLiteConnection connection = new SQLiteConnection(connectionTexte))
             {
                 connection.Open();
@@ -145,24 +134,24 @@ namespace FranceInformatiqueInventaire.bddmanager
                     {
                         while (reader.Read())
                         {
-                            string unType = reader.GetString(reader.GetOrdinal("Nom"));
-                            lesTypes.Add(unType);
+                            string typeNom = reader.GetString(reader.GetOrdinal("Nom"));
+                            typeLignes.Add(new InventaireType(typeNom));
                         }
                     }
                 }
             }
-            return (lesTypes);
+            return typeLignes;
         }
 
         /// <summary>
-        ///  Permet de créer et d'écrire un nouveau fichier .db qui aura toutes les données de l'inventaire, des marques et des types.
+        ///  Permet de créer et d'écrire un nouveau fichier .db qui aura toutes les données de l'inventaire, des marques et des types et autre.
         /// </summary>
         /// <param name="chemin">Chemin où la création et écriture du fichier sera faite.</param>
         public void EcrireBdd(string chemin)
         {
-            var listes = mainFormRef.RecupererListesActuelleDgvInventaire();
-            List<string> lesMarquesActuelle = mainFormRef.RecupererMarquesActuelle();
-            List<string> lesTypesActuelle = mainFormRef.RecupererTypesActuelle();
+            List<InventaireLigne> inventaireActuelle = mainFormRef.RecupererInventaireActuelle();
+            List<InventaireMarque> lesMarquesActuelle = mainFormRef.RecupererMarquesActuelle();
+            List<InventaireType> lesTypesActuelle = mainFormRef.RecupererTypesActuelle();
             string connectionTexte;
             SQLiteConnection.CreateFile(chemin);
             connectionTexte = @"Data Source=" + chemin + ";Version=3;";
@@ -176,31 +165,28 @@ namespace FranceInformatiqueInventaire.bddmanager
                         command.ExecuteNonQuery();
                         using (SQLiteCommand command2 = new SQLiteCommand("INSERT INTO Inventaire (Id, Type, Marque, Nom, Annee, Prix, DateEntree, DateSortie, Commentaire) VALUES (@Id, @Type, @Marque, @Nom, @Annee, @Prix, @DateEntree, @DateSortie, @Commentaire)", connection, transaction))
                         {
-                            for (int i = 0; i < listes.Item1.Count; i++)
+                            for (int i = 0; i < inventaireActuelle.Count; i++)
                             {
-                                command2.Parameters.AddWithValue("@Id", listes.Item1[i]);
-                                command2.Parameters.AddWithValue("@Type", listes.Item2[i]);
-                                command2.Parameters.AddWithValue("@Marque", listes.Item3[i]);
-                                command2.Parameters.AddWithValue("@Nom", listes.Item4[i]);
-                                command2.Parameters.AddWithValue("@Annee", listes.Item5[i]);
-                                if (listes.Item6[i] != -1)
+                                InventaireLigne inventaireLigne = inventaireActuelle[i];
+                                command2.Parameters.AddWithValue("@Id", inventaireLigne.id);
+                                command2.Parameters.AddWithValue("@Type", inventaireLigne.type);
+                                command2.Parameters.AddWithValue("@Marque", inventaireLigne.marque);
+                                command2.Parameters.AddWithValue("@Nom", inventaireLigne.nom);
+                                command2.Parameters.AddWithValue("@Annee", inventaireLigne.annee);
+                                if (inventaireLigne.prix != -1)
                                 {
-                                    command2.Parameters.AddWithValue("@Prix", listes.Item6[i]);
+                                    command2.Parameters.AddWithValue("@Prix", inventaireLigne.prix);
                                 }
                                 else
                                 {
                                     command2.Parameters.AddWithValue("@Prix", DBNull.Value);
                                 }
-
-                                command2.Parameters.AddWithValue("@DateEntree", listes.Item7[i]);
-                                command2.Parameters.AddWithValue("@DateSortie", listes.Item8[i]);
-                                command2.Parameters.AddWithValue("@Commentaire", listes.Item9[i]);
+                                command2.Parameters.AddWithValue("@DateEntree", inventaireLigne.dateEntree);
+                                command2.Parameters.AddWithValue("@DateSortie", inventaireLigne.dateSortie);
+                                command2.Parameters.AddWithValue("@Commentaire", inventaireLigne.commentaire);
                                 command2.ExecuteNonQuery();
                             }
-                            
-
                         }
-
                     }
 
                     using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE [Marque] ([Id] bigint NOT NULL, [Nom] text,CONSTRAINT [sqlite_master_PK_Inventaire] PRIMARY KEY ([Id]));", connection, transaction))
@@ -211,7 +197,7 @@ namespace FranceInformatiqueInventaire.bddmanager
                             for (int i = 0; i < lesMarquesActuelle.Count; i++)
                             {
                                 command2.Parameters.AddWithValue("@Id", i);
-                                command2.Parameters.AddWithValue("@Nom", lesMarquesActuelle[i]);
+                                command2.Parameters.AddWithValue("@Nom", lesMarquesActuelle[i].nom);
                                 command2.ExecuteNonQuery();
                             }
                             
@@ -226,7 +212,7 @@ namespace FranceInformatiqueInventaire.bddmanager
                             for (int i = 0; i < lesTypesActuelle.Count; i++)
                             {
                                 command2.Parameters.AddWithValue("@Id", i);
-                                command2.Parameters.AddWithValue("@Nom", lesTypesActuelle[i]);
+                                command2.Parameters.AddWithValue("@Nom", lesTypesActuelle[i].nom);
                                 command2.ExecuteNonQuery();
                             }
 

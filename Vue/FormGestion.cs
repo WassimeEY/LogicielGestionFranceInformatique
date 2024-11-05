@@ -1,4 +1,4 @@
-using FranceInformatiqueInventaire.bddmanager;
+using FranceInformatiqueInventaire.dal;
 using Microsoft.VisualBasic.Devices;
 using System;
 using System.Data;
@@ -10,15 +10,19 @@ using System.Windows.Input;
 using System.Windows.Forms;
 using FranceInformatiqueInventaire.Controlleur;
 using System.ComponentModel;
+using FranceInformatiqueInventaire.Model;
 
 namespace FranceInformatiqueInventaire
 {
+    public enum visibiliteToolstrip {VISIBLE,CACHE,CACHEAVECFOND,MODIFDGV};
+
     /// <summary>
     ///  Form principale du logiciel, partie Vue et des évenements de l'application.
     /// </summary>
     public partial class FormGestion : Form
     {
         private List<DataGridViewRow> inventaireRowsCharge = new List<DataGridViewRow>();
+        private List<DataGridViewRow> factureRowsCharge = new List<DataGridViewRow>();
         private List<string> marquesCharge = new List<string>();
         private List<string> typesCharge = new List<string>();
         private bool confirmationAvantSuppression = true;
@@ -55,7 +59,7 @@ namespace FranceInformatiqueInventaire
             //Preferences :
             TSMenuItem_Preferences_InsertionLigne_Cb.SelectedIndex = 0;
 
-            gestionControlleurRef = new GestionControlleur(this, dgv_Inventaire, txt_RechercheInventaire, btn_CollerLigneInventaire, bddManagerRef, TSMenuItem_Fichier_Sauvegarder, inventaireRowsCharge, rowsCopiee, cb_FiltreRecherche, lb_Marque, lb_Type, marquesCharge, typesCharge, couperLignes);
+            gestionControlleurRef = new GestionControlleur(this, dgv_Inventaire, txt_RechercheInventaire, btn_CollerLigneInventaire, bddManagerRef, TSMenuItem_Fichier_Sauvegarder, inventaireRowsCharge, rowsCopiee, cb_FiltreRecherche, lb_Marque, lb_Type, marquesCharge, typesCharge, couperLignes, dgv_Facture, factureRowsCharge);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -286,13 +290,14 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Charge toutes les lignes de la dataGridView à partir d'un ValueTuple.
+        ///  Charge toutes les lignes de la dataGridView à partir d'une liste de InventaireLigne.
         /// </summary>
-        /// <param name="contenuInventaireDansDbTemp">ValueTuple qui permet de charger toutes les lignes de chaque colonne de la dataGridView inventaire.</ param >
-        private void ChargerRemplirInventaire((List<int>, List<string>, List<string>, List<string>, List<string>, List<float>, List<string>, List<string>, List<string>) contenuInventaireDansDbTemp)
+        /// <param name="contenuInventaireDansDbTemp">Liste de InventaireLigne qui permet de charger toutes les lignes de chaque colonne de la dataGridView inventaire.</ param >
+        private void ChargerRemplirInventaire(List<InventaireLigne> contenuInventaireDansDbTemp)
         {
             /**Chaque liste correspond aux colonnes suivantes :
              *  Index
+             *  Type
                 Marque
                 Nom
                 Annee
@@ -302,13 +307,12 @@ namespace FranceInformatiqueInventaire
                 Commentaire
             **/
             dgv_Inventaire.Rows.Clear();
-            var (list0, list1, list2, list3, list4, list5, list6, list7, list8) = contenuInventaireDansDbTemp;
-            for (int i = 0; i < list1.Count(); i++)
+            for (int i = 0; i < contenuInventaireDansDbTemp.Count(); i++)
             {
-                dgv_Inventaire.Rows.Add(list0[i], list1[i], list2[i], list3[i], list4[i], null, list6[i], list7[i], list8[i]);
-                if (list5[i] != -1f)
+                dgv_Inventaire.Rows.Add(contenuInventaireDansDbTemp[i].id, contenuInventaireDansDbTemp[i].type, contenuInventaireDansDbTemp[i].marque, contenuInventaireDansDbTemp[i].nom, contenuInventaireDansDbTemp[i].annee, null, contenuInventaireDansDbTemp[i].dateEntree, contenuInventaireDansDbTemp[i].dateSortie, contenuInventaireDansDbTemp[i].commentaire);
+                if (contenuInventaireDansDbTemp[i].prix != -1f)
                 {
-                    dgv_Inventaire.Rows[i].Cells[5].Value = list5[i];
+                    dgv_Inventaire.Rows[i].Cells[5].Value = contenuInventaireDansDbTemp[i].prix;
                 }
             }
         }
@@ -316,26 +320,26 @@ namespace FranceInformatiqueInventaire
         /// <summary>
         ///  Charge la listBox Marque à partir du fichier chargé.
         /// </summary>
-        /// <param name="marques">Liste str qui contient les marques.</param>
-        private void ChargerRemplirMarque(List<string> marques)
+        /// <param name="marques">Liste InventaireMarque à charger.</param>
+        private void ChargerRemplirMarque(List<InventaireMarque> marques)
         {
             lb_Marque.Items.Clear();
             for (int i = 0; i < marques.Count; i++)
             {
-                lb_Marque.Items.Add(marques[i]);
+                lb_Marque.Items.Add(marques[i].nom);
             }
         }
 
         /// <summary>
         ///  Charge la listBox Type à partir du fichier chargé.
         /// </summary>
-        /// <param name="types">Liste str qui contient les types.</param>
-        private void ChargerRemplirType(List<string> types)
+        /// <param name="types">Liste InventaireType à charger.</param>
+        private void ChargerRemplirType(List<InventaireType> types)
         {
             lb_Type.Items.Clear();
             for (int i = 0; i < types.Count; i++)
             {
-                lb_Type.Items.Add(types[i]);
+                lb_Type.Items.Add(types[i].nom);
             }
         }
 
@@ -368,55 +372,59 @@ namespace FranceInformatiqueInventaire
         /// <summary>
         ///  Récupère les valeurs du dataGridView actuelle, pour pouvoir les sauvegarder dans un fichier.
         /// </summary>
-        /// <returns>Retourne un ValueTuple qui correspond aux lignes de chaque colonne.</returns>
-        public (List<int>, List<string>, List<string>, List<string>, List<string>, List<float>, List<string>, List<string>, List<string>) RecupererListesActuelleDgvInventaire()
+        /// <returns>Retourne une liste de type InventaireLigne.</returns>
+        public List<InventaireLigne> RecupererInventaireActuelle()
         {
-            List<int> listeId = new List<int> { };
-            List<string> listeType = new List<string> { };
-            List<string> listeMarque = new List<string> { };
-            List<string> listeNom = new List<string> { };
-            List<string> listeAnnee = new List<string> { };
-            List<float> listePrix = new List<float> { };
-            List<string> listeDateEntree = new List<string> { };
-            List<string> listeDateSortie = new List<string> { };
-            List<string> listeCommentaire = new List<string> { };
+            List<InventaireLigne> inventaireLignes = new List<InventaireLigne> { };
+            int id;
+            string type;
+            string marque;
+            string nom;
+            string annee;
+            float prix;
+            string dateEntree;
+            string dateSortie;
+            string commentaire;
             dgv_Inventaire.Enabled = false;
             for (int i = 0; i < dgv_Inventaire.Rows.Count; i++)
             {
-                listeId.Add((int)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[0].Value, 0));
-                listeType.Add((string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[1].Value, 1));
-                listeMarque.Add((string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[2].Value, 2));
-                listeNom.Add((string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[3].Value, 3));
-                listeAnnee.Add((string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[4].Value, 4));
+                id = (int)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[0].Value, 0);
+                type = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[1].Value, 1);
+                marque = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[2].Value, 2);
+                nom = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[3].Value, 3);
+                annee = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[4].Value, 4);
                 if (dgv_Inventaire.Rows[i].Cells[5].Value != null && dgv_Inventaire.Rows[i].Cells[5].Value != "")
                 {
                     string value = dgv_Inventaire.Rows[i].Cells[5].Value.ToString();
                     object t = GetCellValueOuDefaultValue(value, 5);
-                    listePrix.Add((float)(t));
+                    prix = (float)(t);
                 }
                 else
                 {
-                    listePrix.Add(-1);
+                    prix = -1;
                 }
 
-                listeDateEntree.Add((string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[6].Value, 6));
-                listeDateSortie.Add((string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[7].Value, 7));
-                listeCommentaire.Add((string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[8].Value, 8));
+                dateEntree = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[6].Value, 6);
+                dateSortie = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[7].Value, 7);
+                commentaire = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells[8].Value, 8);
+                InventaireLigne nouvelleLigne = new InventaireLigne(id, type, marque, nom, annee, prix, dateEntree, dateSortie, commentaire);
+                inventaireLignes.Add(nouvelleLigne);
             }
             dgv_Inventaire.Enabled = true;
-            return (listeId, listeType, listeMarque, listeNom, listeAnnee, listePrix, listeDateEntree, listeDateSortie, listeCommentaire);
+            return inventaireLignes;
         }
 
         /// <summary>
         ///  Récupère les valeurs de la listBox Marque actuelle, pour pouvoir les sauvegarder dans un fichier.
         /// </summary>
-        /// <returns>Retourne une liste str qui correspond aux marques actuelles.</returns>
-        public List<string> RecupererMarquesActuelle()
+        /// <returns>Retourne une liste de type de la classe métier Marque qui correspond aux marques actuelles.</returns>
+        public List<InventaireMarque> RecupererMarquesActuelle()
         {
-            List<string> marques = new List<string>();
+            List<InventaireMarque> marques = new List<InventaireMarque>();
             for (int i = 0; i < lb_Marque.Items.Count; i++)
             {
-                marques.Add(lb_Marque.Items[i].ToString() ?? "");
+                InventaireMarque nouvelleMarque = new InventaireMarque(lb_Marque.Items[i].ToString() ?? "");
+                marques.Add(nouvelleMarque);
             }
             return marques;
         }
@@ -425,12 +433,13 @@ namespace FranceInformatiqueInventaire
         ///  Récupère les valeurs de la listBox Type actuelle, pour pouvoir les sauvegarder dans un fichier.
         /// </summary>
         /// <returns>Retourne une liste str qui correspond aux types actuelles.</returns>
-        public List<string> RecupererTypesActuelle()
+        public List<InventaireType> RecupererTypesActuelle()
         {
-            List<string> types = new List<string>();
+            List<InventaireType> types = new List<InventaireType>();
             for (int i = 0; i < lb_Type.Items.Count; i++)
             {
-                types.Add(lb_Type.Items[i].ToString() ?? "");
+                InventaireType nouveauType = new InventaireType(lb_Type.Items[i].ToString() ?? "");
+                types.Add(nouveauType);
             }
             return types;
         }
@@ -545,29 +554,11 @@ namespace FranceInformatiqueInventaire
         {
             if (tabControl_Inventaire.SelectedIndex != 0)
             {
-                btn_SupprimerLigneInventaire.Visible = false;
-                btn_AjouterLigneInventaire.Visible = false;
-                btn_InsererLigneInventaire.Visible = false;
-                btn_CopierLigneInventaire.Visible = false;
-                btn_CollerLigneInventaire.Visible = false;
-                btn_CouperLigneInventaire.Visible = false;
-                btn_ViderLigneInventaire.Visible = false;
-                toolStripSeparator2.Visible = false;
-                btn_Sauvegarder.Visible = false;
-                btn_SauvegarderSous.Visible = false;
+                DefinirVisibiliteToolStrip(visibiliteToolstrip.CACHEAVECFOND);
             }
             else if (tabControl_Inventaire.SelectedIndex == 0)
             {
-                btn_SupprimerLigneInventaire.Visible = true;
-                btn_AjouterLigneInventaire.Visible = true;
-                btn_InsererLigneInventaire.Visible = true;
-                btn_CopierLigneInventaire.Visible = true;
-                btn_CollerLigneInventaire.Visible = true;
-                btn_CouperLigneInventaire.Visible = true;
-                btn_ViderLigneInventaire.Visible = true;
-                toolStripSeparator2.Visible = true;
-                btn_Sauvegarder.Visible = true;
-                btn_SauvegarderSous.Visible = true;
+                DefinirVisibiliteToolStrip(visibiliteToolstrip.MODIFDGV);
             }
             switch (tabControl_Inventaire.SelectedIndex)
             {
@@ -593,6 +584,46 @@ namespace FranceInformatiqueInventaire
                     cb_FiltreRecherche.Visible = false;
                     lbl_Filtre.Visible = false;
                     break;
+            }
+        }
+
+        private void DefinirVisibiliteToolStrip(visibiliteToolstrip visibilite, bool inclureBtnsEnregistrer = false)
+        {
+            switch (visibilite)
+            {
+                case visibiliteToolstrip.VISIBLE:
+                    ts_Inventaire.Visible = true;
+                    break;
+                case visibiliteToolstrip.CACHE:
+                    ts_Inventaire.Visible = false;
+                    break;
+                case visibiliteToolstrip.CACHEAVECFOND:
+                    btn_SupprimerLigneInventaire.Visible = false;
+                    btn_AjouterLigneInventaire.Visible = false;
+                    btn_InsererLigneInventaire.Visible = false;
+                    btn_CopierLigneInventaire.Visible = false;
+                    btn_CollerLigneInventaire.Visible = false;
+                    btn_CouperLigneInventaire.Visible = false;
+                    btn_ViderLigneInventaire.Visible = false;
+                    toolStripSeparator2.Visible = false;
+                    break;
+                case visibiliteToolstrip.MODIFDGV:
+                    btn_SupprimerLigneInventaire.Visible = true;
+                    btn_AjouterLigneInventaire.Visible = true;
+                    btn_InsererLigneInventaire.Visible = true;
+                    btn_CopierLigneInventaire.Visible = true;
+                    btn_CollerLigneInventaire.Visible = true;
+                    btn_CouperLigneInventaire.Visible = true;
+                    btn_ViderLigneInventaire.Visible = true;
+                    toolStripSeparator2.Visible = true;
+                    btn_Sauvegarder.Visible = true;
+                    btn_SauvegarderSous.Visible = true;
+                    break;
+            }
+            if (visibilite != visibiliteToolstrip.VISIBLE && inclureBtnsEnregistrer) 
+            {
+                btn_Sauvegarder.Visible = false;
+                btn_SauvegarderSous.Visible = false;
             }
         }
 
@@ -803,19 +834,28 @@ namespace FranceInformatiqueInventaire
         /// </summary>
         private void txt_RechercheInventaire_TextChanged(object sender, EventArgs e)
         {
-            switch (tabControl_Inventaire.SelectedIndex)
+            if (tabControl_Onglets.SelectedIndex == 0)
             {
-                case 0:
-                    gestionControlleurRef.RechercherInventaire(txt_RechercheInventaire.Text);
-                    break;
-                case 1:
-                    gestionControlleurRef.RechercherMarque(txt_RechercheInventaire.Text);
-                    break;
-                case 2:
-                    gestionControlleurRef.RechercherType(txt_RechercheInventaire.Text);
-                    break;
+                switch (tabControl_Inventaire.SelectedIndex)
+                {
+                    case 0:
+                        gestionControlleurRef.RechercherInventaire(txt_RechercheInventaire.Text);
+                        break;
+                    case 1:
+                        gestionControlleurRef.RechercherMarque(txt_RechercheInventaire.Text);
+                        break;
+                    case 2:
+                        gestionControlleurRef.RechercherType(txt_RechercheInventaire.Text);
+                        break;
+                }
+            }
+            else if (tabControl_Onglets.SelectedIndex == 1)
+            {
+                gestionControlleurRef.RechercherFacture(txt_RechercheInventaire.Text);
             }
         }
+        
+
 
         /// <summary>
         ///  Permet de sauvegarder dans la variable "inventaireRowsCharge" l'inventaire, cette procédure est nécessaire dans la recherche dans l'inventaire car à chaque recherche on "vide" la dataGridView, il faut donc la re-remplir pour refaire une recherche.
@@ -863,13 +903,22 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Arrete la recherche et lance l'ajout d'une ligne à l'inventaire.
+        ///  Arrete la recherche et lance l'ajout d'une ligne à l'inventaire ou aux factures.
         /// </summary>
         private void btn_AjouterLigneInventaire_Click_1(object sender, EventArgs e)
         {
-            cb_FiltreRecherche.SelectedIndex = 0;
-            txt_RechercheInventaire.Text = "";
-            AjouterLigneInventaire();
+            if(tabControl_Onglets.SelectedIndex == 0)
+            {
+                cb_FiltreRecherche.SelectedIndex = 0;
+                txt_RechercheInventaire.Text = "";
+                AjouterLigneInventaire();
+            }
+            else if(tabControl_Onglets.SelectedIndex == 1)
+            {
+                cb_FiltreRecherche.SelectedIndex = 0;
+                txt_RechercheInventaire.Text = "";
+                AjouterLigneFacture();
+            }
         }
 
         /// <summary>
@@ -1121,12 +1170,12 @@ namespace FranceInformatiqueInventaire
 
         private void btn_AjoutFacture_Click(object sender, EventArgs e)
         {
-            listBox_Factures.Items.Add(txt_FactureAjout.Text);
+
         }
 
         private void listBox_Factures_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listBox_Factures.SelectedIndex != -1)
+            if (0 != -1)
             {
                 btn_ModifFacture.Enabled = true;
                 btn_SupprFacture.Enabled = true;
@@ -1152,10 +1201,11 @@ namespace FranceInformatiqueInventaire
 
         private void btn_SupprFacture_Click(object sender, EventArgs e)
         {
+            tlp_Facture.ColumnStyles[1] = new ColumnStyle(SizeType.Percent, 0.001F);
             DialogResult result = MessageBox.Show("Êtes vous sur de supprimer cette facture ?", "Confirmation", MessageBoxButtons.YesNo);
             if (result == DialogResult.Yes)
             {
-                listBox_Factures.Items.RemoveAt(listBox_Factures.SelectedIndex);
+
             }
         }
 
@@ -1163,7 +1213,42 @@ namespace FranceInformatiqueInventaire
         {
             if (e.KeyCode == Keys.Escape)
             {
-                listBox_Factures.SelectedIndex = -1;
+
+            }
+        }
+
+        private void tabControl_Onglets_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl_Onglets.SelectedIndex == 0)
+            {
+                tabControl_Inventaire_Selecting(null, null);
+            }
+            else if(tabControl_Onglets.SelectedIndex == 1)
+            {
+                DefinirVisibiliteToolStrip(visibiliteToolstrip.MODIFDGV);
+                txt_RechercheInventaire.PlaceholderText = "Rechercher dans les factures";
+            }
+        }
+
+        /// <summary>
+        ///  Ajoute une ligne dans la dataGridView facture et sauvegarde ses lignes temporairement dans une collection.
+        /// </summary>
+        private void AjouterLigneFacture()
+        {
+            dgv_Facture.Sort(dgv_Facture.Columns[0], ListSortDirection.Ascending);
+            dgv_Facture.Rows.Add();
+            DefinirFactureRowsCharge();
+        }
+
+        /// <summary>
+        ///  Permet de sauvegarder dans la variable "factureRowsCharge" les factures, cette procédure est nécessaire dans la recherche dans la facture car à chaque recherche on "vide" la dataGridView, il faut donc la re-remplir pour refaire une recherche.
+        /// </summary>
+        public void DefinirFactureRowsCharge()
+        {
+            factureRowsCharge.Clear();
+            foreach (DataGridViewRow row in dgv_Facture.Rows)
+            {
+                factureRowsCharge.Add(row);
             }
         }
     }

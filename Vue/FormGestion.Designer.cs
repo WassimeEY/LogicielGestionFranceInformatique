@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormGestion));
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             menuStrip1 = new MenuStrip();
             testToolStripMenuItem = new ToolStripMenuItem();
             TSMenuItem_Fichier_Nouveau = new ToolStripMenuItem();
@@ -94,8 +95,13 @@
             btn_SupprimerType = new Button();
             btn_AjouterType = new Button();
             OngletFactureNette = new TabPage();
-            tableLayoutPanel4 = new TableLayoutPanel();
-            listBox_Factures = new ListBox();
+            tlp_Facture = new TableLayoutPanel();
+            dgv_Facture = new DataGridView();
+            dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn5 = new DataGridViewTextBoxColumn();
+            dataGridViewComboBoxColumn2 = new DataGridViewComboBoxColumn();
+            dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
             tableLayoutPanel5 = new TableLayoutPanel();
             txt_FactureTotalHT = new TextBox();
             btn_SupprFacture = new Button();
@@ -124,7 +130,8 @@
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             OngletFactureNette.SuspendLayout();
-            tableLayoutPanel4.SuspendLayout();
+            tlp_Facture.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgv_Facture).BeginInit();
             tableLayoutPanel5.SuspendLayout();
             tableLayoutPanel6.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -498,6 +505,7 @@
             tabControl_Onglets.SelectedIndex = 0;
             tabControl_Onglets.Size = new Size(1038, 290);
             tabControl_Onglets.TabIndex = 12;
+            tabControl_Onglets.SelectedIndexChanged += tabControl_Onglets_SelectedIndexChanged;
             // 
             // OngletInventaire
             // 
@@ -820,7 +828,7 @@
             // OngletFactureNette
             // 
             OngletFactureNette.BackColor = Color.FromArgb(48, 50, 54);
-            OngletFactureNette.Controls.Add(tableLayoutPanel4);
+            OngletFactureNette.Controls.Add(tlp_Facture);
             OngletFactureNette.Location = new Point(4, 24);
             OngletFactureNette.Name = "OngletFactureNette";
             OngletFactureNette.Padding = new Padding(3);
@@ -828,34 +836,81 @@
             OngletFactureNette.TabIndex = 1;
             OngletFactureNette.Text = "Facture nette de charges";
             // 
-            // tableLayoutPanel4
+            // tlp_Facture
             // 
-            tableLayoutPanel4.ColumnCount = 2;
-            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel4.Controls.Add(listBox_Factures, 0, 0);
-            tableLayoutPanel4.Controls.Add(tableLayoutPanel5, 1, 0);
-            tableLayoutPanel4.Dock = DockStyle.Fill;
-            tableLayoutPanel4.ForeColor = Color.FromArgb(48, 50, 54);
-            tableLayoutPanel4.Location = new Point(3, 3);
-            tableLayoutPanel4.Name = "tableLayoutPanel4";
-            tableLayoutPanel4.RowCount = 1;
-            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel4.Size = new Size(1024, 256);
-            tableLayoutPanel4.TabIndex = 6;
+            tlp_Facture.ColumnCount = 2;
+            tlp_Facture.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlp_Facture.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlp_Facture.Controls.Add(dgv_Facture, 0, 0);
+            tlp_Facture.Controls.Add(tableLayoutPanel5, 1, 0);
+            tlp_Facture.Dock = DockStyle.Fill;
+            tlp_Facture.ForeColor = Color.FromArgb(48, 50, 54);
+            tlp_Facture.Location = new Point(3, 3);
+            tlp_Facture.Name = "tlp_Facture";
+            tlp_Facture.RowCount = 1;
+            tlp_Facture.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlp_Facture.Size = new Size(1024, 256);
+            tlp_Facture.TabIndex = 6;
             // 
-            // listBox_Factures
+            // dgv_Facture
             // 
-            listBox_Factures.Dock = DockStyle.Fill;
-            listBox_Factures.FormattingEnabled = true;
-            listBox_Factures.ItemHeight = 15;
-            listBox_Factures.Items.AddRange(new object[] { "F2400044" });
-            listBox_Factures.Location = new Point(3, 3);
-            listBox_Factures.Name = "listBox_Factures";
-            listBox_Factures.Size = new Size(506, 250);
-            listBox_Factures.TabIndex = 1;
-            listBox_Factures.SelectedIndexChanged += listBox_Factures_SelectedIndexChanged;
-            listBox_Factures.KeyDown += listBox_Factures_KeyDown;
+            dgv_Facture.AllowUserToAddRows = false;
+            dgv_Facture.AllowUserToDeleteRows = false;
+            dgv_Facture.BackgroundColor = SystemColors.ControlDarkDark;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = SystemColors.Control;
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle2.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            dgv_Facture.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dgv_Facture.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgv_Facture.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn5, dataGridViewComboBoxColumn2, dataGridViewTextBoxColumn7 });
+            dgv_Facture.Dock = DockStyle.Fill;
+            dgv_Facture.EditMode = DataGridViewEditMode.EditOnEnter;
+            dgv_Facture.GridColor = Color.FromArgb(64, 64, 64);
+            dgv_Facture.Location = new Point(3, 3);
+            dgv_Facture.Name = "dgv_Facture";
+            dgv_Facture.RowHeadersWidth = 20;
+            dgv_Facture.RowTemplate.Height = 25;
+            dgv_Facture.Size = new Size(506, 250);
+            dgv_Facture.TabIndex = 3;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            dataGridViewTextBoxColumn1.HeaderText = " ID";
+            dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            dataGridViewTextBoxColumn1.ReadOnly = true;
+            dataGridViewTextBoxColumn1.Width = 40;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            dataGridViewTextBoxColumn2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn2.HeaderText = "Nom";
+            dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            // 
+            // dataGridViewTextBoxColumn5
+            // 
+            dataGridViewTextBoxColumn5.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn5.HeaderText = "Date";
+            dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            // 
+            // dataGridViewComboBoxColumn2
+            // 
+            dataGridViewComboBoxColumn2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewComboBoxColumn2.HeaderText = "Prestation";
+            dataGridViewComboBoxColumn2.Items.AddRange(new object[] { "Vente de produit", "Service main d'oeuvre" });
+            dataGridViewComboBoxColumn2.MaxDropDownItems = 100;
+            dataGridViewComboBoxColumn2.Name = "dataGridViewComboBoxColumn2";
+            dataGridViewComboBoxColumn2.Resizable = DataGridViewTriState.True;
+            dataGridViewComboBoxColumn2.SortMode = DataGridViewColumnSortMode.Automatic;
+            // 
+            // dataGridViewTextBoxColumn7
+            // 
+            dataGridViewTextBoxColumn7.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewTextBoxColumn7.HeaderText = "Commentaire";
+            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
             // 
             // tableLayoutPanel5
             // 
@@ -894,7 +949,6 @@
             // btn_SupprFacture
             // 
             btn_SupprFacture.Dock = DockStyle.Fill;
-            btn_SupprFacture.Enabled = false;
             btn_SupprFacture.ForeColor = Color.FromArgb(48, 50, 54);
             btn_SupprFacture.Location = new Point(3, 193);
             btn_SupprFacture.Name = "btn_SupprFacture";
@@ -1028,7 +1082,8 @@
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
             OngletFactureNette.ResumeLayout(false);
-            tableLayoutPanel4.ResumeLayout(false);
+            tlp_Facture.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgv_Facture).EndInit();
             tableLayoutPanel5.ResumeLayout(false);
             tableLayoutPanel5.PerformLayout();
             tableLayoutPanel6.ResumeLayout(false);
@@ -1105,8 +1160,7 @@
         private TabControl tabControl_Onglets;
         private TabPage OngletInventaire;
         private TabPage OngletFactureNette;
-        private TableLayoutPanel tableLayoutPanel4;
-        private ListBox listBox_Factures;
+        private TableLayoutPanel tlp_Facture;
         private TableLayoutPanel tableLayoutPanel5;
         private TextBox txt_FactureAjout;
         private Button btn_AjoutFacture;
@@ -1116,5 +1170,11 @@
         private TableLayoutPanel tableLayoutPanel6;
         private ComboBox comboBox1;
         private Label label1;
+        private DataGridView dgv_Facture;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
+        private DataGridViewComboBoxColumn dataGridViewComboBoxColumn2;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
     }
 }

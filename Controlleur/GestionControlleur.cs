@@ -1,4 +1,4 @@
-﻿using FranceInformatiqueInventaire.bddmanager;
+﻿using FranceInformatiqueInventaire.dal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,11 +15,13 @@ namespace FranceInformatiqueInventaire.Controlleur
     {
         private FormGestion formGestionRef;
         private DataGridView dgv_Inventaire;
+        private DataGridView dgv_Facture;
         private TextBox txt_RechercheInventaire;
         private ToolStripButton btn_CollerLigneInventaire;
         BddManager bddManagerRef;
         ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder;
         private List<DataGridViewRow> inventaireRowsCharge;
+        private List<DataGridViewRow> factureRowsCharge;
         private List<DataGridViewRow> rowsCopiee = new List<DataGridViewRow>();
         private ComboBox cb_FiltreRecherche;
         private ListBox lb_Marque;
@@ -28,7 +30,7 @@ namespace FranceInformatiqueInventaire.Controlleur
         private List<string> typesCharge = new List<string>();
         private bool couperLignes;
 
-        public GestionControlleur(FormGestion formGestionRef, DataGridView dgv_Inventaire, TextBox txt_RechercheInventaire, ToolStripButton btn_CollerLigneInventaire, BddManager bddManagerRef, ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder, List<DataGridViewRow> inventaireRowsCharge, List<DataGridViewRow> rowsCopiee, ComboBox cb_FiltreRecherche, ListBox lb_Marque, ListBox lb_Type, List<string> marquesCharge, List<string> typesCharge, bool couperLignes)
+        public GestionControlleur(FormGestion formGestionRef, DataGridView dgv_Inventaire, TextBox txt_RechercheInventaire, ToolStripButton btn_CollerLigneInventaire, BddManager bddManagerRef, ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder, List<DataGridViewRow> inventaireRowsCharge, List<DataGridViewRow> rowsCopiee, ComboBox cb_FiltreRecherche, ListBox lb_Marque, ListBox lb_Type, List<string> marquesCharge, List<string> typesCharge, bool couperLignes, DataGridView dgv_Facture, List<DataGridViewRow>  factureRowsCharge)
         {
             this.formGestionRef = formGestionRef;
             this.dgv_Inventaire = dgv_Inventaire;
@@ -44,6 +46,8 @@ namespace FranceInformatiqueInventaire.Controlleur
             this.marquesCharge = marquesCharge;
             this.typesCharge = typesCharge;
             this.couperLignes = couperLignes;
+            this.dgv_Facture = dgv_Facture;
+            this.factureRowsCharge = factureRowsCharge;
         }
 
         /// <summary>
@@ -374,6 +378,69 @@ namespace FranceInformatiqueInventaire.Controlleur
                 {
                     dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[e].Value = "";
                 }
+            }
+        }
+
+        /// <summary>
+        ///  Permet de rechercher dans les factures en supprimant les rows de la dataGridView facture qui ne contiennent pas l'élément recherché, on parcours chaque colonne ou une colonne spécifique selon le filtre choisi.
+        /// </summary>
+        /// <param name="texteARechercher">Le texte qui sera recherché dans les cellules.</param>
+        public void RechercherFacture(string texteARechercher)
+        {
+            texteARechercher = texteARechercher.ToLower();
+            bool trouverTexteDansRow = false;
+            dgv_Facture.Rows.Clear();
+            foreach (DataGridViewRow row in factureRowsCharge)
+            {
+                dgv_Facture.Rows.Add(row);
+            }
+            List<int> indexsRowASupprimer = new List<int>();
+            for (int i = 0; i < dgv_Facture.Rows.Count; i++)
+            {
+                int filtreSelectedIndex = cb_FiltreRecherche.SelectedIndex;
+                if (filtreSelectedIndex > 0)
+                {
+                    DataGridViewCell cell = dgv_Facture.Rows[i].Cells[filtreSelectedIndex];
+                    if (!(cell.Value == null))
+                    {
+                        string cellText = (cell.Value.ToString()) ?? "";
+                        cellText = cellText.ToLower();
+                        if (cellText.Contains(texteARechercher))
+                        {
+                            trouverTexteDansRow = true;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int e = 0; e < dgv_Facture.Rows[i].Cells.Count; e++)
+                    {
+                        DataGridViewCell cell = dgv_Facture.Rows[i].Cells[e];
+                        if (!(cell.Value == null))
+                        {
+                            string cellText = (cell.Value.ToString()) ?? "";
+                            cellText = cellText.ToLower();
+                            if (cellText.Contains(texteARechercher))
+                            {
+                                trouverTexteDansRow = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!trouverTexteDansRow)
+                {
+                    if (!(indexsRowASupprimer.Contains(i)))
+                    {
+                        indexsRowASupprimer.Insert(0, i);
+                    }
+                }
+                trouverTexteDansRow = false;
+            }
+            foreach (int i in indexsRowASupprimer)
+            {
+                dgv_Facture.Rows.RemoveAt(i);
             }
         }
     }
