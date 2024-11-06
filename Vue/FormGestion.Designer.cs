@@ -48,19 +48,19 @@
             TSMenuItem_Preferences_Theme_CouleurS = new ToolStripMenuItem();
             TSMenuItem_Preferences_Theme_CouleurT = new ToolStripMenuItem();
             lbl_RechercheInventaire = new Label();
-            txt_RechercheInventaire = new TextBox();
+            txt_Recherche = new TextBox();
             tlp_Bas = new TableLayoutPanel();
             tlp_Haut = new TableLayoutPanel();
             cb_FiltreRecherche = new ComboBox();
             lbl_Filtre = new Label();
             ts_Inventaire = new ToolStrip();
-            btn_AjouterLigneInventaire = new ToolStripButton();
-            btn_SupprimerLigneInventaire = new ToolStripButton();
-            btn_ViderLigneInventaire = new ToolStripButton();
-            btn_InsererLigneInventaire = new ToolStripButton();
-            btn_CopierLigneInventaire = new ToolStripButton();
-            btn_CouperLigneInventaire = new ToolStripButton();
-            btn_CollerLigneInventaire = new ToolStripButton();
+            btn_AjouterLigne = new ToolStripButton();
+            btn_SupprimerLigne = new ToolStripButton();
+            btn_ViderLigne = new ToolStripButton();
+            btn_InsererLigne = new ToolStripButton();
+            btn_CopierLigne = new ToolStripButton();
+            btn_CouperLigne = new ToolStripButton();
+            btn_CollerLigne = new ToolStripButton();
             toolStripSeparator2 = new ToolStripSeparator();
             btn_Sauvegarder = new ToolStripButton();
             btn_SauvegarderSous = new ToolStripButton();
@@ -71,7 +71,7 @@
             tabControl_Inventaire = new TabControl();
             tab_Inventaire = new TabPage();
             dgv_Inventaire = new DataGridView();
-            Index = new DataGridViewTextBoxColumn();
+            IndexInventaire = new DataGridViewTextBoxColumn();
             Type = new DataGridViewComboBoxColumn();
             Marque = new DataGridViewComboBoxColumn();
             Nom = new DataGridViewTextBoxColumn();
@@ -97,11 +97,11 @@
             OngletFactureNette = new TabPage();
             tlp_Facture = new TableLayoutPanel();
             dgv_Facture = new DataGridView();
-            dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn5 = new DataGridViewTextBoxColumn();
-            dataGridViewComboBoxColumn2 = new DataGridViewComboBoxColumn();
-            dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
+            IndexFacture = new DataGridViewTextBoxColumn();
+            NomFacture = new DataGridViewTextBoxColumn();
+            DateFacture = new DataGridViewTextBoxColumn();
+            PrestationFacture = new DataGridViewComboBoxColumn();
+            CommentaireFacture = new DataGridViewTextBoxColumn();
             tableLayoutPanel5 = new TableLayoutPanel();
             txt_FactureTotalHT = new TextBox();
             btn_SupprFacture = new Button();
@@ -278,17 +278,17 @@
             lbl_RechercheInventaire.Text = "Recherche";
             lbl_RechercheInventaire.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // txt_RechercheInventaire
+            // txt_Recherche
             // 
-            txt_RechercheInventaire.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            txt_RechercheInventaire.BackColor = SystemColors.Control;
-            txt_RechercheInventaire.ForeColor = SystemColors.WindowText;
-            txt_RechercheInventaire.Location = new Point(619, 3);
-            txt_RechercheInventaire.Name = "txt_RechercheInventaire";
-            txt_RechercheInventaire.PlaceholderText = "Rechercher dans l'inventaire";
-            txt_RechercheInventaire.Size = new Size(195, 23);
-            txt_RechercheInventaire.TabIndex = 6;
-            txt_RechercheInventaire.TextChanged += txt_RechercheInventaire_TextChanged;
+            txt_Recherche.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            txt_Recherche.BackColor = SystemColors.Control;
+            txt_Recherche.ForeColor = SystemColors.WindowText;
+            txt_Recherche.Location = new Point(619, 3);
+            txt_Recherche.Name = "txt_Recherche";
+            txt_Recherche.PlaceholderText = "Rechercher dans l'inventaire";
+            txt_Recherche.Size = new Size(195, 23);
+            txt_Recherche.TabIndex = 6;
+            txt_Recherche.TextChanged += txt_RechercheInventaire_TextChanged;
             // 
             // tlp_Bas
             // 
@@ -312,7 +312,7 @@
             tlp_Haut.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 19.26961F));
             tlp_Haut.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 4.535149F));
             tlp_Haut.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 17.03434F));
-            tlp_Haut.Controls.Add(txt_RechercheInventaire, 2, 0);
+            tlp_Haut.Controls.Add(txt_Recherche, 2, 0);
             tlp_Haut.Controls.Add(lbl_RechercheInventaire, 1, 0);
             tlp_Haut.Controls.Add(cb_FiltreRecherche, 4, 0);
             tlp_Haut.Controls.Add(lbl_Filtre, 3, 0);
@@ -355,88 +355,88 @@
             // 
             ts_Inventaire.BackColor = Color.FromArgb(73, 82, 97);
             ts_Inventaire.Dock = DockStyle.Fill;
-            ts_Inventaire.Items.AddRange(new ToolStripItem[] { btn_AjouterLigneInventaire, btn_SupprimerLigneInventaire, btn_ViderLigneInventaire, btn_InsererLigneInventaire, btn_CopierLigneInventaire, btn_CouperLigneInventaire, btn_CollerLigneInventaire, toolStripSeparator2, btn_Sauvegarder, btn_SauvegarderSous });
+            ts_Inventaire.Items.AddRange(new ToolStripItem[] { btn_AjouterLigne, btn_SupprimerLigne, btn_ViderLigne, btn_InsererLigne, btn_CopierLigne, btn_CouperLigne, btn_CollerLigne, toolStripSeparator2, btn_Sauvegarder, btn_SauvegarderSous });
             ts_Inventaire.Location = new Point(0, 0);
             ts_Inventaire.Name = "ts_Inventaire";
             ts_Inventaire.Size = new Size(534, 29);
             ts_Inventaire.TabIndex = 10;
             ts_Inventaire.Text = "toolStrip1";
             // 
-            // btn_AjouterLigneInventaire
+            // btn_AjouterLigne
             // 
-            btn_AjouterLigneInventaire.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_AjouterLigneInventaire.Image = (Image)resources.GetObject("btn_AjouterLigneInventaire.Image");
-            btn_AjouterLigneInventaire.ImageTransparentColor = Color.Magenta;
-            btn_AjouterLigneInventaire.Name = "btn_AjouterLigneInventaire";
-            btn_AjouterLigneInventaire.Size = new Size(23, 26);
-            btn_AjouterLigneInventaire.Text = "Ajouter une ligne";
-            btn_AjouterLigneInventaire.Click += btn_AjouterLigneInventaire_Click_1;
+            btn_AjouterLigne.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            btn_AjouterLigne.Image = (Image)resources.GetObject("btn_AjouterLigne.Image");
+            btn_AjouterLigne.ImageTransparentColor = Color.Magenta;
+            btn_AjouterLigne.Name = "btn_AjouterLigne";
+            btn_AjouterLigne.Size = new Size(23, 26);
+            btn_AjouterLigne.Text = "Ajouter une ligne";
+            btn_AjouterLigne.Click += btn_AjouterLigneInventaire_Click_1;
             // 
-            // btn_SupprimerLigneInventaire
+            // btn_SupprimerLigne
             // 
-            btn_SupprimerLigneInventaire.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_SupprimerLigneInventaire.Enabled = false;
-            btn_SupprimerLigneInventaire.Image = Properties.Resources.Delete;
-            btn_SupprimerLigneInventaire.ImageTransparentColor = Color.Magenta;
-            btn_SupprimerLigneInventaire.Name = "btn_SupprimerLigneInventaire";
-            btn_SupprimerLigneInventaire.Size = new Size(23, 26);
-            btn_SupprimerLigneInventaire.Text = "Supprimer";
-            btn_SupprimerLigneInventaire.Click += btn_SupprimerLigneInventaire_Click_1;
+            btn_SupprimerLigne.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            btn_SupprimerLigne.Enabled = false;
+            btn_SupprimerLigne.Image = Properties.Resources.Delete;
+            btn_SupprimerLigne.ImageTransparentColor = Color.Magenta;
+            btn_SupprimerLigne.Name = "btn_SupprimerLigne";
+            btn_SupprimerLigne.Size = new Size(23, 26);
+            btn_SupprimerLigne.Text = "Supprimer";
+            btn_SupprimerLigne.Click += btn_SupprimerLigneInventaire_Click_1;
             // 
-            // btn_ViderLigneInventaire
+            // btn_ViderLigne
             // 
-            btn_ViderLigneInventaire.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_ViderLigneInventaire.Enabled = false;
-            btn_ViderLigneInventaire.Image = Properties.Resources.Clear;
-            btn_ViderLigneInventaire.ImageTransparentColor = Color.Magenta;
-            btn_ViderLigneInventaire.Name = "btn_ViderLigneInventaire";
-            btn_ViderLigneInventaire.Size = new Size(23, 26);
-            btn_ViderLigneInventaire.Text = "Vider";
-            btn_ViderLigneInventaire.Click += btn_ViderLigneInventaire_Click;
+            btn_ViderLigne.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            btn_ViderLigne.Enabled = false;
+            btn_ViderLigne.Image = Properties.Resources.Clear;
+            btn_ViderLigne.ImageTransparentColor = Color.Magenta;
+            btn_ViderLigne.Name = "btn_ViderLigne";
+            btn_ViderLigne.Size = new Size(23, 26);
+            btn_ViderLigne.Text = "Vider";
+            btn_ViderLigne.Click += btn_ViderLigneInventaire_Click;
             // 
-            // btn_InsererLigneInventaire
+            // btn_InsererLigne
             // 
-            btn_InsererLigneInventaire.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_InsererLigneInventaire.Enabled = false;
-            btn_InsererLigneInventaire.Image = Properties.Resources.Insert;
-            btn_InsererLigneInventaire.ImageTransparentColor = Color.Magenta;
-            btn_InsererLigneInventaire.Name = "btn_InsererLigneInventaire";
-            btn_InsererLigneInventaire.Size = new Size(23, 26);
-            btn_InsererLigneInventaire.Text = "Insérer une ligne";
-            btn_InsererLigneInventaire.Click += btn_InsererLigneInventaire_Click;
+            btn_InsererLigne.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            btn_InsererLigne.Enabled = false;
+            btn_InsererLigne.Image = Properties.Resources.Insert;
+            btn_InsererLigne.ImageTransparentColor = Color.Magenta;
+            btn_InsererLigne.Name = "btn_InsererLigne";
+            btn_InsererLigne.Size = new Size(23, 26);
+            btn_InsererLigne.Text = "Insérer une ligne";
+            btn_InsererLigne.Click += btn_InsererLigneInventaire_Click;
             // 
-            // btn_CopierLigneInventaire
+            // btn_CopierLigne
             // 
-            btn_CopierLigneInventaire.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_CopierLigneInventaire.Enabled = false;
-            btn_CopierLigneInventaire.Image = Properties.Resources.Copy1;
-            btn_CopierLigneInventaire.ImageTransparentColor = Color.Magenta;
-            btn_CopierLigneInventaire.Name = "btn_CopierLigneInventaire";
-            btn_CopierLigneInventaire.Size = new Size(23, 26);
-            btn_CopierLigneInventaire.Text = "Copier";
-            btn_CopierLigneInventaire.Click += btn_CopierLigneInventaire_Click;
+            btn_CopierLigne.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            btn_CopierLigne.Enabled = false;
+            btn_CopierLigne.Image = Properties.Resources.Copy1;
+            btn_CopierLigne.ImageTransparentColor = Color.Magenta;
+            btn_CopierLigne.Name = "btn_CopierLigne";
+            btn_CopierLigne.Size = new Size(23, 26);
+            btn_CopierLigne.Text = "Copier";
+            btn_CopierLigne.Click += btn_CopierLigneInventaire_Click;
             // 
-            // btn_CouperLigneInventaire
+            // btn_CouperLigne
             // 
-            btn_CouperLigneInventaire.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_CouperLigneInventaire.Enabled = false;
-            btn_CouperLigneInventaire.Image = Properties.Resources.Cut1;
-            btn_CouperLigneInventaire.ImageTransparentColor = Color.Magenta;
-            btn_CouperLigneInventaire.Name = "btn_CouperLigneInventaire";
-            btn_CouperLigneInventaire.Size = new Size(23, 26);
-            btn_CouperLigneInventaire.Text = "Couper";
-            btn_CouperLigneInventaire.Click += btn_CouperLigneInventaire_Click;
+            btn_CouperLigne.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            btn_CouperLigne.Enabled = false;
+            btn_CouperLigne.Image = Properties.Resources.Cut1;
+            btn_CouperLigne.ImageTransparentColor = Color.Magenta;
+            btn_CouperLigne.Name = "btn_CouperLigne";
+            btn_CouperLigne.Size = new Size(23, 26);
+            btn_CouperLigne.Text = "Couper";
+            btn_CouperLigne.Click += btn_CouperLigneInventaire_Click;
             // 
-            // btn_CollerLigneInventaire
+            // btn_CollerLigne
             // 
-            btn_CollerLigneInventaire.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_CollerLigneInventaire.Enabled = false;
-            btn_CollerLigneInventaire.Image = Properties.Resources.Paste;
-            btn_CollerLigneInventaire.ImageTransparentColor = Color.Magenta;
-            btn_CollerLigneInventaire.Name = "btn_CollerLigneInventaire";
-            btn_CollerLigneInventaire.Size = new Size(23, 26);
-            btn_CollerLigneInventaire.Text = "Coller";
-            btn_CollerLigneInventaire.Click += btn_CollerLigneInventaire_Click;
+            btn_CollerLigne.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            btn_CollerLigne.Enabled = false;
+            btn_CollerLigne.Image = Properties.Resources.Paste;
+            btn_CollerLigne.ImageTransparentColor = Color.Magenta;
+            btn_CollerLigne.Name = "btn_CollerLigne";
+            btn_CollerLigne.Size = new Size(23, 26);
+            btn_CollerLigne.Text = "Coller";
+            btn_CollerLigne.Click += btn_CollerLigneInventaire_Click;
             // 
             // toolStripSeparator2
             // 
@@ -560,7 +560,7 @@
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             dgv_Inventaire.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dgv_Inventaire.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Inventaire.Columns.AddRange(new DataGridViewColumn[] { Index, Type, Marque, Nom, Annee, Prix, DateEntree, DateSortie, Commentaire });
+            dgv_Inventaire.Columns.AddRange(new DataGridViewColumn[] { IndexInventaire, Type, Marque, Nom, Annee, Prix, DateEntree, DateSortie, Commentaire });
             dgv_Inventaire.Dock = DockStyle.Fill;
             dgv_Inventaire.EditMode = DataGridViewEditMode.EditOnEnter;
             dgv_Inventaire.GridColor = Color.FromArgb(64, 64, 64);
@@ -578,12 +578,12 @@
             dgv_Inventaire.SelectionChanged += dgv_Inventaire_SelectionChanged;
             dgv_Inventaire.KeyDown += dgv_Inventaire_KeyDown;
             // 
-            // Index
+            // IndexInventaire
             // 
-            Index.HeaderText = " ID";
-            Index.Name = "Index";
-            Index.ReadOnly = true;
-            Index.Width = 40;
+            IndexInventaire.HeaderText = " ID";
+            IndexInventaire.Name = "IndexInventaire";
+            IndexInventaire.ReadOnly = true;
+            IndexInventaire.Width = 40;
             // 
             // Type
             // 
@@ -866,7 +866,7 @@
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
             dgv_Facture.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             dgv_Facture.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Facture.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn5, dataGridViewComboBoxColumn2, dataGridViewTextBoxColumn7 });
+            dgv_Facture.Columns.AddRange(new DataGridViewColumn[] { IndexFacture, NomFacture, DateFacture, PrestationFacture, CommentaireFacture });
             dgv_Facture.Dock = DockStyle.Fill;
             dgv_Facture.EditMode = DataGridViewEditMode.EditOnEnter;
             dgv_Facture.GridColor = Color.FromArgb(64, 64, 64);
@@ -876,41 +876,49 @@
             dgv_Facture.RowTemplate.Height = 25;
             dgv_Facture.Size = new Size(506, 250);
             dgv_Facture.TabIndex = 3;
+            dgv_Facture.CellClick += dgv_Facture_CellClick;
+            dgv_Facture.CellDoubleClick += dgv_Facture_CellDoubleClick;
+            dgv_Facture.CellValueChanged += dgv_Facture_CellValueChanged;
+            dgv_Facture.RowsAdded += dgv_Facture_RowsAdded;
+            dgv_Facture.RowsRemoved += dgv_Facture_RowsRemoved;
+            dgv_Facture.Scroll += dgv_Facture_Scroll;
+            dgv_Facture.SelectionChanged += dgv_Facture_SelectionChanged;
+            dgv_Facture.KeyDown += dgv_Facture_KeyDown;
             // 
-            // dataGridViewTextBoxColumn1
+            // IndexFacture
             // 
-            dataGridViewTextBoxColumn1.HeaderText = " ID";
-            dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            dataGridViewTextBoxColumn1.ReadOnly = true;
-            dataGridViewTextBoxColumn1.Width = 40;
+            IndexFacture.HeaderText = " ID";
+            IndexFacture.Name = "IndexFacture";
+            IndexFacture.ReadOnly = true;
+            IndexFacture.Width = 40;
             // 
-            // dataGridViewTextBoxColumn2
+            // NomFacture
             // 
-            dataGridViewTextBoxColumn2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn2.HeaderText = "Nom";
-            dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            NomFacture.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            NomFacture.HeaderText = "Nom";
+            NomFacture.Name = "NomFacture";
             // 
-            // dataGridViewTextBoxColumn5
+            // DateFacture
             // 
-            dataGridViewTextBoxColumn5.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn5.HeaderText = "Date";
-            dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            DateFacture.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            DateFacture.HeaderText = "Date";
+            DateFacture.Name = "DateFacture";
             // 
-            // dataGridViewComboBoxColumn2
+            // PrestationFacture
             // 
-            dataGridViewComboBoxColumn2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewComboBoxColumn2.HeaderText = "Prestation";
-            dataGridViewComboBoxColumn2.Items.AddRange(new object[] { "Vente de produit", "Service main d'oeuvre" });
-            dataGridViewComboBoxColumn2.MaxDropDownItems = 100;
-            dataGridViewComboBoxColumn2.Name = "dataGridViewComboBoxColumn2";
-            dataGridViewComboBoxColumn2.Resizable = DataGridViewTriState.True;
-            dataGridViewComboBoxColumn2.SortMode = DataGridViewColumnSortMode.Automatic;
+            PrestationFacture.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            PrestationFacture.HeaderText = "Prestation";
+            PrestationFacture.Items.AddRange(new object[] { "Vente de produit", "Service main d'oeuvre" });
+            PrestationFacture.MaxDropDownItems = 100;
+            PrestationFacture.Name = "PrestationFacture";
+            PrestationFacture.Resizable = DataGridViewTriState.True;
+            PrestationFacture.SortMode = DataGridViewColumnSortMode.Automatic;
             // 
-            // dataGridViewTextBoxColumn7
+            // CommentaireFacture
             // 
-            dataGridViewTextBoxColumn7.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewTextBoxColumn7.HeaderText = "Commentaire";
-            dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            CommentaireFacture.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            CommentaireFacture.HeaderText = "Commentaire";
+            CommentaireFacture.Name = "CommentaireFacture";
             // 
             // tableLayoutPanel5
             // 
@@ -1102,7 +1110,7 @@
         private ToolStripMenuItem TSMenuItem_Preferences_ConfirmationVider;
         private ToolStripMenuItem TSMenuItem_Preferences_ConfirmationSuppression;
         private TableLayoutPanel tlp_Bas;
-        private TextBox txt_RechercheInventaire;
+        private TextBox txt_Recherche;
         private Label lbl_RechercheInventaire;
         private TableLayoutPanel tlp_Haut;
         private TableLayoutPanel tlp_Main;
@@ -1112,24 +1120,15 @@
         private ComboBox cb_FiltreRecherche;
         private Label lbl_Filtre;
         private ToolStrip ts_Inventaire;
-        private ToolStripButton btn_AjouterLigneInventaire;
-        private ToolStripButton btn_SupprimerLigneInventaire;
-        private ToolStripButton btn_InsererLigneInventaire;
-        private ToolStripButton btn_CopierLigneInventaire;
-        private ToolStripButton btn_CollerLigneInventaire;
+        private ToolStripButton btn_AjouterLigne;
+        private ToolStripButton btn_SupprimerLigne;
+        private ToolStripButton btn_InsererLigne;
+        private ToolStripButton btn_CopierLigne;
+        private ToolStripButton btn_CollerLigne;
         private TableLayoutPanel tableLayoutPanel3;
         private TabControl tabControl_Inventaire;
         private TabPage tab_Inventaire;
         private DataGridView dgv_Inventaire;
-        private DataGridViewTextBoxColumn Index;
-        private DataGridViewComboBoxColumn Type;
-        private DataGridViewComboBoxColumn Marque;
-        private DataGridViewTextBoxColumn Nom;
-        private DataGridViewTextBoxColumn Annee;
-        private DataGridViewTextBoxColumn Prix;
-        private DataGridViewTextBoxColumn DateEntree;
-        private DataGridViewTextBoxColumn DateSortie;
-        private DataGridViewTextBoxColumn Commentaire;
         private TabPage tab_Marque;
         private TableLayoutPanel tlp_MarqueMain;
         private ListBox lb_Marque;
@@ -1152,8 +1151,8 @@
         private ToolStripMenuItem TSMenuItem_Preferences_Theme_CouleurS;
         private ToolStripMenuItem TSMenuItem_Preferences_Theme_CouleurT;
         private ColorDialog colorDialog1;
-        private ToolStripButton btn_CouperLigneInventaire;
-        private ToolStripButton btn_ViderLigneInventaire;
+        private ToolStripButton btn_CouperLigne;
+        private ToolStripButton btn_ViderLigne;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton btn_Sauvegarder;
         private ToolStripButton btn_SauvegarderSous;
@@ -1171,10 +1170,19 @@
         private ComboBox comboBox1;
         private Label label1;
         private DataGridView dgv_Facture;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
-        private DataGridViewComboBoxColumn dataGridViewComboBoxColumn2;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
+        private DataGridViewTextBoxColumn IndexInventaire;
+        private DataGridViewComboBoxColumn Type;
+        private DataGridViewComboBoxColumn Marque;
+        private DataGridViewTextBoxColumn Nom;
+        private DataGridViewTextBoxColumn Annee;
+        private DataGridViewTextBoxColumn Prix;
+        private DataGridViewTextBoxColumn DateEntree;
+        private DataGridViewTextBoxColumn DateSortie;
+        private DataGridViewTextBoxColumn Commentaire;
+        private DataGridViewTextBoxColumn IndexFacture;
+        private DataGridViewTextBoxColumn NomFacture;
+        private DataGridViewTextBoxColumn DateFacture;
+        private DataGridViewComboBoxColumn PrestationFacture;
+        private DataGridViewTextBoxColumn CommentaireFacture;
     }
 }

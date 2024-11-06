@@ -16,30 +16,31 @@ namespace FranceInformatiqueInventaire.Controlleur
         private FormGestion formGestionRef;
         private DataGridView dgv_Inventaire;
         private DataGridView dgv_Facture;
-        private TextBox txt_RechercheInventaire;
-        private ToolStripButton btn_CollerLigneInventaire;
+        private TextBox txt_Recherche;
+        private ToolStripButton btn_CollerLigne;
         BddManager bddManagerRef;
         ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder;
         private List<DataGridViewRow> inventaireRowsCharge;
         private List<DataGridViewRow> factureRowsCharge;
-        private List<DataGridViewRow> rowsCopiee = new List<DataGridViewRow>();
+        private List<DataGridViewRow> rowsInventaireCopiee = new List<DataGridViewRow>();
         private ComboBox cb_FiltreRecherche;
         private ListBox lb_Marque;
         private ListBox lb_Type;
         private List<string> marquesCharge = new List<string>();
         private List<string> typesCharge = new List<string>();
         private bool couperLignes;
+        private List<DataGridViewRow> rowsFactureCopiee = new List<DataGridViewRow>(); 
 
-        public GestionControlleur(FormGestion formGestionRef, DataGridView dgv_Inventaire, TextBox txt_RechercheInventaire, ToolStripButton btn_CollerLigneInventaire, BddManager bddManagerRef, ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder, List<DataGridViewRow> inventaireRowsCharge, List<DataGridViewRow> rowsCopiee, ComboBox cb_FiltreRecherche, ListBox lb_Marque, ListBox lb_Type, List<string> marquesCharge, List<string> typesCharge, bool couperLignes, DataGridView dgv_Facture, List<DataGridViewRow>  factureRowsCharge)
+        public GestionControlleur(FormGestion formGestionRef, DataGridView dgv_Inventaire, TextBox txt_Recherche, ToolStripButton btn_CollerLigne, BddManager bddManagerRef, ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder, List<DataGridViewRow> inventaireRowsCharge, List<DataGridViewRow> rowsInventaireCopiee, ComboBox cb_FiltreRecherche, ListBox lb_Marque, ListBox lb_Type, List<string> marquesCharge, List<string> typesCharge, bool couperLignes, DataGridView dgv_Facture, List<DataGridViewRow>  factureRowsCharge, List<DataGridViewRow> rowsFactureCopiee)
         {
             this.formGestionRef = formGestionRef;
             this.dgv_Inventaire = dgv_Inventaire;
-            this.txt_RechercheInventaire = txt_RechercheInventaire;
-            this.btn_CollerLigneInventaire = btn_CollerLigneInventaire;
+            this.txt_Recherche = txt_Recherche;
+            this.btn_CollerLigne = btn_CollerLigne;
             this.bddManagerRef = bddManagerRef;
             this.TSMenuItem_Fichier_Sauvegarder = TSMenuItem_Fichier_Sauvegarder;
             this.inventaireRowsCharge = inventaireRowsCharge;
-            this.rowsCopiee = rowsCopiee;
+            this.rowsInventaireCopiee = rowsInventaireCopiee;
             this.cb_FiltreRecherche = cb_FiltreRecherche;
             this.lb_Marque = lb_Marque;
             this.lb_Type = lb_Type;
@@ -48,6 +49,7 @@ namespace FranceInformatiqueInventaire.Controlleur
             this.couperLignes = couperLignes;
             this.dgv_Facture = dgv_Facture;
             this.factureRowsCharge = factureRowsCharge;
+            this.rowsFactureCopiee = rowsFactureCopiee;
         }
 
         /// <summary>
@@ -57,12 +59,12 @@ namespace FranceInformatiqueInventaire.Controlleur
         {
             DataGridViewSelectedRowCollection savedSelectedRows;
             savedSelectedRows = dgv_Inventaire.SelectedRows;
-            txt_RechercheInventaire.Text = "";
+            txt_Recherche.Text = "";
             foreach (DataGridViewRow ligne in savedSelectedRows)
             {
                 dgv_Inventaire.Rows.Remove(ligne);
             }
-            formGestionRef.ActualiserIndexLignes();
+            formGestionRef.ActualiserIndexLignesInventaire();
             formGestionRef.DefinirInventaireRowsCharge();
         }
 
@@ -272,7 +274,7 @@ namespace FranceInformatiqueInventaire.Controlleur
         /// </summary>
         public void InsererLigneInventaire(int indexRowSelected)
         {
-            txt_RechercheInventaire.Text = "";
+            txt_Recherche.Text = "";
             if (formGestionRef.insertionAvant)
             {
                 dgv_Inventaire.Rows.Insert(indexRowSelected, "");
@@ -284,11 +286,11 @@ namespace FranceInformatiqueInventaire.Controlleur
         }
 
         /// <summary>
-        ///  Permet de récupérer et copier les rows séléctionnées dans la liste de DataGridViewRow "rowsCopiee".
+        ///  Permet de récupérer et copier les rows séléctionnées dans la liste de DataGridViewRow "rowsInventaireCopiee".
         /// </summary>
         public void CopierLignesInventaire()
         {
-            rowsCopiee.Clear();
+            rowsInventaireCopiee.Clear();
             int premierIndex = dgv_Inventaire.SelectedRows[(dgv_Inventaire.SelectedRows.Count - 1)].Index;
             int dernierIndex = dgv_Inventaire.SelectedRows[0].Index;
             DataGridViewRow nouvelleRow = new DataGridViewRow();
@@ -301,10 +303,10 @@ namespace FranceInformatiqueInventaire.Controlleur
                 {
                     nouvelleRow.Cells[e].Value = dgv_Inventaire.Rows[row.Index].Cells[e].Value;
                 }
-                rowsCopiee.Insert(0, nouvelleRow);
+                rowsInventaireCopiee.Insert(0, nouvelleRow);
             }
-            txt_RechercheInventaire.Text = "";
-            btn_CollerLigneInventaire.Enabled = true;
+            txt_Recherche.Text = "";
+            btn_CollerLigne.Enabled = true;
         }
 
         /// <summary>
@@ -314,16 +316,16 @@ namespace FranceInformatiqueInventaire.Controlleur
         {
             int indexPremierRowSelected = dgv_Inventaire.SelectedRows[(dgv_Inventaire.SelectedRows.Count - 1)].Index;
             int indexDernierRowSelected = dgv_Inventaire.SelectedRows[0].Index;
-            txt_RechercheInventaire.Text = "";
+            txt_Recherche.Text = "";
             List<DataGridViewRow> rowsAremplacer = new List<DataGridViewRow>();
             int e = 0;
-            if (((indexDernierRowSelected - indexPremierRowSelected) + 1) == rowsCopiee.Count || dgv_Inventaire.SelectedRows.Count == 1)
+            if (((indexDernierRowSelected - indexPremierRowSelected) + 1) == rowsInventaireCopiee.Count || dgv_Inventaire.SelectedRows.Count == 1)
             {
                 for (int i = (dgv_Inventaire.SelectedRows.Count - 1); i > -1; i--)
                 {
                     for (int k = 1; k < 9; k++)
                     {
-                        dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[k].Value = rowsCopiee[e].Cells[k].Value;
+                        dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[k].Value = rowsInventaireCopiee[e].Cells[k].Value;
                     }
                     e++;
                 }
@@ -332,22 +334,22 @@ namespace FranceInformatiqueInventaire.Controlleur
             {
                 for (int i = (dgv_Inventaire.SelectedRows.Count - 1); i > -1; i--)
                 {
-                    if (dgv_Inventaire.SelectedRows[i].Index <= (dgv_Inventaire.Rows.Count - 1) && e < rowsCopiee.Count)
+                    if (dgv_Inventaire.SelectedRows[i].Index <= (dgv_Inventaire.Rows.Count - 1) && e < rowsInventaireCopiee.Count)
                     {
                         for (int k = 1; k < 9; k++)
                         {
-                            dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[k].Value = rowsCopiee[e].Cells[k].Value;
+                            dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[k].Value = rowsInventaireCopiee[e].Cells[k].Value;
                         }
                         e++;
                     }
                 }
             }
-            formGestionRef.ActualiserIndexLignes();
+            formGestionRef.ActualiserIndexLignesInventaire();
             if (couperLignes)
             {
                 couperLignes = false;
-                btn_CollerLigneInventaire.Enabled = false;
-                rowsCopiee.Clear();
+                btn_CollerLigne.Enabled = false;
+                rowsInventaireCopiee.Clear();
             }
         }
 
@@ -443,5 +445,136 @@ namespace FranceInformatiqueInventaire.Controlleur
                 dgv_Facture.Rows.RemoveAt(i);
             }
         }
+
+        /// <summary>
+        ///  Supprime des lignes de la dataGriwView facture en mettant à jour certaines choses par la même occasion.
+        /// </summary>
+        public void SupprimerLignesFacture()
+        {
+            DataGridViewSelectedRowCollection savedSelectedRows;
+            savedSelectedRows = dgv_Facture.SelectedRows;
+            txt_Recherche.Text = "";
+            foreach (DataGridViewRow ligne in savedSelectedRows)
+            {
+                dgv_Facture.Rows.Remove(ligne);
+            }
+            formGestionRef.ActualiserIndexLignesFacture();
+            formGestionRef.DefinirFactureRowsCharge();
+        }
+
+        /// <summary>
+        ///  Permet d'insérer une ligne dans la dataGridView facture, insérer avant ou après la ligne séléctionné selon l'option choisi.
+        /// </summary>
+        public void InsererLigneFacture(int indexRowSelected)
+        {
+            txt_Recherche.Text = "";
+            if (formGestionRef.insertionAvant)
+            {
+                dgv_Facture.Rows.Insert(indexRowSelected, "");
+            }
+            else
+            {
+                dgv_Facture.Rows.Insert(indexRowSelected + 1, "");
+            }
+        }
+
+        /// <summary>
+        ///  Permet de récupérer et copier les rows séléctionnées dans la liste de DataGridViewRow "rowsFactureCopiee".
+        /// </summary>
+        public void CopierLignesFacture()
+        {
+            rowsFactureCopiee.Clear();
+            int premierIndex = dgv_Facture.SelectedRows[(dgv_Facture.SelectedRows.Count - 1)].Index;
+            int dernierIndex = dgv_Facture.SelectedRows[0].Index;
+            DataGridViewRow nouvelleRow = new DataGridViewRow();
+            nouvelleRow = (DataGridViewRow)dgv_Facture.Rows[0].Clone();
+            foreach (DataGridViewRow row in dgv_Facture.SelectedRows)
+            {
+                nouvelleRow = new DataGridViewRow();
+                nouvelleRow = (DataGridViewRow)dgv_Facture.Rows[0].Clone();
+                for (int e = 1; e < 5; e++)
+                {
+                    nouvelleRow.Cells[e].Value = dgv_Facture.Rows[row.Index].Cells[e].Value;
+                }
+                rowsFactureCopiee.Insert(0, nouvelleRow);
+            }
+            txt_Recherche.Text = "";
+            btn_CollerLigne.Enabled = true;
+        }
+
+        /// <summary>
+        ///  Permet de coller les lignes copiées dans les lignes actuellement séléctionnées.
+        /// </summary>
+        public void CollerLignesFacture()
+        {
+            int indexPremierRowSelected = dgv_Facture.SelectedRows[(dgv_Facture.SelectedRows.Count - 1)].Index;
+            int indexDernierRowSelected = dgv_Facture.SelectedRows[0].Index;
+            txt_Recherche.Text = "";
+            List<DataGridViewRow> rowsAremplacer = new List<DataGridViewRow>();
+            int e = 0;
+            if (((indexDernierRowSelected - indexPremierRowSelected) + 1) == rowsFactureCopiee.Count || dgv_Facture.SelectedRows.Count == 1)
+            {
+                for (int i = (dgv_Facture.SelectedRows.Count - 1); i > -1; i--)
+                {
+                    for (int k = 1; k < 5; k++)
+                    {
+                        dgv_Facture.Rows[dgv_Facture.SelectedRows[i].Index].Cells[k].Value = rowsFactureCopiee[e].Cells[k].Value;
+                    }
+                    e++;
+                }
+            }
+            else
+            {
+                for (int i = (dgv_Facture.SelectedRows.Count - 1); i > -1; i--)
+                {
+                    if (dgv_Facture.SelectedRows[i].Index <= (dgv_Facture.Rows.Count - 1) && e < rowsFactureCopiee.Count)
+                    {
+                        for (int k = 1; k < 5; k++)
+                        {
+                            dgv_Facture.Rows[dgv_Facture.SelectedRows[i].Index].Cells[k].Value = rowsFactureCopiee[e].Cells[k].Value;
+                        }
+                        e++;
+                    }
+                }
+            }
+            formGestionRef.ActualiserIndexLignesFacture();
+            if (couperLignes)
+            {
+                couperLignes = false;
+                btn_CollerLigne.Enabled = false;
+                rowsFactureCopiee.Clear();
+            }
+        }
+
+        /// <summary>
+        ///  Permet de "couper" donc copier puis vider les rows copiées, on peut coller une fois après la coupe.
+        /// </summary>
+        public void CouperLignesFacture()
+        {
+            CopierLignesFacture();
+            for (int i = (dgv_Facture.SelectedRows.Count - 1); i > -1; i--)
+            {
+                for (int e = 1; e < 5; e++)
+                {
+                    dgv_Facture.Rows[dgv_Facture.SelectedRows[i].Index].Cells[e].Value = "";
+                }
+            }
+            couperLignes = true;
+        }
+
+        /// <summary>
+        ///  Permet de "clear" les rows séléctionnées, de les vider.
+        /// </summary>
+        public void ViderLignesFacture()
+        {
+            for (int i = (dgv_Facture.SelectedRows.Count - 1); i > -1; i--)
+            {
+                for (int e = 1; e < 5; e++)
+                {
+                    dgv_Facture.Rows[dgv_Facture.SelectedRows[i].Index].Cells[e].Value = "";
+                }
+            }
+        }
+
     }
 }
