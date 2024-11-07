@@ -51,16 +51,22 @@ namespace FranceInformatiqueInventaire
         {
             InitializeComponent();
             bddManagerRef = BddManager.GetInstance(this);
-            //dtpEntree :
+            //dtpInventaireEntree :
             dgv_Inventaire.Controls.Add(dtpInventaireDateEntree);
             dtpInventaireDateEntree.Visible = false;
             dtpInventaireDateEntree.Format = DateTimePickerFormat.Custom;
             dtpInventaireDateEntree.TextChanged += new EventHandler(dtpInventaireDateEntree_TextChange);
-            //dtpSortie :
+            //dtpInventaireSortie :
             dgv_Inventaire.Controls.Add(dtpInventaireDateSortie);
             dtpInventaireDateSortie.Visible = false;
             dtpInventaireDateSortie.Format = DateTimePickerFormat.Custom; ;
             dtpInventaireDateSortie.TextChanged += new EventHandler(dtpInventaireDateSortie_TextChange);
+            //dtpFacture :
+            dgv_Facture.Controls.Add(dtpFactureDate);
+            dtpFactureDate.Visible = false;
+            dtpFactureDate.Format = DateTimePickerFormat.Custom;
+            dtpFactureDate.TextChanged += new EventHandler(dtpFactureDate_TextChange);
+
             //Preferences :
             TSMenuItem_Preferences_InsertionLigne_Cb.SelectedIndex = 0;
 
@@ -69,10 +75,7 @@ namespace FranceInformatiqueInventaire
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            for (int i = 1; i < dgv_Inventaire.Columns.Count; i++)
-            {
-                cb_FiltreRecherche.Items.Add(dgv_Inventaire.Columns[i].HeaderText);
-            }
+            ChangerContenuCbFiltre(ongletPrincipal.INVENTAIRE);
             cb_FiltreRecherche.SelectedIndex = 0;
             this.ActiveControl = null;
             InitialiserCouleurThemeMenuItem();
@@ -317,7 +320,7 @@ namespace FranceInformatiqueInventaire
                 dgv_Inventaire.Rows.Add(contenuInventaireDansDbTemp[i].id, contenuInventaireDansDbTemp[i].type, contenuInventaireDansDbTemp[i].marque, contenuInventaireDansDbTemp[i].nom, contenuInventaireDansDbTemp[i].annee, null, contenuInventaireDansDbTemp[i].dateEntree, contenuInventaireDansDbTemp[i].dateSortie, contenuInventaireDansDbTemp[i].commentaire);
                 if (contenuInventaireDansDbTemp[i].prix != -1f)
                 {
-                    dgv_Inventaire.Rows[i].Cells[5].Value = contenuInventaireDansDbTemp[i].prix;
+                    dgv_Inventaire.Rows[i].Cells[5].Value = contenuInventaireDansDbTemp[i].prix + "€";
                 }
             }
         }
@@ -364,6 +367,7 @@ namespace FranceInformatiqueInventaire
                 switch (nomColonne)
                 {
                     case "Prix":
+                        celluleValeur = ((string)celluleValeur).Replace("€", "");
                         if (float.TryParse(celluleValeur.ToString(), out float floatValue))
                         {
                             return floatValue;
@@ -569,13 +573,7 @@ namespace FranceInformatiqueInventaire
             {
                 case 0:
                     txt_Recherche.PlaceholderText = "Rechercher dans l'inventaire";
-                    cb_FiltreRecherche.Items.Clear();
-                    cb_FiltreRecherche.Items.Add("Pas de filtre");
-                    for (int i = 1; i < dgv_Inventaire.Columns.Count; i++)
-                    {
-                        cb_FiltreRecherche.Items.Add(dgv_Inventaire.Columns[i].HeaderText);
-                    }
-                    cb_FiltreRecherche.SelectedIndex = 0;
+                    ChangerContenuCbFiltre(ongletPrincipal.INVENTAIRE);
                     cb_FiltreRecherche.Visible = true;
                     lbl_Filtre.Visible = true;
                     break;
@@ -775,7 +773,7 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Permet d'imposer des conditions selon la colonne quand on entre des valeurs dans les cellules.
+        ///  Permet d'imposer des conditions selon la colonne quand on entre des valeurs dans les cellules de l'inventaire.
         /// </summary>
         private void dgv_Inventaire_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
         {
@@ -786,9 +784,35 @@ namespace FranceInformatiqueInventaire
                 {
                     case "Prix":
                         string cellPrixTexte = (string)(dgv_Inventaire.CurrentCell.Value ?? " ");
+                        string cellPrixTexteSansEuro = cellPrixTexte;
+                        char premierCharPrixTexteSansEuro = cellPrixTexteSansEuro[0];
+                        char dernierCharPrixTexteSansEuro = cellPrixTexteSansEuro[cellPrixTexteSansEuro.Length - 1];
+                        char caractereAvantEuro;
+                        bool virguleMalPlace = false;
+                        bool charEuroMalPlace = false;
+                        cellPrixTexteSansEuro = cellPrixTexteSansEuro.Replace("€", "");
+                        if (premierCharPrixTexteSansEuro == ',' || premierCharPrixTexteSansEuro == '.' || dernierCharPrixTexteSansEuro == ',' || dernierCharPrixTexteSansEuro == '.' || cellPrixTexteSansEuro.Count(f => f == ',') > 1 || cellPrixTexteSansEuro.Count(f => f == '.') > 1)
+                        {
+                            virguleMalPlace = true;
+                        }
+                        if (!cellPrixTexte.Contains("€"))
+                        {
+                            cellPrixTexte = cellPrixTexte + "€";
+                        }
+                        if(cellPrixTexte.IndexOf("€") == (cellPrixTexte.Length - 1))
+                        {
+                            caractereAvantEuro = cellPrixTexte[cellPrixTexte.IndexOf("€") - 1];
+                            charEuroMalPlace = !(char.IsDigit(caractereAvantEuro) && caractereAvantEuro != 0);
+                        }
+                        else
+                        {
+                            charEuroMalPlace = true;
+                        }
+                        
                         cellPrixTexte = cellPrixTexte.Replace(",", "");
                         cellPrixTexte = cellPrixTexte.Replace(".", "");
-                        if ((!cellPrixTexte.All(char.IsDigit)) || cellPrixTexte[0] == '0')
+                        cellPrixTexte = cellPrixTexte.Replace("€", "");
+                        if ((!cellPrixTexte.All(char.IsDigit)) || cellPrixTexte[0] == '0' || charEuroMalPlace || virguleMalPlace)
                         {
                             dgv_Inventaire.CurrentCell.Value = null;
                         }
@@ -796,6 +820,10 @@ namespace FranceInformatiqueInventaire
                         {
                             string actuelleText = dgv_Inventaire.CurrentCell.Value.ToString() as string ?? string.Empty;
                             dgv_Inventaire.CurrentCell.Value = actuelleText.Replace('.', ',');
+                            if (!((string)dgv_Inventaire.CurrentCell.Value).Contains("€"))
+                            {
+                                dgv_Inventaire.CurrentCell.Value = dgv_Inventaire.CurrentCell.Value + "€";
+                            }
                         }
                         break;
                     case "DateEntree":
@@ -891,12 +919,13 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Si la FormGestion est redimensionné, alors cache les dateTimePicker Entree et Sortie.
+        ///  Si la FormGestion est redimensionné, alors cache les dateTimePicker InventaireEntreeDate, InventaireSortieDate et FactureDate.
         /// </summary>
         private void Form1_Resize(object sender, EventArgs e)
         {
             dtpInventaireDateEntree.Visible = false;
             dtpInventaireDateSortie.Visible = false;
+            dtpFactureDate.Visible = false;
         }
 
         /// <summary>
@@ -1261,12 +1290,14 @@ namespace FranceInformatiqueInventaire
             ongletPrincipalActuel = (ongletPrincipal)tabControl_Onglets.SelectedIndex;
             if (ongletPrincipalActuel == ongletPrincipal.INVENTAIRE)
             {
+                ChangerContenuCbFiltre(ongletPrincipal.INVENTAIRE);
                 tabControl_Inventaire_Selecting(null, null);
                 dgv_Inventaire_SelectionChanged(null, null);
                 btn_CollerLigne.Enabled = (rowsInventaireCopiee.Count != 0);
             }
             else if (ongletPrincipalActuel == ongletPrincipal.FACTURE)
             {
+                ChangerContenuCbFiltre(ongletPrincipal.FACTURE);
                 DefinirVisibiliteToolStrip(visibiliteToolstrip.MODIFDGV);
                 txt_Recherche.PlaceholderText = "Rechercher dans les factures";
                 dgv_Facture_SelectionChanged(null, null);
@@ -1430,7 +1461,7 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Selon le nombre de ligne selectionné, définit quel bouton est activé ou non, ici pour les factures.
+        ///  Selon le nombre de ligne selectionné, définit quel bouton du toolStrip est activé ou non, ici pour les factures.
         /// </summary>
         private void dgv_Facture_SelectionChanged(object sender, EventArgs e)
         {
@@ -1457,6 +1488,74 @@ namespace FranceInformatiqueInventaire
             {
                 btn_InsererLigne.Enabled = false;
             }
+        }
+
+        /// <summary>
+        ///  Récupère la valeur de la dateTimePicker pour remplir la cellule.
+        /// </summary>
+        private void dtpFactureDate_TextChange(object? sender, EventArgs e)
+        {
+            dgv_Facture.CurrentCell.Value = dtpFactureDate.Text.ToString();
+        }
+
+        private void ChangerContenuCbFiltre(ongletPrincipal onglet, bool clear = true)
+        {
+            if (clear)
+            {
+                cb_FiltreRecherche.Items.Clear();
+            }
+            cb_FiltreRecherche.Items.Add("Pas de filtre");
+            switch (onglet)
+            {
+                case ongletPrincipal.INVENTAIRE:
+                    for (int i = 1; i < dgv_Inventaire.Columns.Count; i++)
+                    {
+                        cb_FiltreRecherche.Items.Add(dgv_Inventaire.Columns[i].HeaderText);
+                    }
+                    break;
+                case ongletPrincipal.FACTURE:
+                    for (int i = 1; i < dgv_Facture.Columns.Count; i++)
+                    {
+                        cb_FiltreRecherche.Items.Add(dgv_Facture.Columns[i].HeaderText);
+                    }
+                    break;
+            }
+            cb_FiltreRecherche.SelectedIndex = 0;
+        }
+
+        private void tabControl_Onglets_MouseClick(object sender, MouseEventArgs e)
+        {
+            RetirerFocusDeTxtRecherche();
+        }
+
+        private void ts_Inventaire_MouseClick(object sender, MouseEventArgs e)
+        {
+            RetirerFocusDeTxtRecherche();
+        }
+
+        private void lbl_RechercheInventaire_MouseClick(object sender, MouseEventArgs e)
+        {
+            RetirerFocusDeTxtRecherche();
+        }
+
+        private void menuStrip1_MouseClick(object sender, MouseEventArgs e)
+        {
+            RetirerFocusDeTxtRecherche();
+        }
+
+        private void tlp_Main_MouseClick(object sender, MouseEventArgs e)
+        {
+            RetirerFocusDeTxtRecherche();
+        }
+
+        private void tlp_Millieu_MouseClick(object sender, MouseEventArgs e)
+        {
+            RetirerFocusDeTxtRecherche();
+        }
+
+        private void RetirerFocusDeTxtRecherche()
+        {
+            lbl_RechercheInventaire.Focus();
         }
     }
 }

@@ -147,6 +147,7 @@
             menuStrip1.Size = new Size(1057, 24);
             menuStrip1.TabIndex = 2;
             menuStrip1.Text = "menuStrip1";
+            menuStrip1.MouseClick += menuStrip1_MouseClick;
             // 
             // testToolStripMenuItem
             // 
@@ -277,6 +278,7 @@
             lbl_RechercheInventaire.TabIndex = 7;
             lbl_RechercheInventaire.Text = "Recherche";
             lbl_RechercheInventaire.TextAlign = ContentAlignment.MiddleRight;
+            lbl_RechercheInventaire.MouseClick += lbl_RechercheInventaire_MouseClick;
             // 
             // txt_Recherche
             // 
@@ -361,6 +363,7 @@
             ts_Inventaire.Size = new Size(534, 29);
             ts_Inventaire.TabIndex = 10;
             ts_Inventaire.Text = "toolStrip1";
+            ts_Inventaire.MouseClick += ts_Inventaire_MouseClick;
             // 
             // btn_AjouterLigne
             // 
@@ -481,6 +484,7 @@
             tlp_Main.RowStyles.Add(new RowStyle(SizeType.Percent, 1.023173F));
             tlp_Main.Size = new Size(1050, 341);
             tlp_Main.TabIndex = 10;
+            tlp_Main.MouseClick += tlp_Main_MouseClick;
             // 
             // tlp_Millieu
             // 
@@ -494,6 +498,7 @@
             tlp_Millieu.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tlp_Millieu.Size = new Size(1044, 296);
             tlp_Millieu.TabIndex = 10;
+            tlp_Millieu.MouseClick += tlp_Millieu_MouseClick;
             // 
             // tabControl_Onglets
             // 
@@ -506,6 +511,7 @@
             tabControl_Onglets.Size = new Size(1038, 290);
             tabControl_Onglets.TabIndex = 12;
             tabControl_Onglets.SelectedIndexChanged += tabControl_Onglets_SelectedIndexChanged;
+            tabControl_Onglets.MouseClick += tabControl_Onglets_MouseClick;
             // 
             // OngletInventaire
             // 
