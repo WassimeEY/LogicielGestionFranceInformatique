@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormGestion));
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             menuStrip1 = new MenuStrip();
             testToolStripMenuItem = new ToolStripMenuItem();
             TSMenuItem_Fichier_Nouveau = new ToolStripMenuItem();
@@ -100,26 +101,26 @@
             OngletFactureNette = new TabPage();
             tabControl_FactureOnglet = new TabControl();
             TabFactures = new TabPage();
-            tlp_Facture = new TableLayoutPanel();
             dgv_Facture = new DataGridView();
             IndexFacture = new DataGridViewTextBoxColumn();
             NomFacture = new DataGridViewTextBoxColumn();
-            DateFacture = new DataGridViewTextBoxColumn();
             PrestationFacture = new DataGridViewComboBoxColumn();
+            DateFacture = new DataGridViewTextBoxColumn();
             CommentaireFacture = new DataGridViewTextBoxColumn();
             PrixHT = new DataGridViewTextBoxColumn();
             PrixTTC = new DataGridViewTextBoxColumn();
             Difference = new DataGridViewTextBoxColumn();
             tabPrestation = new TabPage();
             tableLayoutPanel5 = new TableLayoutPanel();
-            listBox2 = new ListBox();
+            lb_Prestation = new ListBox();
             tableLayoutPanel6 = new TableLayoutPanel();
-            textBox3 = new TextBox();
-            button4 = new Button();
-            button5 = new Button();
+            txt_AjoutPrestationNom = new TextBox();
+            btn_SupprPrestation = new Button();
+            btn_AjoutPrestation = new Button();
             tableLayoutPanel7 = new TableLayoutPanel();
-            textBox4 = new TextBox();
             label1 = new Label();
+            nupd_AjoutPourcentageTVA = new NumericUpDown();
+            label2 = new Label();
             OngletSitesFavoris = new TabPage();
             tableLayoutPanel8 = new TableLayoutPanel();
             listBox1 = new ListBox();
@@ -153,12 +154,12 @@
             OngletFactureNette.SuspendLayout();
             tabControl_FactureOnglet.SuspendLayout();
             TabFactures.SuspendLayout();
-            tlp_Facture.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgv_Facture).BeginInit();
             tabPrestation.SuspendLayout();
             tableLayoutPanel5.SuspendLayout();
             tableLayoutPanel6.SuspendLayout();
             tableLayoutPanel7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)nupd_AjoutPourcentageTVA).BeginInit();
             OngletSitesFavoris.SuspendLayout();
             tableLayoutPanel8.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
@@ -189,14 +190,14 @@
             // TSMenuItem_Fichier_Nouveau
             // 
             TSMenuItem_Fichier_Nouveau.Name = "TSMenuItem_Fichier_Nouveau";
-            TSMenuItem_Fichier_Nouveau.Size = new Size(166, 22);
+            TSMenuItem_Fichier_Nouveau.Size = new Size(180, 22);
             TSMenuItem_Fichier_Nouveau.Text = "Nouveau";
             TSMenuItem_Fichier_Nouveau.Click += TSMenuItem_Fichier_Nouveau_Click;
             // 
             // TSMenuItem_Fichier_Ouvrir
             // 
             TSMenuItem_Fichier_Ouvrir.Name = "TSMenuItem_Fichier_Ouvrir";
-            TSMenuItem_Fichier_Ouvrir.Size = new Size(166, 22);
+            TSMenuItem_Fichier_Ouvrir.Size = new Size(180, 22);
             TSMenuItem_Fichier_Ouvrir.Text = "Ouvrir";
             TSMenuItem_Fichier_Ouvrir.Click += TSMenuItem_Fichier_Ouvrir_Click;
             // 
@@ -204,14 +205,14 @@
             // 
             TSMenuItem_Fichier_Sauvegarder.Enabled = false;
             TSMenuItem_Fichier_Sauvegarder.Name = "TSMenuItem_Fichier_Sauvegarder";
-            TSMenuItem_Fichier_Sauvegarder.Size = new Size(166, 22);
+            TSMenuItem_Fichier_Sauvegarder.Size = new Size(180, 22);
             TSMenuItem_Fichier_Sauvegarder.Text = "Sauvegarder";
             TSMenuItem_Fichier_Sauvegarder.Click += TSMenuItem_Fichier_Sauvegarder_Click;
             // 
             // TSMenuItem_Fichier_SauvegarderSous
             // 
             TSMenuItem_Fichier_SauvegarderSous.Name = "TSMenuItem_Fichier_SauvegarderSous";
-            TSMenuItem_Fichier_SauvegarderSous.Size = new Size(166, 22);
+            TSMenuItem_Fichier_SauvegarderSous.Size = new Size(180, 22);
             TSMenuItem_Fichier_SauvegarderSous.Text = "Sauvegarder sous";
             TSMenuItem_Fichier_SauvegarderSous.Click += TSMenuItem_Fichier_SauvegarderSous_Click;
             // 
@@ -739,8 +740,9 @@
             // lb_Marque
             // 
             lb_Marque.Dock = DockStyle.Fill;
+            lb_Marque.Font = new Font("Segoe UI", 12F);
             lb_Marque.FormattingEnabled = true;
-            lb_Marque.ItemHeight = 15;
+            lb_Marque.ItemHeight = 21;
             lb_Marque.Items.AddRange(new object[] { "Asus", "Logitech", "Nividia", "MSI", "Acer", "Lenovo" });
             lb_Marque.Location = new Point(3, 3);
             lb_Marque.Name = "lb_Marque";
@@ -831,8 +833,9 @@
             // lb_Type
             // 
             lb_Type.Dock = DockStyle.Fill;
+            lb_Type.Font = new Font("Segoe UI", 12F);
             lb_Type.FormattingEnabled = true;
-            lb_Type.ItemHeight = 15;
+            lb_Type.ItemHeight = 21;
             lb_Type.Items.AddRange(new object[] { "Périphérique", "Processeur", "Pâte thermique" });
             lb_Type.Location = new Point(3, 3);
             lb_Type.Name = "lb_Type";
@@ -919,27 +922,14 @@
             // TabFactures
             // 
             TabFactures.BackColor = Color.FromArgb(48, 50, 54);
-            TabFactures.Controls.Add(tlp_Facture);
+            TabFactures.Controls.Add(dgv_Facture);
+            TabFactures.ForeColor = Color.FromArgb(48, 50, 54);
             TabFactures.Location = new Point(4, 24);
             TabFactures.Name = "TabFactures";
             TabFactures.Padding = new Padding(3);
             TabFactures.Size = new Size(1016, 209);
             TabFactures.TabIndex = 0;
             TabFactures.Text = "Facture";
-            // 
-            // tlp_Facture
-            // 
-            tlp_Facture.ColumnCount = 1;
-            tlp_Facture.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tlp_Facture.Controls.Add(dgv_Facture, 0, 0);
-            tlp_Facture.Dock = DockStyle.Fill;
-            tlp_Facture.ForeColor = Color.FromArgb(48, 50, 54);
-            tlp_Facture.Location = new Point(3, 3);
-            tlp_Facture.Name = "tlp_Facture";
-            tlp_Facture.RowCount = 1;
-            tlp_Facture.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tlp_Facture.Size = new Size(1010, 203);
-            tlp_Facture.TabIndex = 6;
             // 
             // dgv_Facture
             // 
@@ -955,7 +945,15 @@
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
             dgv_Facture.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             dgv_Facture.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Facture.Columns.AddRange(new DataGridViewColumn[] { IndexFacture, NomFacture, DateFacture, PrestationFacture, CommentaireFacture, PrixHT, PrixTTC, Difference });
+            dgv_Facture.Columns.AddRange(new DataGridViewColumn[] { IndexFacture, NomFacture, PrestationFacture, DateFacture, CommentaireFacture, PrixHT, PrixTTC, Difference });
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = SystemColors.Window;
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle3.ForeColor = Color.FromArgb(48, 50, 54);
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+            dgv_Facture.DefaultCellStyle = dataGridViewCellStyle3;
             dgv_Facture.Dock = DockStyle.Fill;
             dgv_Facture.EditMode = DataGridViewEditMode.EditOnEnter;
             dgv_Facture.GridColor = Color.FromArgb(64, 64, 64);
@@ -963,7 +961,7 @@
             dgv_Facture.Name = "dgv_Facture";
             dgv_Facture.RowHeadersWidth = 20;
             dgv_Facture.RowTemplate.Height = 25;
-            dgv_Facture.Size = new Size(1004, 197);
+            dgv_Facture.Size = new Size(1010, 203);
             dgv_Facture.TabIndex = 3;
             dgv_Facture.CellClick += dgv_Facture_CellClick;
             dgv_Facture.CellDoubleClick += dgv_Facture_CellDoubleClick;
@@ -988,12 +986,6 @@
             NomFacture.HeaderText = "Nom";
             NomFacture.Name = "NomFacture";
             // 
-            // DateFacture
-            // 
-            DateFacture.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            DateFacture.HeaderText = "Date";
-            DateFacture.Name = "DateFacture";
-            // 
             // PrestationFacture
             // 
             PrestationFacture.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -1003,6 +995,12 @@
             PrestationFacture.Name = "PrestationFacture";
             PrestationFacture.Resizable = DataGridViewTriState.True;
             PrestationFacture.SortMode = DataGridViewColumnSortMode.Automatic;
+            // 
+            // DateFacture
+            // 
+            DateFacture.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            DateFacture.HeaderText = "Date";
+            DateFacture.Name = "DateFacture";
             // 
             // CommentaireFacture
             // 
@@ -1025,7 +1023,7 @@
             // Difference
             // 
             Difference.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Difference.HeaderText = "Différence";
+            Difference.HeaderText = "Montant de la TVA";
             Difference.Name = "Difference";
             Difference.ReadOnly = true;
             // 
@@ -1033,6 +1031,7 @@
             // 
             tabPrestation.BackColor = Color.FromArgb(48, 50, 54);
             tabPrestation.Controls.Add(tableLayoutPanel5);
+            tabPrestation.ForeColor = Color.FromArgb(48, 50, 54);
             tabPrestation.Location = new Point(4, 24);
             tabPrestation.Name = "tabPrestation";
             tabPrestation.Padding = new Padding(3);
@@ -1045,7 +1044,7 @@
             tableLayoutPanel5.ColumnCount = 2;
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel5.Controls.Add(listBox2, 0, 0);
+            tableLayoutPanel5.Controls.Add(lb_Prestation, 0, 0);
             tableLayoutPanel5.Controls.Add(tableLayoutPanel6, 1, 0);
             tableLayoutPanel5.Dock = DockStyle.Fill;
             tableLayoutPanel5.Location = new Point(3, 3);
@@ -1055,24 +1054,27 @@
             tableLayoutPanel5.Size = new Size(1010, 203);
             tableLayoutPanel5.TabIndex = 6;
             // 
-            // listBox2
+            // lb_Prestation
             // 
-            listBox2.Dock = DockStyle.Fill;
-            listBox2.FormattingEnabled = true;
-            listBox2.ItemHeight = 15;
-            listBox2.Items.AddRange(new object[] { "Vente de produit (13%)", "Service main d'oeuvre (23%)" });
-            listBox2.Location = new Point(3, 3);
-            listBox2.Name = "listBox2";
-            listBox2.Size = new Size(499, 197);
-            listBox2.TabIndex = 1;
+            lb_Prestation.Dock = DockStyle.Fill;
+            lb_Prestation.Font = new Font("Segoe UI", 22F);
+            lb_Prestation.FormattingEnabled = true;
+            lb_Prestation.ItemHeight = 40;
+            lb_Prestation.Items.AddRange(new object[] { "Vente de produit (13%)", "Service main d'oeuvre (23%)" });
+            lb_Prestation.Location = new Point(3, 3);
+            lb_Prestation.Name = "lb_Prestation";
+            lb_Prestation.Size = new Size(499, 197);
+            lb_Prestation.TabIndex = 1;
+            lb_Prestation.SelectedIndexChanged += lb_Prestation_SelectedIndexChanged;
+            lb_Prestation.KeyDown += lb_Prestation_KeyDown;
             // 
             // tableLayoutPanel6
             // 
             tableLayoutPanel6.ColumnCount = 1;
             tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel6.Controls.Add(textBox3, 0, 0);
-            tableLayoutPanel6.Controls.Add(button4, 0, 3);
-            tableLayoutPanel6.Controls.Add(button5, 0, 2);
+            tableLayoutPanel6.Controls.Add(txt_AjoutPrestationNom, 0, 0);
+            tableLayoutPanel6.Controls.Add(btn_SupprPrestation, 0, 3);
+            tableLayoutPanel6.Controls.Add(btn_AjoutPrestation, 0, 2);
             tableLayoutPanel6.Controls.Add(tableLayoutPanel7, 0, 1);
             tableLayoutPanel6.Dock = DockStyle.Fill;
             tableLayoutPanel6.Location = new Point(508, 3);
@@ -1086,44 +1088,49 @@
             tableLayoutPanel6.Size = new Size(499, 197);
             tableLayoutPanel6.TabIndex = 2;
             // 
-            // textBox3
+            // txt_AjoutPrestationNom
             // 
-            textBox3.Dock = DockStyle.Fill;
-            textBox3.Location = new Point(3, 3);
-            textBox3.Name = "textBox3";
-            textBox3.PlaceholderText = "Entrer la prestation à ajouter";
-            textBox3.Size = new Size(493, 23);
-            textBox3.TabIndex = 3;
+            txt_AjoutPrestationNom.Dock = DockStyle.Fill;
+            txt_AjoutPrestationNom.Location = new Point(3, 3);
+            txt_AjoutPrestationNom.Name = "txt_AjoutPrestationNom";
+            txt_AjoutPrestationNom.PlaceholderText = "Entrer la prestation à ajouter";
+            txt_AjoutPrestationNom.Size = new Size(493, 23);
+            txt_AjoutPrestationNom.TabIndex = 3;
+            txt_AjoutPrestationNom.TextChanged += txt_AjoutPrestationNom_TextChanged;
             // 
-            // button4
+            // btn_SupprPrestation
             // 
-            button4.Dock = DockStyle.Fill;
-            button4.Enabled = false;
-            button4.Location = new Point(3, 113);
-            button4.Name = "button4";
-            button4.Size = new Size(493, 44);
-            button4.TabIndex = 6;
-            button4.Text = "Supprimer";
-            button4.UseVisualStyleBackColor = true;
+            btn_SupprPrestation.Dock = DockStyle.Fill;
+            btn_SupprPrestation.Enabled = false;
+            btn_SupprPrestation.Location = new Point(3, 113);
+            btn_SupprPrestation.Name = "btn_SupprPrestation";
+            btn_SupprPrestation.Size = new Size(493, 44);
+            btn_SupprPrestation.TabIndex = 6;
+            btn_SupprPrestation.Text = "Supprimer";
+            btn_SupprPrestation.UseVisualStyleBackColor = true;
+            btn_SupprPrestation.Click += btn_SupprPrestation_Click;
             // 
-            // button5
+            // btn_AjoutPrestation
             // 
-            button5.Dock = DockStyle.Fill;
-            button5.Enabled = false;
-            button5.Location = new Point(3, 63);
-            button5.Name = "button5";
-            button5.Size = new Size(493, 44);
-            button5.TabIndex = 2;
-            button5.Text = "Ajouter";
-            button5.UseVisualStyleBackColor = true;
+            btn_AjoutPrestation.Dock = DockStyle.Fill;
+            btn_AjoutPrestation.Enabled = false;
+            btn_AjoutPrestation.Location = new Point(3, 63);
+            btn_AjoutPrestation.Name = "btn_AjoutPrestation";
+            btn_AjoutPrestation.Size = new Size(493, 44);
+            btn_AjoutPrestation.TabIndex = 2;
+            btn_AjoutPrestation.Text = "Ajouter";
+            btn_AjoutPrestation.UseVisualStyleBackColor = true;
+            btn_AjoutPrestation.Click += btn_AjoutPrestation_Click;
             // 
             // tableLayoutPanel7
             // 
-            tableLayoutPanel7.ColumnCount = 2;
-            tableLayoutPanel7.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 95F));
-            tableLayoutPanel7.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 5F));
-            tableLayoutPanel7.Controls.Add(textBox4, 0, 0);
-            tableLayoutPanel7.Controls.Add(label1, 1, 0);
+            tableLayoutPanel7.ColumnCount = 3;
+            tableLayoutPanel7.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 11.6376228F));
+            tableLayoutPanel7.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 86.12318F));
+            tableLayoutPanel7.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 2.2392025F));
+            tableLayoutPanel7.Controls.Add(label1, 0, 0);
+            tableLayoutPanel7.Controls.Add(nupd_AjoutPourcentageTVA, 1, 0);
+            tableLayoutPanel7.Controls.Add(label2, 2, 0);
             tableLayoutPanel7.Dock = DockStyle.Fill;
             tableLayoutPanel7.Location = new Point(3, 33);
             tableLayoutPanel7.Name = "tableLayoutPanel7";
@@ -1132,24 +1139,39 @@
             tableLayoutPanel7.Size = new Size(493, 24);
             tableLayoutPanel7.TabIndex = 7;
             // 
-            // textBox4
-            // 
-            textBox4.Dock = DockStyle.Fill;
-            textBox4.Location = new Point(3, 3);
-            textBox4.Name = "textBox4";
-            textBox4.PlaceholderText = "Entrer le pourcentage";
-            textBox4.Size = new Size(462, 23);
-            textBox4.TabIndex = 8;
-            // 
             // label1
             // 
-            label1.Anchor = AnchorStyles.Left;
+            label1.Anchor = AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(471, 4);
+            label1.BackColor = Color.Transparent;
+            label1.ForeColor = Color.White;
+            label1.Location = new Point(3, 0);
             label1.Name = "label1";
-            label1.Size = new Size(17, 15);
-            label1.TabIndex = 9;
-            label1.Text = "%";
+            label1.Size = new Size(51, 24);
+            label1.TabIndex = 0;
+            label1.Text = "Pourcentage TVA";
+            // 
+            // nupd_AjoutPourcentageTVA
+            // 
+            nupd_AjoutPourcentageTVA.DecimalPlaces = 1;
+            nupd_AjoutPourcentageTVA.Dock = DockStyle.Fill;
+            nupd_AjoutPourcentageTVA.Increment = new decimal(new int[] { 1, 0, 0, 65536 });
+            nupd_AjoutPourcentageTVA.Location = new Point(60, 3);
+            nupd_AjoutPourcentageTVA.Name = "nupd_AjoutPourcentageTVA";
+            nupd_AjoutPourcentageTVA.Size = new Size(418, 23);
+            nupd_AjoutPourcentageTVA.TabIndex = 1;
+            nupd_AjoutPourcentageTVA.ValueChanged += nupd_AjoutPourcentageTVA_ValueChanged;
+            // 
+            // label2
+            // 
+            label2.Anchor = AnchorStyles.Left;
+            label2.AutoSize = true;
+            label2.ForeColor = Color.White;
+            label2.Location = new Point(484, 4);
+            label2.Name = "label2";
+            label2.Size = new Size(6, 15);
+            label2.TabIndex = 2;
+            label2.Text = "%";
             // 
             // OngletSitesFavoris
             // 
@@ -1352,7 +1374,6 @@
             OngletFactureNette.ResumeLayout(false);
             tabControl_FactureOnglet.ResumeLayout(false);
             TabFactures.ResumeLayout(false);
-            tlp_Facture.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgv_Facture).EndInit();
             tabPrestation.ResumeLayout(false);
             tableLayoutPanel5.ResumeLayout(false);
@@ -1360,6 +1381,7 @@
             tableLayoutPanel6.PerformLayout();
             tableLayoutPanel7.ResumeLayout(false);
             tableLayoutPanel7.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)nupd_AjoutPourcentageTVA).EndInit();
             OngletSitesFavoris.ResumeLayout(false);
             tableLayoutPanel8.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
@@ -1429,7 +1451,6 @@
         private TabControl tabControl_Onglets;
         private TabPage OngletInventaire;
         private TabPage OngletFactureNette;
-        private TableLayoutPanel tlp_Facture;
         private DataGridView dgv_Facture;
         private DataGridViewTextBoxColumn IndexInventaire;
         private DataGridViewComboBoxColumn Type;
@@ -1452,28 +1473,29 @@
         private Button button2;
         private Button button3;
         private TextBox textBox2;
-        private DataGridViewTextBoxColumn IndexFacture;
-        private DataGridViewTextBoxColumn NomFacture;
-        private DataGridViewTextBoxColumn DateFacture;
-        private DataGridViewComboBoxColumn PrestationFacture;
-        private DataGridViewTextBoxColumn CommentaireFacture;
-        private DataGridViewTextBoxColumn PrixHT;
-        private DataGridViewTextBoxColumn PrixTTC;
-        private DataGridViewTextBoxColumn Difference;
         private TabControl tabControl_FactureOnglet;
         private TabPage TabFactures;
         private TabPage tabPrestation;
         private TableLayoutPanel tableLayoutPanel5;
-        private ListBox listBox2;
+        private ListBox lb_Prestation;
         private TableLayoutPanel tableLayoutPanel6;
-        private TextBox textBox3;
-        private Button button4;
-        private Button button5;
+        private TextBox txt_AjoutPrestationNom;
+        private Button btn_SupprPrestation;
+        private Button btn_AjoutPrestation;
         private TableLayoutPanel tableLayoutPanel7;
-        private TextBox textBox4;
-        private Label label1;
         private TabPage OngletTableauDeBord;
         private TableLayoutPanel tableLayoutPanel3;
         private Label label_CopyrightVersion;
+        private Label label1;
+        private NumericUpDown nupd_AjoutPourcentageTVA;
+        private Label label2;
+        private DataGridViewTextBoxColumn IndexFacture;
+        private DataGridViewTextBoxColumn NomFacture;
+        private DataGridViewComboBoxColumn PrestationFacture;
+        private DataGridViewTextBoxColumn DateFacture;
+        private DataGridViewTextBoxColumn CommentaireFacture;
+        private DataGridViewTextBoxColumn PrixHT;
+        private DataGridViewTextBoxColumn PrixTTC;
+        private DataGridViewTextBoxColumn Difference;
     }
 }

@@ -26,6 +26,7 @@ namespace FranceInformatiqueInventaire
         private List<DataGridViewRow> factureRowsCharge = new List<DataGridViewRow>();
         private List<string> marquesCharge = new List<string>();
         private List<string> typesCharge = new List<string>();
+        private List<string> prestationsCharge = new List<string>();
         private bool confirmationAvantSuppression = true;
         private bool confirmationAvantVider = true;
         private BddManager bddManagerRef;
@@ -274,16 +275,24 @@ namespace FranceInformatiqueInventaire
                 if (cheminFichierOuvert != "")
                 {
                     changerFormTitre(false);
-                    ChargerRemplirInventaire(bddManagerRef.RecupererInventaireTable(texteConnexion));
+                    ChargerRemplirInventaire(bddManagerRef.RecupererTableInventaire(texteConnexion));
                     DefinirInventaireRowsCharge();
-                    ChargerRemplirMarque(bddManagerRef.RecupererMarqueTable(texteConnexion));
-                    ChargerRemplirType(bddManagerRef.RecupererTypeTable(texteConnexion));
-                    TSMenuItem_Fichier_Sauvegarder.Enabled = true;
-                    btn_Sauvegarder.Enabled = true;
-                    UpdateInventaireLignesDeColonneType();
-                    UpdateInventaireLignesDeColonneMarque();
+                    ChargerRemplirMarque(bddManagerRef.RecupererTableMarque(texteConnexion));
+                    ChargerRemplirType(bddManagerRef.RecupererTableType(texteConnexion));
+                    UpdateInventaireColonneType();
+                    UpdateInventaireColonneMarque();
                     DefinirMarqueCharge();
                     DefinirTypeCharge();
+                    if (bddManagerRef.VerifierExistanceTableFacture(texteConnexion))
+                    {
+                        ChargerRemplirFacture(bddManagerRef.RecupererTableFacture(texteConnexion));
+                        DefinirFactureRowsCharge();
+                        ChargerRemplirPrestation(bddManagerRef.RecupererTablePrestation(texteConnexion));
+                        UpdateFactureColonnePrestation();
+                        DefinirPrestationCharge();
+                    }
+                    TSMenuItem_Fichier_Sauvegarder.Enabled = true;
+                    btn_Sauvegarder.Enabled = true;
                 }
             }
         }
@@ -299,22 +308,11 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Charge toutes les lignes de la dataGridView à partir d'une liste de InventaireLigne.
+        ///  Charge toutes les lignes de la dataGridView inventaire à partir d'une liste de InventaireLigne.
         /// </summary>
         /// <param name="contenuInventaireDansDbTemp">Liste de InventaireLigne qui permet de charger toutes les lignes de chaque colonne de la dataGridView inventaire.</ param >
         private void ChargerRemplirInventaire(List<InventaireLigne> contenuInventaireDansDbTemp)
         {
-            /**Chaque liste correspond aux colonnes suivantes :
-             *  Index
-             *  Type
-                Marque
-                Nom
-                Annee
-                Prix
-                DateEntree
-                DateSortie
-                Commentaire
-            **/
             dgv_Inventaire.Rows.Clear();
             for (int i = 0; i < contenuInventaireDansDbTemp.Count(); i++)
             {
@@ -353,6 +351,44 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
+        ///  Charge toutes les lignes de la dataGridView facture à partir d'une liste de FactureLigne.
+        /// </summary>
+        /// <param name="contenuFactureDansDbTemp">Liste de FactureLigne qui permet de charger toutes les lignes de chaque colonne de la dataGridView facture.</ param >
+        private void ChargerRemplirFacture(List<FactureLigne> contenuFactureDansDbTemp)
+        {
+            dgv_Facture.Rows.Clear();
+            for (int i = 0; i < contenuFactureDansDbTemp.Count(); i++)
+            {
+                dgv_Facture.Rows.Add(contenuFactureDansDbTemp[i].id, contenuFactureDansDbTemp[i].nom, contenuFactureDansDbTemp[i].prestation, contenuFactureDansDbTemp[i].date, contenuFactureDansDbTemp[i].commentaire, null, null, null);
+                if (contenuFactureDansDbTemp[i].prixHT != -1f)
+                {
+                    dgv_Facture.Rows[i].Cells[5].Value = contenuFactureDansDbTemp[i].prixHT + "€";
+                }
+                if (contenuFactureDansDbTemp[i].prixTTC != -1f)
+                {
+                    dgv_Facture.Rows[i].Cells[6].Value = contenuFactureDansDbTemp[i].prixTTC + "€";
+                }
+                if (contenuFactureDansDbTemp[i].difference != -1f)
+                {
+                    dgv_Facture.Rows[i].Cells[7].Value = contenuFactureDansDbTemp[i].difference + "€";
+                }
+            }
+        }
+
+        /// <summary>
+        ///  Charge la listBox prestation à partir du fichier chargé.
+        /// </summary>
+        /// <param name="types">Liste FacturePrestation à charger.</param>
+        private void ChargerRemplirPrestation(List<FacturePrestation> prestations)
+        {
+            lb_Prestation.Items.Clear();
+            for (int i = 0; i < prestations.Count; i++)
+            {
+                lb_Prestation.Items.Add(prestations[i].nom + " (" + prestations[i].pourcentageTVA + "%)");
+            }
+        }
+
+        /// <summary>
         ///  Récupère la valeur de la cellule, si elle est vide alors retourne un str vide, sinon retourne simplement la valeur.
         /// </summary>
         /// <param name="celluleValeur">Valeur de la cellule.</param>
@@ -365,24 +401,22 @@ namespace FranceInformatiqueInventaire
             }
             else
             {
-                switch (nomColonne)
+                if (nomColonne.Contains("Prix") || nomColonne == "Difference")
                 {
-                    case "Prix":
-                        celluleValeur = ((string)celluleValeur).Replace("€", "");
-                        if (float.TryParse(celluleValeur.ToString(), out float floatValue))
-                        {
-                            return floatValue;
-                        }
-                        break;
+                    celluleValeur = ((string)celluleValeur).Replace("€", "");
+                    if (float.TryParse(celluleValeur.ToString(), out float floatValue))
+                    {
+                        return floatValue;
+                    }
                 }
                 return celluleValeur;
             }
         }
 
         /// <summary>
-        ///  Récupère les valeurs du dataGridView actuelle, pour pouvoir les sauvegarder dans un fichier.
+        ///  Récupère les valeurs du dataGridView inventaire, pour pouvoir les sauvegarder dans un fichier.
         /// </summary>
-        /// <returns>Retourne une liste de type InventaireLigne.</returns>
+        /// <returns>Retourne une liste de la classe métier InventaireLigne correspondant aux lignes de l'inventaire.</returns>
         public List<InventaireLigne> RecupererInventaireActuelle()
         {
             List<InventaireLigne> inventaireLignes = new List<InventaireLigne> { };
@@ -425,9 +459,9 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Récupère les valeurs de la listBox Marque actuelle, pour pouvoir les sauvegarder dans un fichier.
+        ///  Récupère les valeurs de la listBox marque, pour pouvoir les sauvegarder dans un fichier.
         /// </summary>
-        /// <returns>Retourne une liste de type de la classe métier Marque qui correspond aux marques actuelles.</returns>
+        /// <returns>Retourne une liste de type de la classe métier InventaireMarque qui correspond aux marques actuelles.</returns>
         public List<InventaireMarque> RecupererMarquesActuelle()
         {
             List<InventaireMarque> marques = new List<InventaireMarque>();
@@ -440,9 +474,9 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Récupère les valeurs de la listBox Type actuelle, pour pouvoir les sauvegarder dans un fichier.
+        ///  Récupère les valeurs de la listBox type, pour pouvoir les sauvegarder dans un fichier.
         /// </summary>
-        /// <returns>Retourne une liste str qui correspond aux types actuelles.</returns>
+        /// <returns>Retourne une liste de la classe métier InventaireType qui correspond aux types actuelles.</returns>
         public List<InventaireType> RecupererTypesActuelle()
         {
             List<InventaireType> types = new List<InventaireType>();
@@ -452,6 +486,85 @@ namespace FranceInformatiqueInventaire
                 types.Add(nouveauType);
             }
             return types;
+        }
+
+        /// <summary>
+        ///  Récupère les valeurs du dataGridView facture, pour pouvoir les sauvegarder dans un fichier.
+        /// </summary>
+        /// <returns>Retourne une liste de la classe métier FactureLigne qui correspond aux factures.</returns>
+        public List<FactureLigne> RecupererFacturesActuelle()
+        {
+            List<FactureLigne> factures = new List<FactureLigne>();
+            int id;
+            string nom;
+            string prestation;
+            string date;
+            string commentaire;
+            float prixHT;
+            float prixTTC;
+            float difference;
+            dgv_Facture.Enabled = false;
+            for (int i = 0; i < dgv_Facture.Rows.Count; i++)
+            {
+                id = (int)GetCellValueOuDefaultValue(dgv_Facture.Rows[i].Cells[0].Value, dgv_Facture.Columns[0].Name);
+                nom = (string)GetCellValueOuDefaultValue(dgv_Facture.Rows[i].Cells[1].Value, dgv_Facture.Columns[1].Name);
+                prestation = (string)GetCellValueOuDefaultValue(dgv_Facture.Rows[i].Cells[2].Value, dgv_Facture.Columns[2].Name);
+                date = (string)GetCellValueOuDefaultValue(dgv_Facture.Rows[i].Cells[3].Value, dgv_Facture.Columns[3].Name);
+                commentaire = (string)GetCellValueOuDefaultValue(dgv_Facture.Rows[i].Cells[4].Value, dgv_Facture.Columns[4].Name);
+                if (dgv_Facture.Rows[i].Cells[5].Value != null && dgv_Facture.Rows[i].Cells[5].Value != "")
+                {
+                    string value = dgv_Facture.Rows[i].Cells[5].Value.ToString();
+                    object t = GetCellValueOuDefaultValue(value, dgv_Facture.Columns[5].Name);
+                    prixHT = (float)(t);
+                }
+                else
+                {
+                    prixHT = -1;
+                }
+                if (dgv_Facture.Rows[i].Cells[6].Value != null && dgv_Facture.Rows[i].Cells[6].Value != "")
+                {
+                    string value = dgv_Facture.Rows[i].Cells[6].Value.ToString();
+                    object t = GetCellValueOuDefaultValue(value, dgv_Facture.Columns[6].Name);
+                    prixTTC = (float)(t);
+                }
+                else
+                {
+                    prixTTC = -1;
+                }
+                if (dgv_Facture.Rows[i].Cells[7].Value != null && dgv_Facture.Rows[i].Cells[7].Value != "")
+                {
+                    string value = dgv_Facture.Rows[i].Cells[7].Value.ToString();
+                    object t = GetCellValueOuDefaultValue(value, dgv_Facture.Columns[7].Name);
+                    difference = (float)(t);
+                }
+                else
+                {
+                    difference = -1;
+                }
+                FactureLigne nouvelleLigne = new FactureLigne(id, nom, prestation, date, commentaire, prixHT, prixTTC, difference);
+                factures.Add(nouvelleLigne);
+            }
+            dgv_Facture.Enabled = true;
+            return factures;
+        }
+
+        /// <summary>
+        ///  Récupère les valeurs de la listBox prestation, pour pouvoir les sauvegarder dans un fichier.
+        /// </summary>
+        /// <returns>Retourne une liste de la classe métier FacturePrestation qui correspond aux prestations actuelles.</returns>
+        public List<FacturePrestation> RecupererPrestationsActuelle()
+        {
+            List<FacturePrestation> prestations = new List<FacturePrestation>();
+            for (int i = 0; i < lb_Prestation.Items.Count; i++)
+            {
+                string stringOriginal = lb_Prestation.Items[i].ToString() ?? "";
+                string nomSepare;
+                float pourcentageSepare;
+                (nomSepare, pourcentageSepare) = SeparerPrestationNomPourcentage(stringOriginal);
+                FacturePrestation nouvellePrestation = new FacturePrestation(nomSepare, pourcentageSepare);
+                prestations.Add(nouvellePrestation);
+            }
+            return prestations;
         }
 
         /// <summary>
@@ -482,7 +595,7 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Si des lignes sont ajoutées, mets à jour les cellules nécessaires et actualise la colonne Index.
+        ///  Si des lignes sont ajoutées, mets à jour les cellules nécessaires et actualise la colonne Index du dataGridView inventaire.
         /// </summary>
         private void dgv_Inventaire_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
@@ -494,19 +607,19 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Permet de mettre à jour la comboBox de la cellule appartenant à la colonne Type au niveau de ses options, en se basant sur la listBox Type.
+        ///  Permet de mettre à jour la comboBox de la cellule appartenant à la colonne Type du dataGridView inventaire au niveau de ses options, en se basant sur la listBox type.
         /// </summary>
-        private void UpdateCbCellType(DataGridViewComboBoxCell cbCell)
+        private void UpdateCbCellType(DataGridViewComboBoxCell cbType)
         {
-            cbCell.Items.Clear();
+            cbType.Items.Clear();
             foreach (string type in lb_Type.Items)
             {
-                cbCell.Items.Add(type);
+                cbType.Items.Add(type);
             }
         }
 
         /// <summary>
-        ///  Permet de mettre à jour la comboBox de la cellule appartenant à la colonne Marque au niveau de ses options, en se basant sur la listBox Marque.
+        ///  Permet de mettre à jour la comboBox de la cellule appartenant à la colonne Marque du dataGridView inventaire au niveau de ses options, en se basant sur la listBox marque.
         /// </summary>
         private void UpdateCbCellMarque(DataGridViewComboBoxCell cbMarque)
         {
@@ -518,9 +631,21 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Permet de mettre à jour les comboBoxCell de la colonne Type, à partir de la listBox Type, cela permet de vider l'option choisi si l'option  actuellement choisi n'est plus disponible car supprimé dans la listBox.
+        ///  Permet de mettre à jour la comboBox de la cellule appartenant à la colonne Prestation du dataGridView facture au niveau de ses options, en se basant sur la listBox prestation.
         /// </summary>
-        private void UpdateInventaireLignesDeColonneType()
+        private void UpdateCbCellPrestation(DataGridViewComboBoxCell cbPrestation)
+        {
+            cbPrestation.Items.Clear();
+            foreach (string prestation in lb_Prestation.Items)
+            {
+                cbPrestation.Items.Add(prestation);
+            }
+        }
+
+        /// <summary>
+        ///  Permet de mettre à jour les comboBoxCell de la colonne Type du dataGridView inventaire, à partir de la listBox Type, cela permet de vider l'option choisi si l'option actuellement choisi n'est plus disponible car supprimée dans la listBox.
+        /// </summary>
+        private void UpdateInventaireColonneType()
         {
             for (int i = 0; i < dgv_Inventaire.Rows.Count; i++)
             {
@@ -538,9 +663,9 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Permet de mettre à jour les comboBoxCell de la colonne Marque, à partir de la listBox Marque, cela permet de vider l'option choisi si l'option  actuellement choisi n'est plus disponible car supprimé dans la listBox.
+        ///  Permet de mettre à jour les comboBoxCell de la colonne Marque du dataGridView inventaire, à partir de la listBox marque, cela permet de vider l'option choisi si l'option  actuellement choisi n'est plus disponible car supprimée dans la listBox.
         /// </summary>
-        private void UpdateInventaireLignesDeColonneMarque()
+        private void UpdateInventaireColonneMarque()
         {
             for (int i = 0; i < dgv_Inventaire.Rows.Count; i++)
             {
@@ -554,6 +679,26 @@ namespace FranceInformatiqueInventaire
                     }
                 }
                 UpdateCbCellMarque((DataGridViewComboBoxCell)cellMarque);
+            }
+        }
+
+        /// <summary>
+        ///  Permet de mettre à jour les comboBoxCell de la colonne Prestation du dataGridView facture, à partir de la listBox prestation, cela permet de vider l'option choisi si l'option  actuellement choisi n'est plus disponible car supprimée dans la listBox.
+        /// </summary>
+        private void UpdateFactureColonnePrestation()
+        {
+            for (int i = 0; i < dgv_Facture.Rows.Count; i++)
+            {
+                DataGridViewCell cellPrestation = dgv_Facture.Rows[i].Cells[2];
+                if (cellPrestation.Value != null)
+                {
+                    string actuelleTexte = cellPrestation.Value.ToString() ?? "";
+                    if (!(lb_Prestation.Items.Contains(actuelleTexte)))
+                    {
+                        cellPrestation.Value = "";
+                    }
+                }
+                UpdateCbCellPrestation((DataGridViewComboBoxCell)cellPrestation);
             }
         }
 
@@ -694,7 +839,7 @@ namespace FranceInformatiqueInventaire
             lb_Marque.Items.Add(txt_AjoutMarque.Text);
             lb_Marque.SelectedIndex = -1;
             txt_AjoutMarque.Text = "";
-            UpdateInventaireLignesDeColonneMarque();
+            UpdateInventaireColonneMarque();
             DefinirMarqueCharge();
         }
 
@@ -708,7 +853,7 @@ namespace FranceInformatiqueInventaire
             lb_Type.Items.Add(txt_AjoutType.Text);
             lb_Type.SelectedIndex = -1;
             txt_AjoutType.Text = "";
-            UpdateInventaireLignesDeColonneType();
+            UpdateInventaireColonneType();
             DefinirTypeCharge();
         }
 
@@ -738,7 +883,7 @@ namespace FranceInformatiqueInventaire
             lb_Marque.Items.Remove(saveSelectedItemText);
             lb_Marque.SelectedIndex = -1;
             txt_AjoutMarque.Text = "";
-            UpdateInventaireLignesDeColonneMarque();
+            UpdateInventaireColonneMarque();
             DefinirMarqueCharge();
         }
 
@@ -753,7 +898,7 @@ namespace FranceInformatiqueInventaire
             lb_Type.Items.RemoveAt(lb_Type.SelectedIndex);
             lb_Type.SelectedIndex = -1;
             txt_AjoutType.Text = "";
-            UpdateInventaireLignesDeColonneType();
+            UpdateInventaireColonneType();
             DefinirTypeCharge();
         }
 
@@ -816,6 +961,11 @@ namespace FranceInformatiqueInventaire
             dtpInventaireDateEntree.Visible = false;
             dtpInventaireDateSortie.Visible = false;
             dgv_Inventaire.Rows.Clear();
+            inventaireRowsCharge.Clear();
+            factureRowsCharge.Clear();
+            marquesCharge.Clear();
+            typesCharge.Clear();
+            prestationsCharge.Clear();
             changerFormTitre(true);
             cheminFichierOuvert = "";
             TSMenuItem_Fichier_Sauvegarder.Enabled = false;
@@ -863,7 +1013,19 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Permet de sauvegarder dans la variable "marquesCharge" la listBox Marque, cette procédure est nécessaire dans la recherche de marque car à chaque recherche on "vide" la listBox, il faut donc la re-remplir pour refaire une recherche.
+        ///  Permet de sauvegarder dans la variable "factureRowsCharge" les factures, cette procédure est nécessaire dans la recherche dans la facture car à chaque recherche on "vide" la dataGridView, il faut donc la re-remplir pour refaire une recherche.
+        /// </summary>
+        public void DefinirFactureRowsCharge()
+        {
+            factureRowsCharge.Clear();
+            foreach (DataGridViewRow row in dgv_Facture.Rows)
+            {
+                factureRowsCharge.Add(row);
+            }
+        }
+
+        /// <summary>
+        ///  Permet de sauvegarder dans la variable "marquesCharge" la listBox marque, cette procédure est nécessaire dans la recherche de marque car à chaque recherche on "vide" la listBox, il faut donc la re-remplir pour refaire une recherche.
         /// </summary>
         private void DefinirMarqueCharge()
         {
@@ -871,11 +1033,19 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Permet de sauvegarder dans la variable "typesCharge" la listBox Type, cette procédure est nécessaire dans la recherche de type car à chaque recherche on "vide" la listBox, il faut donc la re-remplir pour refaire une recherche.
+        ///  Permet de sauvegarder dans la variable "typesCharge" la listBox type, cette procédure est nécessaire dans la recherche de type car à chaque recherche on "vide" la listBox, il faut donc la re-remplir pour refaire une recherche.
         /// </summary>
         private void DefinirTypeCharge()
         {
             typesCharge = lb_Type.Items.OfType<string>().ToList();
+        }
+
+        /// <summary>
+        ///  Permet de sauvegarder dans la variable "prestationsCharge" la listBox prestation, cette procédure est nécessaire dans la recherche de prestation car à chaque recherche on "vide" la listBox, il faut donc la re-remplir pour refaire une recherche.
+        /// </summary>
+        private void DefinirPrestationCharge()
+        {
+            prestationsCharge = lb_Prestation.Items.OfType<string>().ToList();
         }
 
         /// <summary>
@@ -1218,15 +1388,6 @@ namespace FranceInformatiqueInventaire
             gestionControlleurRef.SauvegarderSous();
         }
 
-        private void btn_SupprFacture_Click(object sender, EventArgs e)
-        {
-            tlp_Facture.ColumnStyles[1] = new ColumnStyle(SizeType.Percent, 0.001F);
-            DialogResult result = MessageBox.Show("Êtes vous sur de supprimer cette facture ?", "Confirmation", MessageBoxButtons.YesNo);
-            if (result == DialogResult.Yes)
-            {
-
-            }
-        }
 
         private void tabControl_Onglets_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -1258,17 +1419,6 @@ namespace FranceInformatiqueInventaire
             DefinirFactureRowsCharge();
         }
 
-        /// <summary>
-        ///  Permet de sauvegarder dans la variable "factureRowsCharge" les factures, cette procédure est nécessaire dans la recherche dans la facture car à chaque recherche on "vide" la dataGridView, il faut donc la re-remplir pour refaire une recherche.
-        /// </summary>
-        public void DefinirFactureRowsCharge()
-        {
-            factureRowsCharge.Clear();
-            foreach (DataGridViewRow row in dgv_Facture.Rows)
-            {
-                factureRowsCharge.Add(row);
-            }
-        }
 
         /// <summary>
         ///  Actualise la colonne index de la dataGridView facture pour que les nombres se suivent.
@@ -1295,7 +1445,10 @@ namespace FranceInformatiqueInventaire
         private void dgv_Facture_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
             ActualiserIndexLignesFacture();
+            DataGridViewComboBoxCell comboBoxCellPrestation = (DataGridViewComboBoxCell)dgv_Facture.Rows[e.RowIndex].Cells[2];
+            UpdateCbCellPrestation(comboBoxCellPrestation);
         }
+
 
         /// <summary>
         ///  Si scroll sur la dataGridView facture, alors cache le dateTimePicker.
@@ -1584,8 +1737,18 @@ namespace FranceInformatiqueInventaire
 
         private void DefinirCellsLieTVA(DataGridViewCell cellHT, bool depuisCellTTC, bool clearCellsLieTVA = false)
         {
+            float tva = -1f;
             DataGridViewCell dgvCellPrixTTC = dgv_Facture.Rows[cellHT.RowIndex].Cells[6];
             DataGridViewCell dgvCellDifference = dgv_Facture.Rows[cellHT.RowIndex].Cells[7];
+            DataGridViewCell dgvCellPrestation = dgv_Facture.Rows[cellHT.RowIndex].Cells[2];
+            if(dgvCellPrestation.Value != null)
+            {
+                tva = SeparerPrestationNomPourcentage((string)dgvCellPrestation.Value).Item2;
+            }
+            else
+            {
+                return;
+            }
             if (clearCellsLieTVA)
             {
                 cellHT.Value = null;
@@ -1597,21 +1760,8 @@ namespace FranceInformatiqueInventaire
                 float prixHT;
                 string cellHTStr = (string)(cellHT.Value ?? "");
                 string cellprixTTCStr = (string)(dgvCellPrixTTC.Value ?? "");
-                DataGridViewComboBoxCell prestationCell = (DataGridViewComboBoxCell)dgv_Facture.Rows[cellHT.RowIndex].Cells[3];
+                DataGridViewComboBoxCell prestationCell = (DataGridViewComboBoxCell)dgv_Facture.Rows[cellHT.RowIndex].Cells[2];
                 int indexPrestation = prestationCell.Items.IndexOf(((string)prestationCell.Value) ?? "");
-                float tva;
-                if (indexPrestation == 0)
-                {
-                    tva = 0.13f;
-                }
-                else if (indexPrestation == 1)
-                {
-                    tva = 0.23f;
-                }
-                else
-                {
-                    return;
-                }
                 if (depuisCellTTC && cellprixTTCStr != "")
                 {
                     float prixTTC = float.Parse(cellprixTTCStr.Replace("€", ""));
@@ -1633,6 +1783,109 @@ namespace FranceInformatiqueInventaire
         private void dgv_Facture_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
             dgv_Facture.CommitEdit(DataGridViewDataErrorContexts.Commit);
+        }
+
+        /// <summary>
+        ///  Ajoute la prestation dans la listBox prestation et actualise ce qui est nécessaire.
+        /// </summary>
+        private void btn_AjoutPrestation_Click(object sender, EventArgs e)
+        {
+            cb_FiltreRecherche.SelectedIndex = 0;
+            txt_Recherche.Text = "";
+            lb_Prestation.Items.Add(txt_AjoutPrestationNom.Text + " (" + nupd_AjoutPourcentageTVA.Value + "%)");
+            lb_Prestation.SelectedIndex = -1;
+            txt_AjoutPrestationNom.Text = "";
+            nupd_AjoutPourcentageTVA.Value = 0;
+            UpdateFactureColonnePrestation();
+            DefinirPrestationCharge();
+        }
+
+        /// <summary>
+        ///  Supprime la prestation choisi et mets à jour ce qui est nécessaire.
+        /// </summary>
+        private void btn_SupprPrestation_Click(object sender, EventArgs e)
+        {
+            string saveSelectedItemText = lb_Prestation.SelectedItem.ToString() ?? "";
+            cb_FiltreRecherche.SelectedIndex = 0;
+            txt_Recherche.Text = "";
+            lb_Prestation.Items.Remove(saveSelectedItemText);
+            lb_Prestation.SelectedIndex = -1;
+            txt_AjoutPrestationNom.Text = "";
+            nupd_AjoutPourcentageTVA.Value = 0;
+            UpdateFactureColonnePrestation();
+            DefinirPrestationCharge();
+        }
+
+        /// <summary>
+        ///  Activé ou non le bouton AjouterPrestation selon si le texte AjoutPrestation est vide, pareil pour le numericUpDown ajoutPourcentageTVA.
+        /// </summary>
+        private void txt_AjoutPrestationNom_TextChanged(object sender, EventArgs e)
+        {
+            if (txt_AjoutPrestationNom.Text != "" && nupd_AjoutPourcentageTVA.Value > 0)
+            {
+                btn_AjoutPrestation.Enabled = true;
+            }
+            else
+            {
+                btn_AjoutPrestation.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        ///  Activé ou non le bouton AjouterPrestation selon si le texte AjoutPrestation est vide, pareil pour le numericUpDown ajoutPourcentageTVA.
+        /// </summary>
+        private void nupd_AjoutPourcentageTVA_ValueChanged(object sender, EventArgs e)
+        {
+            if (txt_AjoutPrestationNom.Text != "" && nupd_AjoutPourcentageTVA.Value > 0)
+            {
+                btn_AjoutPrestation.Enabled = true;
+            }
+            else
+            {
+                btn_AjoutPrestation.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        ///  Permet de déselectionné la prestation choisi dans la listBox prestation si on appuie sur échappe.
+        /// </summary>
+        private void lb_Prestation_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                lb_Prestation.SelectedIndex = -1;
+            }
+        }
+
+        /// <summary>
+        ///  Activé ou non le bouton SupprimerPrestation selon si une prestation est sélectionné.
+        /// </summary>
+        private void lb_Prestation_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lb_Prestation.SelectedIndex != -1)
+            {
+                btn_SupprPrestation.Enabled = true;
+            }
+            else
+            {
+                btn_SupprPrestation.Enabled = false;
+            }
+        }
+
+        private string AssemblerPrestationNomPourcentage(string nomSepare, float pourcentageSepare)
+        {
+            return nomSepare + " (" + pourcentageSepare * 100 + "%)";
+        }
+
+        private (string, float) SeparerPrestationNomPourcentage(string stringOriginal)
+        {
+            string nomSepare = stringOriginal;
+            string strPourcentageSepare;
+            float pourcentageSepare;
+            nomSepare = nomSepare.Substring(0, nomSepare.IndexOf('(') - 1);
+            strPourcentageSepare = stringOriginal.Substring(stringOriginal.IndexOf('(') + 1, (stringOriginal.IndexOf(')') - stringOriginal.IndexOf('(')) - 2);
+            pourcentageSepare = float.Parse(strPourcentageSepare) / 100;
+            return (nomSepare, pourcentageSepare);
         }
     }
 }
