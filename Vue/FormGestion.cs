@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using FranceInformatiqueInventaire.Controlleur;
 using System.ComponentModel;
 using FranceInformatiqueInventaire.Model;
+using System.Diagnostics;
 
 namespace FranceInformatiqueInventaire
 {
@@ -22,11 +23,17 @@ namespace FranceInformatiqueInventaire
     /// </summary>
     public partial class FormGestion : Form
     {
+        //Variables pour les valeurs par défaut
+        private List<string> defautMarquesCharge = new List<string>();
+        private List<string> defautTypesCharge = new List<string>();
+        private List<string> defautPrestationsCharge = new List<string>();
+        //Reste des variables
         private List<DataGridViewRow> inventaireRowsCharge = new List<DataGridViewRow>();
         private List<DataGridViewRow> factureRowsCharge = new List<DataGridViewRow>();
         private List<string> marquesCharge = new List<string>();
         private List<string> typesCharge = new List<string>();
         private List<string> prestationsCharge = new List<string>();
+        private List<SiteFavorisLigne> sitesFavorisCharge = new List<SiteFavorisLigne>();
         private bool confirmationAvantSuppression = true;
         private bool confirmationAvantVider = true;
         private BddManager bddManagerRef;
@@ -47,6 +54,7 @@ namespace FranceInformatiqueInventaire
         private DateTimePicker dtpFactureDate = new DateTimePicker();
         private Rectangle rectangleDtpFactureDate;
         private List<DataGridViewRow> rowsFactureCopiee = new List<DataGridViewRow>();
+        private bool tentativeAccesSite = false;
 
         public FormGestion()
         {
@@ -70,7 +78,6 @@ namespace FranceInformatiqueInventaire
 
             //Preferences :
             TSMenuItem_Preferences_InsertionLigne_Cb.SelectedIndex = 0;
-
             gestionControlleurRef = new GestionControlleur(this, dgv_Inventaire, txt_Recherche, btn_CollerLigne, bddManagerRef, TSMenuItem_Fichier_Sauvegarder, inventaireRowsCharge, rowsInventaireCopiee, cb_FiltreRecherche, lb_Marque, lb_Type, marquesCharge, typesCharge, couperLignes, dgv_Facture, factureRowsCharge, rowsFactureCopiee);
         }
 
@@ -82,7 +89,10 @@ namespace FranceInformatiqueInventaire
             InitialiserCouleurThemeMenuItem();
             DefinirMarqueCharge();
             DefinirTypeCharge();
+            DefinirPrestationCharge();
+            DefinirVariablesDefaut();
             label_CopyrightVersion.Text = label_CopyrightVersion.Text.Insert(label_CopyrightVersion.Text.LastIndexOf('©') + 2, DateTime.Now.Year.ToString());
+            lb_SitesFav.DataSource = sitesFavorisCharge;
         }
 
         /// <summary>
@@ -384,7 +394,7 @@ namespace FranceInformatiqueInventaire
             lb_Prestation.Items.Clear();
             for (int i = 0; i < prestations.Count; i++)
             {
-                lb_Prestation.Items.Add(prestations[i].nom + " (" + prestations[i].pourcentageTVA + "%)");
+                lb_Prestation.Items.Add(prestations[i].nom + " (" + prestations[i].pourcentageTVA * 100 + "%)");
             }
         }
 
@@ -954,23 +964,15 @@ namespace FranceInformatiqueInventaire
         }
 
         /// <summary>
-        ///  Supprime le lien avec le fichier actuellement ouvert, et permet donc de faire "page blanche".
+        ///  Supprime le lien avec le fichier actuellement ouvert, et permet de faire "page blanche".
         /// </summary>
         private void TSMenuItem_Fichier_Nouveau_Click(object sender, EventArgs e)
         {
-            dtpInventaireDateEntree.Visible = false;
-            dtpInventaireDateSortie.Visible = false;
-            dgv_Inventaire.Rows.Clear();
-            inventaireRowsCharge.Clear();
-            factureRowsCharge.Clear();
-            marquesCharge.Clear();
-            typesCharge.Clear();
-            prestationsCharge.Clear();
-            changerFormTitre(true);
             cheminFichierOuvert = "";
-            TSMenuItem_Fichier_Sauvegarder.Enabled = false;
-            btn_Sauvegarder.Enabled = false;
+            FairePageBlanche();
         }
+
+
 
         /// <summary>
         ///  Si on change le texte de la textBox Recherche, alors recherche dans l'inventaire, dans les marques ou dans les types selon la page tabControl choisi.
@@ -1403,7 +1405,7 @@ namespace FranceInformatiqueInventaire
             {
                 ChangerContenuCbFiltre(ongletPrincipal.FACTURES);
                 DefinirVisibiliteToolStrip(visibiliteToolstrip.MODIFDGV);
-                txt_Recherche.PlaceholderText = "Rechercher dans les factures";
+                tabControl_FactureOnglet_SelectedIndexChanged(null, null);
                 dgv_Facture_SelectionChanged(null, null);
                 btn_CollerLigne.Enabled = (rowsFactureCopiee.Count != 0);
             }
@@ -1716,22 +1718,28 @@ namespace FranceInformatiqueInventaire
             {
                 charEuroMalPlace = true;
             }
-
-            cellPrixTexte = cellPrixTexte.Replace(",", "");
-            cellPrixTexte = cellPrixTexte.Replace(".", "");
-            cellPrixTexte = cellPrixTexte.Replace("€", "");
-            if ((!cellPrixTexte.All(char.IsDigit)) || cellPrixTexte[0] == '0' || charEuroMalPlace || virguleMalPlace)
+            if (cellPrixTexte.Any(char.IsDigit))
+            {
+                cellPrixTexte = cellPrixTexte.Replace(",", "");
+                cellPrixTexte = cellPrixTexte.Replace(".", "");
+                cellPrixTexte = cellPrixTexte.Replace("€", "");
+                if ((charEuroMalPlace || virguleMalPlace || !cellPrixTexte.All(char.IsDigit)))
+                {
+                    dgv.CurrentCell.Value = null;
+                }
+                else if (dgv.CurrentCell.Value != null)
+                {
+                    string actuelleText = dgv.CurrentCell.Value.ToString() as string ?? string.Empty;
+                    dgv.CurrentCell.Value = actuelleText.Replace('.', ',');
+                    if (!((string)dgv.CurrentCell.Value).Contains("€"))
+                    {
+                        dgv.CurrentCell.Value = dgv.CurrentCell.Value + "€";
+                    }
+                }
+            }
+            else
             {
                 dgv.CurrentCell.Value = null;
-            }
-            else if (dgv.CurrentCell.Value != null)
-            {
-                string actuelleText = dgv.CurrentCell.Value.ToString() as string ?? string.Empty;
-                dgv.CurrentCell.Value = actuelleText.Replace('.', ',');
-                if (!((string)dgv.CurrentCell.Value).Contains("€"))
-                {
-                    dgv.CurrentCell.Value = dgv.CurrentCell.Value + "€";
-                }
             }
         }
 
@@ -1741,7 +1749,14 @@ namespace FranceInformatiqueInventaire
             DataGridViewCell dgvCellPrixTTC = dgv_Facture.Rows[cellHT.RowIndex].Cells[6];
             DataGridViewCell dgvCellDifference = dgv_Facture.Rows[cellHT.RowIndex].Cells[7];
             DataGridViewCell dgvCellPrestation = dgv_Facture.Rows[cellHT.RowIndex].Cells[2];
-            if(dgvCellPrestation.Value != null)
+            if (clearCellsLieTVA)
+            {
+                cellHT.Value = null;
+                dgvCellPrixTTC.Value = null;
+                dgvCellDifference.Value = null;
+                return;
+            }
+            else if (dgvCellPrestation.Value != null)
             {
                 tva = SeparerPrestationNomPourcentage((string)dgvCellPrestation.Value).Item2;
             }
@@ -1749,33 +1764,24 @@ namespace FranceInformatiqueInventaire
             {
                 return;
             }
-            if (clearCellsLieTVA)
+            float prixHT;
+            string cellHTStr = (string)(cellHT.Value ?? "");
+            string cellprixTTCStr = (string)(dgvCellPrixTTC.Value ?? "");
+            DataGridViewComboBoxCell prestationCell = (DataGridViewComboBoxCell)dgv_Facture.Rows[cellHT.RowIndex].Cells[2];
+            int indexPrestation = prestationCell.Items.IndexOf(((string)prestationCell.Value) ?? "");
+            if (depuisCellTTC && cellprixTTCStr != "")
             {
-                cellHT.Value = null;
-                dgvCellPrixTTC.Value = null;
-                dgvCellDifference.Value = null;
+                float prixTTC = float.Parse(cellprixTTCStr.Replace("€", ""));
+                cellHT.Value = Math.Round((decimal)(prixTTC / (1 + tva)), 2) + "€";
+                cellHTStr = (string)(cellHT.Value ?? "");
+                prixHT = float.Parse(cellHTStr.Replace("€", ""));
+                dgvCellDifference.Value = Math.Round((decimal)(prixHT * tva), 2) + "€";
             }
             else
             {
-                float prixHT;
-                string cellHTStr = (string)(cellHT.Value ?? "");
-                string cellprixTTCStr = (string)(dgvCellPrixTTC.Value ?? "");
-                DataGridViewComboBoxCell prestationCell = (DataGridViewComboBoxCell)dgv_Facture.Rows[cellHT.RowIndex].Cells[2];
-                int indexPrestation = prestationCell.Items.IndexOf(((string)prestationCell.Value) ?? "");
-                if (depuisCellTTC && cellprixTTCStr != "")
-                {
-                    float prixTTC = float.Parse(cellprixTTCStr.Replace("€", ""));
-                    cellHT.Value = Math.Round((decimal)(prixTTC / (1 + tva)), 2) + "€";
-                    cellHTStr = (string)(cellHT.Value ?? "");
-                    prixHT = float.Parse(cellHTStr.Replace("€", ""));
-                    dgvCellDifference.Value = Math.Round((decimal)(prixHT * tva), 2) + "€";
-                }
-                else
-                {
-                    prixHT = float.Parse(cellHTStr.Replace("€", ""));
-                    dgvCellPrixTTC.Value = Math.Round((decimal)(prixHT * (1 + tva)), 2) + "€";
-                    dgvCellDifference.Value = Math.Round((decimal)(prixHT * tva), 2) + "€";
-                }
+                prixHT = float.Parse(cellHTStr.Replace("€", ""));
+                dgvCellPrixTTC.Value = Math.Round((decimal)(prixHT * (1 + tva)), 2) + "€";
+                dgvCellDifference.Value = Math.Round((decimal)(prixHT * tva), 2) + "€";
             }
 
         }
@@ -1864,11 +1870,11 @@ namespace FranceInformatiqueInventaire
         {
             if (lb_Prestation.SelectedIndex != -1)
             {
-                btn_SupprPrestation.Enabled = true;
+                btn_SupprimerPrestation.Enabled = true;
             }
             else
             {
-                btn_SupprPrestation.Enabled = false;
+                btn_SupprimerPrestation.Enabled = false;
             }
         }
 
@@ -1886,6 +1892,182 @@ namespace FranceInformatiqueInventaire
             strPourcentageSepare = stringOriginal.Substring(stringOriginal.IndexOf('(') + 1, (stringOriginal.IndexOf(')') - stringOriginal.IndexOf('(')) - 2);
             pourcentageSepare = float.Parse(strPourcentageSepare) / 100;
             return (nomSepare, pourcentageSepare);
+        }
+
+        private void DefinirVariablesDefaut()
+        {
+            defautMarquesCharge = marquesCharge.ToList();
+            defautTypesCharge = typesCharge.ToList();
+            defautPrestationsCharge = prestationsCharge.ToList();
+        }
+
+        private void FairePageBlanche()
+        {
+            dtpInventaireDateEntree.Visible = false;
+            dtpInventaireDateSortie.Visible = false;
+            dtpFactureDate.Visible = false;
+            dgv_Inventaire.Rows.Clear();
+            dgv_Facture.Rows.Clear();
+            lb_Marque.Items.Clear();
+            lb_Type.Items.Clear();
+            lb_Prestation.Items.Clear();
+            inventaireRowsCharge.Clear();
+            factureRowsCharge.Clear();
+            marquesCharge.Clear();
+            typesCharge.Clear();
+            prestationsCharge.Clear();
+            foreach (string marque in defautMarquesCharge)
+            {
+                lb_Marque.Items.Add(marque);
+            }
+            foreach (string type in defautTypesCharge)
+            {
+                lb_Type.Items.Add(type);
+            }
+            foreach (string prestation in defautPrestationsCharge)
+            {
+                lb_Prestation.Items.Add(prestation);
+            }
+            DefinirMarqueCharge();
+            DefinirTypeCharge();
+            DefinirPrestationCharge();
+            changerFormTitre(true);
+            TSMenuItem_Fichier_Sauvegarder.Enabled = false;
+            btn_Sauvegarder.Enabled = false;
+        }
+
+        private void tabControl_FactureOnglet_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl_Facture.SelectedIndex != 0)
+            {
+                DefinirVisibiliteToolStrip(visibiliteToolstrip.CACHEAVECFOND);
+            }
+            else if (tabControl_Facture.SelectedIndex == 0)
+            {
+                DefinirVisibiliteToolStrip(visibiliteToolstrip.MODIFDGV);
+            }
+            switch (tabControl_Facture.SelectedIndex)
+            {
+                case 0:
+                    txt_Recherche.PlaceholderText = "Rechercher dans les factures";
+                    ChangerContenuCbFiltre(ongletPrincipal.FACTURES);
+                    cb_FiltreRecherche.Visible = true;
+                    lbl_Filtre.Visible = true;
+                    break;
+                case 1:
+                    txt_Recherche.PlaceholderText = "Rechercher dans les prestations";
+                    cb_FiltreRecherche.Visible = false;
+                    lbl_Filtre.Visible = false;
+                    break;
+            }
+        }
+
+        private void txt_AjoutSiteWebUrl_TextChanged(object sender, EventArgs e)
+        {
+            if (((TextBox)sender).Text != "")
+            {
+                btn_AjouterSiteWeb.Enabled = true;
+            }
+            else
+            {
+                btn_AjouterSiteWeb.Enabled = false;
+            }
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (((ListBox)sender).SelectedIndex != -1)
+            {
+                btn_SupprimerSiteWeb.Enabled = true;
+                btn_ModifierSiteWeb.Enabled = true;
+                btn_AccederSiteWeb.Enabled = true;
+            }
+            else
+            {
+                btn_SupprimerSiteWeb.Enabled = false;
+                btn_ModifierSiteWeb.Enabled = false;
+                btn_AccederSiteWeb.Enabled = false;
+            }
+        }
+
+        private void btn_AjouterSiteWeb_Click(object sender, EventArgs e)
+        {
+            string siteNom;
+            string url = txt_AjoutSiteWebUrl.Text;
+            if (!url.Contains("www."))
+            {
+                url = url.Insert(0, "www.");
+            }
+            if (txt_AjoutSiteWebNom.Text != "")
+            {
+                siteNom = txt_AjoutSiteWebNom.Text;
+            }
+            else
+            {
+                siteNom = url;
+            }
+            sitesFavorisCharge.Add(new SiteFavorisLigne(siteNom, url));
+            UpdateListBoxFromDataSource(lb_SitesFav);
+            txt_AjoutSiteWebNom.Text = "";
+            txt_AjoutSiteWebUrl.Text = "";
+        }
+
+        private void lb_SitesFav_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            AccederSiteWebSelected();
+        }
+
+        private void btn_AccederSiteWeb_Click(object sender, EventArgs e)
+        {
+            if (!tentativeAccesSite)
+            {
+                AccederSiteWebSelected();
+            }
+        }
+
+        private async void AccederSiteWebSelected()
+        {
+            tentativeAccesSite = true;
+            if (lb_SitesFav.SelectedIndex != -1)
+            {
+                try
+                {
+                    ProcessStartInfo psInfo = new ProcessStartInfo
+                    {
+                        FileName = ((SiteFavorisLigne)lb_SitesFav.SelectedItem).url,
+                        UseShellExecute = true
+                    };
+                    Process.Start(psInfo);
+                }
+                catch (Exception exc)
+                {
+                    await ClignoterRougeBtnAccederSite();
+                    await Task.Delay(100);
+                    await ClignoterRougeBtnAccederSite();
+                }
+                tentativeAccesSite = false;
+            }
+        }
+
+        private async Task ClignoterRougeBtnAccederSite()
+        {
+            Color ancienneForeColorBtnAccederSiteWeb = btn_AccederSiteWeb.ForeColor;
+            btn_AccederSiteWeb.ForeColor = Color.Red;
+            await Task.Delay(100);
+            btn_AccederSiteWeb.ForeColor = ancienneForeColorBtnAccederSiteWeb;
+        }
+
+        public void UpdateListBoxFromDataSource(ListBox lb)
+        {
+            object dataSourceSaved = lb.DataSource;
+            lb.DataSource = null;
+            lb.DataSource = dataSourceSaved;
+        }
+
+        private void btn_SupprimerSiteWeb_Click(object sender, EventArgs e)
+        {
+            sitesFavorisCharge.Remove((SiteFavorisLigne)lb_SitesFav.SelectedItem);
+            UpdateListBoxFromDataSource(lb_SitesFav);
         }
     }
 }

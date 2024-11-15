@@ -8,11 +8,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <StartupObject>FranceInformatiqueInventaire.Program</StartupObject>
     <SignAssembly>False</SignAssembly>
-    <Title>InventaireFRANCEINFORMATIQUE</Title>
+    <Title>LogicielDeGestionFRANCEINFORMATIQUE</Title>
     <Platforms>AnyCPU;x86</Platforms>
     <ApplicationIcon>PetitLogoEntreprise.ico</ApplicationIcon>
     <PackageIcon>PetitLogoEntreprise.png</PackageIcon>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <AssemblyName>$(LogicielGestionFRANCEINFORMATIQUE)</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
