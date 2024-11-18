@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FranceInformatiqueInventaire.Model
 {
-    internal class SiteFavorisLigne
+    public class SiteFavorisLigne
     {
         public string nom;
         public string url;

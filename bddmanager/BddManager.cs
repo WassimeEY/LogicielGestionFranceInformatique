@@ -148,37 +148,7 @@ namespace FranceInformatiqueInventaire.dal
             return typeLignes;
         }
 
-        /*
-        /// <summary>
-        ///  Permet de lire le fichier .db directement, puis de retourner une liste des instances de l'entité en question.
-        /// </summary>
-        /// <param name="connectionTexteTemp">Le texte qui permet la connexion temporaire avec le fichier .db .</param>
-        /// <returns>La liste des instances de type de la classe récupéré à partir du curseur SQL.</returns>
-        public List<object> RecupererTable(string connectionTexteTemp, string nomTable)
-        {
-            connectionTexte = connectionTexteTemp;
-            List<object> lignes = new List<object>();
-            List<object> attributsLigne = new List<object>();
-            using (SQLiteConnection connection = new SQLiteConnection(connectionTexte))
-            {
-                connection.Open();
-                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM " + nomTable, connection))
-                {
-                    using (SQLiteDataReader curseur = command.ExecuteReader())
-                    {
-                        while (curseur.Read())
-                        {
-                            for(int i = 0; i < curseur.FieldCount; i++)
-                            {
-                                attributsLigne.Add(curseur.GetValue(i));
-                            }
-                            lignes.Add(attributsLigne);
-                        }
-                    }
-                }
-            }
-            return lignes;
-        }*/
+       
 
         /// <summary>
         ///  Permet de lire le fichier .db directement, puis de retourner une liste des instances de l'entité FactureLigne.
@@ -255,6 +225,36 @@ namespace FranceInformatiqueInventaire.dal
         }
 
         /// <summary>
+        ///  Permet de lire le fichier .db directement, puis de retourner une liste des instances de l'entité SiteFavorisLigne.
+        /// </summary>
+        /// <param name="connectionTexteTemp">Le texte qui permet la connexion temporaire avec le fichier .db .</param>
+        /// <returns>La liste des instances de type InventaireMarque récupéré à partir du curseur SQL.</returns>
+        public List<SiteFavorisLigne> RecupererTableSiteFav(string connectionTexteTemp)
+        {
+            connectionTexte = connectionTexteTemp;
+            List<SiteFavorisLigne> sitesLignes = new List<SiteFavorisLigne>();
+            string siteNom;
+            string siteUrl;
+            using (SQLiteConnection connection = new SQLiteConnection(connectionTexte))
+            {
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM SiteFavoris", connection))
+                {
+                    using (SQLiteDataReader curseur = command.ExecuteReader())
+                    {
+                        while (curseur.Read())
+                        {
+                            siteNom = curseur.GetString(curseur.GetOrdinal("Nom"));
+                            siteUrl = curseur.GetString(curseur.GetOrdinal("Url"));
+                            sitesLignes.Add(new SiteFavorisLigne(siteNom, siteUrl));
+                        }
+                    }
+                }
+            }
+            return sitesLignes;
+        }
+
+        /// <summary>
         ///  Permet de créer et d'écrire un nouveau fichier .db qui aura toutes les données de l'inventaire, des marques, des types et autre.
         /// </summary>
         /// <param name="chemin">Chemin où la création et écriture du fichier sera faite.</param>
@@ -265,6 +265,7 @@ namespace FranceInformatiqueInventaire.dal
             List<InventaireType> typesActuelle = formGestionRef.RecupererTypesActuelle();
             List<FactureLigne> facturesActuelle = formGestionRef.RecupererFacturesActuelle();
             List<FacturePrestation> prestationsActuelle = formGestionRef.RecupererPrestationsActuelle();
+            List<SiteFavorisLigne> sitesFavActuelle = formGestionRef.RecupererSitesFavActuelle();
             string connectionTexte;
             SQLiteConnection.CreateFile(chemin);
             connectionTexte = @"Data Source=" + chemin + ";Version=3;";
@@ -384,6 +385,20 @@ namespace FranceInformatiqueInventaire.dal
                             }
                         }
                     }
+                    using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE [SiteFavoris] ([Id] bigint NOT NULL, [Nom] text, [Url] text, CONSTRAINT [sqlite_master_PK_Inventaire] PRIMARY KEY ([Id]));", connection, transaction))
+                    {
+                        command.ExecuteNonQuery();
+                        using (SQLiteCommand command2 = new SQLiteCommand("INSERT INTO SiteFavoris (Id, Nom, Url) VALUES (@Id, @Nom, @Url)", connection, transaction))
+                        {
+                            for (int i = 0; i < sitesFavActuelle.Count; i++)
+                            {
+                                command2.Parameters.AddWithValue("@Id", i);
+                                command2.Parameters.AddWithValue("@Nom", sitesFavActuelle[i].nom);
+                                command2.Parameters.AddWithValue("@Url", sitesFavActuelle[i].url);
+                                command2.ExecuteNonQuery();
+                            }
+                        }
+                    }
                     transaction.Commit();
                 }
             }
@@ -400,6 +415,24 @@ namespace FranceInformatiqueInventaire.dal
             {
                 connection.Open();
                 using (SQLiteCommand command = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' AND name='Facture';", connection))
+                {
+                    object result = command.ExecuteScalar();
+                    return result != null;
+                }
+            }
+        }
+
+        /// <summary>
+        ///  Permet de lire le fichier .db directement, et de vérifier si la table siteFavoris existe.
+        /// </summary>
+        /// <param name="connectionTexteTemp">Le texte qui permet la connexion temporaire avec le fichier .db .</param>
+        public bool VerifierExistanceTableSiteFavoris(string connectionTexteTemp)
+        {
+            connectionTexte = connectionTexteTemp;
+            using (SQLiteConnection connection = new SQLiteConnection(connectionTexte))
+            {
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' AND name='SiteFavoris';", connection))
                 {
                     object result = command.ExecuteScalar();
                     return result != null;

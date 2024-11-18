@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
 
 namespace FranceInformatiqueInventaire.Model
 {
@@ -15,6 +16,12 @@ namespace FranceInformatiqueInventaire.Model
         {
             this.nom = nom;
             this.pourcentageTVA = pourcentageTVA;
+        }
+
+
+        public override string ToString()
+        {
+            return nom + " (" + pourcentageTVA + "%)";
         }
     }
 }

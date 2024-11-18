@@ -196,14 +196,14 @@
             // TSMenuItem_Fichier_Nouveau
             // 
             TSMenuItem_Fichier_Nouveau.Name = "TSMenuItem_Fichier_Nouveau";
-            TSMenuItem_Fichier_Nouveau.Size = new Size(180, 22);
+            TSMenuItem_Fichier_Nouveau.Size = new Size(166, 22);
             TSMenuItem_Fichier_Nouveau.Text = "Nouveau";
             TSMenuItem_Fichier_Nouveau.Click += TSMenuItem_Fichier_Nouveau_Click;
             // 
             // TSMenuItem_Fichier_Ouvrir
             // 
             TSMenuItem_Fichier_Ouvrir.Name = "TSMenuItem_Fichier_Ouvrir";
-            TSMenuItem_Fichier_Ouvrir.Size = new Size(180, 22);
+            TSMenuItem_Fichier_Ouvrir.Size = new Size(166, 22);
             TSMenuItem_Fichier_Ouvrir.Text = "Ouvrir";
             TSMenuItem_Fichier_Ouvrir.Click += TSMenuItem_Fichier_Ouvrir_Click;
             // 
@@ -211,7 +211,7 @@
             // 
             TSMenuItem_FichiersRecents.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItem1 });
             TSMenuItem_FichiersRecents.Name = "TSMenuItem_FichiersRecents";
-            TSMenuItem_FichiersRecents.Size = new Size(180, 22);
+            TSMenuItem_FichiersRecents.Size = new Size(166, 22);
             TSMenuItem_FichiersRecents.Text = "Fichiers récents";
             // 
             // toolStripMenuItem1
@@ -224,14 +224,14 @@
             // 
             TSMenuItem_Fichier_Sauvegarder.Enabled = false;
             TSMenuItem_Fichier_Sauvegarder.Name = "TSMenuItem_Fichier_Sauvegarder";
-            TSMenuItem_Fichier_Sauvegarder.Size = new Size(180, 22);
+            TSMenuItem_Fichier_Sauvegarder.Size = new Size(166, 22);
             TSMenuItem_Fichier_Sauvegarder.Text = "Sauvegarder";
             TSMenuItem_Fichier_Sauvegarder.Click += TSMenuItem_Fichier_Sauvegarder_Click;
             // 
             // TSMenuItem_Fichier_SauvegarderSous
             // 
             TSMenuItem_Fichier_SauvegarderSous.Name = "TSMenuItem_Fichier_SauvegarderSous";
-            TSMenuItem_Fichier_SauvegarderSous.Size = new Size(180, 22);
+            TSMenuItem_Fichier_SauvegarderSous.Size = new Size(166, 22);
             TSMenuItem_Fichier_SauvegarderSous.Text = "Sauvegarder sous";
             TSMenuItem_Fichier_SauvegarderSous.Click += TSMenuItem_Fichier_SauvegarderSous_Click;
             // 

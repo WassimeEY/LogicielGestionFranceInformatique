@@ -26,13 +26,13 @@ namespace FranceInformatiqueInventaire
         //Variables pour les valeurs par défaut
         private List<string> defautMarquesCharge = new List<string>();
         private List<string> defautTypesCharge = new List<string>();
-        private List<string> defautPrestationsCharge = new List<string>();
+        private List<FacturePrestation> defautPrestationsCharge = new List<FacturePrestation>();
         //Reste des variables
         private List<DataGridViewRow> inventaireRowsCharge = new List<DataGridViewRow>();
         private List<DataGridViewRow> factureRowsCharge = new List<DataGridViewRow>();
         private List<string> marquesCharge = new List<string>();
         private List<string> typesCharge = new List<string>();
-        private List<string> prestationsCharge = new List<string>();
+        private List<FacturePrestation> prestationsCharge = new List<FacturePrestation>();
         private List<SiteFavorisLigne> sitesFavorisCharge = new List<SiteFavorisLigne>();
         private bool confirmationAvantSuppression = true;
         private bool confirmationAvantVider = true;
@@ -89,10 +89,10 @@ namespace FranceInformatiqueInventaire
             InitialiserCouleurThemeMenuItem();
             DefinirMarqueCharge();
             DefinirTypeCharge();
-            DefinirPrestationCharge();
             DefinirVariablesDefaut();
             label_CopyrightVersion.Text = label_CopyrightVersion.Text.Insert(label_CopyrightVersion.Text.LastIndexOf('©') + 2, DateTime.Now.Year.ToString());
             lb_SitesFav.DataSource = sitesFavorisCharge;
+            lb_Prestation.DataSource = prestationsCharge;
         }
 
         /// <summary>
@@ -295,11 +295,14 @@ namespace FranceInformatiqueInventaire
                     DefinirTypeCharge();
                     if (bddManagerRef.VerifierExistanceTableFacture(texteConnexion))
                     {
-                        ChargerRemplirFacture(bddManagerRef.RecupererTableFacture(texteConnexion));
-                        DefinirFactureRowsCharge();
                         ChargerRemplirPrestation(bddManagerRef.RecupererTablePrestation(texteConnexion));
                         UpdateFactureColonnePrestation();
-                        DefinirPrestationCharge();
+                        ChargerRemplirFacture(bddManagerRef.RecupererTableFacture(texteConnexion));
+                        DefinirFactureRowsCharge();
+                    }
+                    if (bddManagerRef.VerifierExistanceTableSiteFavoris(texteConnexion))
+                    {
+                        ChargerRemplirSiteFavoris(bddManagerRef.RecupererTableSiteFav(texteConnexion));
                     }
                     TSMenuItem_Fichier_Sauvegarder.Enabled = true;
                     btn_Sauvegarder.Enabled = true;
@@ -363,7 +366,7 @@ namespace FranceInformatiqueInventaire
         /// <summary>
         ///  Charge toutes les lignes de la dataGridView facture à partir d'une liste de FactureLigne.
         /// </summary>
-        /// <param name="contenuFactureDansDbTemp">Liste de FactureLigne qui permet de charger toutes les lignes de chaque colonne de la dataGridView facture.</ param >
+        /// <param name="contenuFactureDansDbTemp">Liste de FactureLigne qui permet de charger toutes les lignes de chaque colonne de la dataGridView facture.</param>
         private void ChargerRemplirFacture(List<FactureLigne> contenuFactureDansDbTemp)
         {
             dgv_Facture.Rows.Clear();
@@ -388,14 +391,31 @@ namespace FranceInformatiqueInventaire
         /// <summary>
         ///  Charge la listBox prestation à partir du fichier chargé.
         /// </summary>
-        /// <param name="types">Liste FacturePrestation à charger.</param>
+        /// <param name="prestations">Liste FacturePrestation à charger.</param>
         private void ChargerRemplirPrestation(List<FacturePrestation> prestations)
         {
-            lb_Prestation.Items.Clear();
+            prestationsCharge.Clear();
             for (int i = 0; i < prestations.Count; i++)
             {
-                lb_Prestation.Items.Add(prestations[i].nom + " (" + prestations[i].pourcentageTVA * 100 + "%)");
+                prestationsCharge.Add(new FacturePrestation(prestations[i].nom, prestations[i].pourcentageTVA));
+                
             }
+            UpdateListBoxFromDataSource(lb_Prestation);
+        }
+
+        /// <summary>
+        ///  Charge la listBox SiteFavoris à partir du fichier chargé.
+        /// </summary>
+        /// <param name="sitesFav">Liste SiteFavoris à charger.</param>
+        private void ChargerRemplirSiteFavoris(List<SiteFavorisLigne> sitesFav)
+        {
+            sitesFavorisCharge.Clear();
+            for (int i = 0; i < sitesFav.Count; i++)
+            {
+                sitesFavorisCharge.Add(new SiteFavorisLigne(sitesFav[i].nom, sitesFav[i].url));
+                
+            }
+            UpdateListBoxFromDataSource(lb_SitesFav);
         }
 
         /// <summary>
@@ -564,17 +584,25 @@ namespace FranceInformatiqueInventaire
         /// <returns>Retourne une liste de la classe métier FacturePrestation qui correspond aux prestations actuelles.</returns>
         public List<FacturePrestation> RecupererPrestationsActuelle()
         {
-            List<FacturePrestation> prestations = new List<FacturePrestation>();
-            for (int i = 0; i < lb_Prestation.Items.Count; i++)
+            return lb_Prestation.Items.Cast<FacturePrestation>().ToList();
+        }
+
+        /// <summary>
+        ///  Récupère les valeurs de la listBox sitesFav, pour pouvoir les sauvegarder dans un fichier.
+        /// </summary>
+        /// <returns>Retourne une liste de type de la classe métier SiteFavorisLigne qui correspond aux sites favoris actuelles.</returns>
+        public List<SiteFavorisLigne> RecupererSitesFavActuelle()
+        {
+            /*
+            List<SiteFavorisLigne> sitesFav = new List<SiteFavorisLigne>();
+            for (int i = 0; i < lb_SitesFav.Items.Count; i++)
             {
-                string stringOriginal = lb_Prestation.Items[i].ToString() ?? "";
-                string nomSepare;
-                float pourcentageSepare;
-                (nomSepare, pourcentageSepare) = SeparerPrestationNomPourcentage(stringOriginal);
-                FacturePrestation nouvellePrestation = new FacturePrestation(nomSepare, pourcentageSepare);
-                prestations.Add(nouvellePrestation);
+                SiteFavorisLigne siteFavTemp = (SiteFavorisLigne)lb_SitesFav.Items[i];
+                SiteFavorisLigne nouveauSiteFav = new SiteFavorisLigne(siteFavTemp.nom, siteFavTemp.url);
+                sitesFav.Add(nouveauSiteFav);
             }
-            return prestations;
+            return sitesFav;*/
+            return lb_SitesFav.Items.Cast<SiteFavorisLigne>().ToList();
         }
 
         /// <summary>
@@ -634,7 +662,7 @@ namespace FranceInformatiqueInventaire
         private void UpdateCbCellMarque(DataGridViewComboBoxCell cbMarque)
         {
             cbMarque.Items.Clear();
-            foreach (string type in lb_Marque.Items)
+            foreach (string type in marquesCharge)
             {
                 cbMarque.Items.Add(type);
             }
@@ -645,10 +673,22 @@ namespace FranceInformatiqueInventaire
         /// </summary>
         private void UpdateCbCellPrestation(DataGridViewComboBoxCell cbPrestation)
         {
+            var ancienneValue = cbPrestation.Value;
             cbPrestation.Items.Clear();
-            foreach (string prestation in lb_Prestation.Items)
+            foreach (FacturePrestation prestation in prestationsCharge)
             {
-                cbPrestation.Items.Add(prestation);
+                cbPrestation.Items.Add(prestation.ToString());
+            }
+            if(ancienneValue != "" && ancienneValue != null)
+            {
+                if (cbPrestation.Items.Contains(ancienneValue))
+                {
+                    cbPrestation.Value = ancienneValue;
+                }
+                else
+                {
+                    cbPrestation.Value = null;
+                }
             }
         }
 
@@ -700,14 +740,6 @@ namespace FranceInformatiqueInventaire
             for (int i = 0; i < dgv_Facture.Rows.Count; i++)
             {
                 DataGridViewCell cellPrestation = dgv_Facture.Rows[i].Cells[2];
-                if (cellPrestation.Value != null)
-                {
-                    string actuelleTexte = cellPrestation.Value.ToString() ?? "";
-                    if (!(lb_Prestation.Items.Contains(actuelleTexte)))
-                    {
-                        cellPrestation.Value = "";
-                    }
-                }
                 UpdateCbCellPrestation((DataGridViewComboBoxCell)cellPrestation);
             }
         }
@@ -1042,13 +1074,6 @@ namespace FranceInformatiqueInventaire
             typesCharge = lb_Type.Items.OfType<string>().ToList();
         }
 
-        /// <summary>
-        ///  Permet de sauvegarder dans la variable "prestationsCharge" la listBox prestation, cette procédure est nécessaire dans la recherche de prestation car à chaque recherche on "vide" la listBox, il faut donc la re-remplir pour refaire une recherche.
-        /// </summary>
-        private void DefinirPrestationCharge()
-        {
-            prestationsCharge = lb_Prestation.Items.OfType<string>().ToList();
-        }
 
         /// <summary>
         ///  Si la FormGestion est redimensionné, alors cache les dateTimePicker InventaireEntreeDate, InventaireSortieDate et FactureDate.
@@ -1756,7 +1781,7 @@ namespace FranceInformatiqueInventaire
                 dgvCellDifference.Value = null;
                 return;
             }
-            else if (dgvCellPrestation.Value != null)
+            else if (dgvCellPrestation.Value != null && dgvCellPrestation.Value != "")
             {
                 tva = SeparerPrestationNomPourcentage((string)dgvCellPrestation.Value).Item2;
             }
@@ -1798,12 +1823,12 @@ namespace FranceInformatiqueInventaire
         {
             cb_FiltreRecherche.SelectedIndex = 0;
             txt_Recherche.Text = "";
-            lb_Prestation.Items.Add(txt_AjoutPrestationNom.Text + " (" + nupd_AjoutPourcentageTVA.Value + "%)");
+            prestationsCharge.Add(new FacturePrestation(txt_AjoutPrestationNom.Text, (float)nupd_AjoutPourcentageTVA.Value));
+            UpdateListBoxFromDataSource(lb_Prestation);
             lb_Prestation.SelectedIndex = -1;
             txt_AjoutPrestationNom.Text = "";
             nupd_AjoutPourcentageTVA.Value = 0;
             UpdateFactureColonnePrestation();
-            DefinirPrestationCharge();
         }
 
         /// <summary>
@@ -1811,15 +1836,15 @@ namespace FranceInformatiqueInventaire
         /// </summary>
         private void btn_SupprPrestation_Click(object sender, EventArgs e)
         {
-            string saveSelectedItemText = lb_Prestation.SelectedItem.ToString() ?? "";
+            FacturePrestation saveSelectedItem = (FacturePrestation)lb_Prestation.SelectedItem;
             cb_FiltreRecherche.SelectedIndex = 0;
             txt_Recherche.Text = "";
-            lb_Prestation.Items.Remove(saveSelectedItemText);
+            prestationsCharge.Remove(saveSelectedItem);
+            UpdateListBoxFromDataSource(lb_Prestation);
             lb_Prestation.SelectedIndex = -1;
             txt_AjoutPrestationNom.Text = "";
             nupd_AjoutPourcentageTVA.Value = 0;
             UpdateFactureColonnePrestation();
-            DefinirPrestationCharge();
         }
 
         /// <summary>
@@ -1898,7 +1923,7 @@ namespace FranceInformatiqueInventaire
         {
             defautMarquesCharge = marquesCharge.ToList();
             defautTypesCharge = typesCharge.ToList();
-            defautPrestationsCharge = prestationsCharge.ToList();
+            defautPrestationsCharge = prestationsCharge;
         }
 
         private void FairePageBlanche()
@@ -1906,16 +1931,16 @@ namespace FranceInformatiqueInventaire
             dtpInventaireDateEntree.Visible = false;
             dtpInventaireDateSortie.Visible = false;
             dtpFactureDate.Visible = false;
-            dgv_Inventaire.Rows.Clear();
-            dgv_Facture.Rows.Clear();
-            lb_Marque.Items.Clear();
-            lb_Type.Items.Clear();
-            lb_Prestation.Items.Clear();
             inventaireRowsCharge.Clear();
             factureRowsCharge.Clear();
             marquesCharge.Clear();
             typesCharge.Clear();
             prestationsCharge.Clear();
+            dgv_Inventaire.Rows.Clear();
+            dgv_Facture.Rows.Clear();
+            lb_Marque.Items.Clear();
+            lb_Type.Items.Clear();
+            UpdateListBoxFromDataSource(lb_Prestation);
             foreach (string marque in defautMarquesCharge)
             {
                 lb_Marque.Items.Add(marque);
@@ -1924,13 +1949,13 @@ namespace FranceInformatiqueInventaire
             {
                 lb_Type.Items.Add(type);
             }
-            foreach (string prestation in defautPrestationsCharge)
+            foreach (FacturePrestation prestation in defautPrestationsCharge)
             {
-                lb_Prestation.Items.Add(prestation);
+                prestationsCharge.Add(prestation);
             }
             DefinirMarqueCharge();
             DefinirTypeCharge();
-            DefinirPrestationCharge();
+            UpdateListBoxFromDataSource(lb_Prestation);
             changerFormTitre(true);
             TSMenuItem_Fichier_Sauvegarder.Enabled = false;
             btn_Sauvegarder.Enabled = false;
