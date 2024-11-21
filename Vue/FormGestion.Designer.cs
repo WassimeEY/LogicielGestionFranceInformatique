@@ -30,6 +30,10 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormGestion));
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
@@ -74,19 +78,27 @@
             tlp_Millieu = new TableLayoutPanel();
             tabControl_Onglets = new TabControl();
             OngletTableauDeBord = new TabPage();
+            tableLayoutPanel9 = new TableLayoutPanel();
+            tableLayoutPanel10 = new TableLayoutPanel();
+            tableLayoutPanel11 = new TableLayoutPanel();
+            tableLayoutPanel12 = new TableLayoutPanel();
+            label3 = new Label();
+            tableLayoutPanel13 = new TableLayoutPanel();
+            chart_Valeurs = new System.Windows.Forms.DataVisualization.Charting.Chart();
             OngletInventaire = new TabPage();
             tabControl_Inventaire = new TabControl();
             tab_Inventaire = new TabPage();
             dgv_Inventaire = new DataGridView();
             IndexInventaire = new DataGridViewTextBoxColumn();
-            Type = new DataGridViewComboBoxColumn();
-            Marque = new DataGridViewComboBoxColumn();
-            Nom = new DataGridViewTextBoxColumn();
-            Annee = new DataGridViewTextBoxColumn();
-            Prix = new DataGridViewTextBoxColumn();
-            DateEntree = new DataGridViewTextBoxColumn();
-            DateSortie = new DataGridViewTextBoxColumn();
-            Commentaire = new DataGridViewTextBoxColumn();
+            TypeInventaire = new DataGridViewComboBoxColumn();
+            MarqueInventaire = new DataGridViewComboBoxColumn();
+            NomInventaire = new DataGridViewTextBoxColumn();
+            AnneeInventaire = new DataGridViewTextBoxColumn();
+            PrixInventaire = new DataGridViewTextBoxColumn();
+            QuantiteInventaire = new DataGridViewTextBoxColumn();
+            DateEntreeInventaire = new DataGridViewTextBoxColumn();
+            DateSortieInventaire = new DataGridViewTextBoxColumn();
+            CommentaireInventaire = new DataGridViewTextBoxColumn();
             tab_Marque = new TabPage();
             tlp_MarqueMain = new TableLayoutPanel();
             lb_Marque = new ListBox();
@@ -133,8 +145,8 @@
             btn_AjouterSiteWeb = new Button();
             txt_AjoutSiteWebNom = new TextBox();
             btn_SupprimerSiteWeb = new Button();
-            btn_ModifierSiteWeb = new Button();
             OngletPlanning = new TabPage();
+            inventaireMarqueBindingSource1 = new BindingSource(components);
             inventaireMarqueBindingSource = new BindingSource(components);
             tableLayoutPrincipal = new TableLayoutPanel();
             tableLayoutPanel3 = new TableLayoutPanel();
@@ -146,6 +158,12 @@
             tlp_Main.SuspendLayout();
             tlp_Millieu.SuspendLayout();
             tabControl_Onglets.SuspendLayout();
+            OngletTableauDeBord.SuspendLayout();
+            tableLayoutPanel9.SuspendLayout();
+            tableLayoutPanel10.SuspendLayout();
+            tableLayoutPanel12.SuspendLayout();
+            tableLayoutPanel13.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)chart_Valeurs).BeginInit();
             OngletInventaire.SuspendLayout();
             tabControl_Inventaire.SuspendLayout();
             tab_Inventaire.SuspendLayout();
@@ -168,6 +186,7 @@
             OngletSitesFavoris.SuspendLayout();
             tableLayoutPanel8.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)inventaireMarqueBindingSource1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)inventaireMarqueBindingSource).BeginInit();
             tableLayoutPrincipal.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -588,16 +607,121 @@
             // 
             // OngletTableauDeBord
             // 
-            OngletTableauDeBord.BackColor = Color.DimGray;
+            OngletTableauDeBord.BackColor = Color.FromArgb(73, 82, 97);
+            OngletTableauDeBord.Controls.Add(tableLayoutPanel9);
             OngletTableauDeBord.Location = new Point(4, 24);
             OngletTableauDeBord.Name = "OngletTableauDeBord";
             OngletTableauDeBord.Size = new Size(1030, 243);
             OngletTableauDeBord.TabIndex = 4;
             OngletTableauDeBord.Text = "Tableau de bord";
             // 
+            // tableLayoutPanel9
+            // 
+            tableLayoutPanel9.ColumnCount = 2;
+            tableLayoutPanel9.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 75F));
+            tableLayoutPanel9.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel9.Controls.Add(tableLayoutPanel10, 0, 0);
+            tableLayoutPanel9.Dock = DockStyle.Fill;
+            tableLayoutPanel9.Location = new Point(0, 0);
+            tableLayoutPanel9.Name = "tableLayoutPanel9";
+            tableLayoutPanel9.RowCount = 1;
+            tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel9.Size = new Size(1030, 243);
+            tableLayoutPanel9.TabIndex = 0;
+            // 
+            // tableLayoutPanel10
+            // 
+            tableLayoutPanel10.ColumnCount = 1;
+            tableLayoutPanel10.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel10.Controls.Add(tableLayoutPanel11, 0, 0);
+            tableLayoutPanel10.Controls.Add(tableLayoutPanel12, 0, 1);
+            tableLayoutPanel10.Dock = DockStyle.Fill;
+            tableLayoutPanel10.Location = new Point(3, 3);
+            tableLayoutPanel10.Name = "tableLayoutPanel10";
+            tableLayoutPanel10.RowCount = 2;
+            tableLayoutPanel10.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel10.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel10.Size = new Size(766, 237);
+            tableLayoutPanel10.TabIndex = 0;
+            // 
+            // tableLayoutPanel11
+            // 
+            tableLayoutPanel11.ColumnCount = 2;
+            tableLayoutPanel11.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel11.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel11.Dock = DockStyle.Fill;
+            tableLayoutPanel11.Location = new Point(3, 3);
+            tableLayoutPanel11.Name = "tableLayoutPanel11";
+            tableLayoutPanel11.RowCount = 1;
+            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel11.Size = new Size(760, 112);
+            tableLayoutPanel11.TabIndex = 0;
+            // 
+            // tableLayoutPanel12
+            // 
+            tableLayoutPanel12.BackColor = Color.FromArgb(83, 92, 107);
+            tableLayoutPanel12.ColumnCount = 1;
+            tableLayoutPanel12.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel12.Controls.Add(label3, 0, 0);
+            tableLayoutPanel12.Controls.Add(tableLayoutPanel13, 0, 1);
+            tableLayoutPanel12.Dock = DockStyle.Fill;
+            tableLayoutPanel12.Location = new Point(3, 121);
+            tableLayoutPanel12.Name = "tableLayoutPanel12";
+            tableLayoutPanel12.RowCount = 2;
+            tableLayoutPanel12.RowStyles.Add(new RowStyle(SizeType.Percent, 12.2807016F));
+            tableLayoutPanel12.RowStyles.Add(new RowStyle(SizeType.Percent, 87.7193F));
+            tableLayoutPanel12.Size = new Size(760, 113);
+            tableLayoutPanel12.TabIndex = 1;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(3, 0);
+            label3.Name = "label3";
+            label3.Size = new Size(128, 13);
+            label3.TabIndex = 0;
+            label3.Text = "Revenue cette semaine";
+            // 
+            // tableLayoutPanel13
+            // 
+            tableLayoutPanel13.ColumnCount = 2;
+            tableLayoutPanel13.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel13.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel13.Controls.Add(chart_Valeurs, 1, 0);
+            tableLayoutPanel13.Dock = DockStyle.Fill;
+            tableLayoutPanel13.Location = new Point(3, 16);
+            tableLayoutPanel13.Name = "tableLayoutPanel13";
+            tableLayoutPanel13.RowCount = 1;
+            tableLayoutPanel13.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel13.Size = new Size(754, 94);
+            tableLayoutPanel13.TabIndex = 1;
+            // 
+            // chart_Valeurs
+            // 
+            chartArea1.Name = "ChartArea1";
+            chart_Valeurs.ChartAreas.Add(chartArea1);
+            chart_Valeurs.Dock = DockStyle.Fill;
+            legend1.Name = "Legend1";
+            chart_Valeurs.Legends.Add(legend1);
+            chart_Valeurs.Location = new Point(380, 3);
+            chart_Valeurs.Name = "chart_Valeurs";
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.Name = "Valeur de l'inventaire";
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.Name = "Factures émises";
+            chart_Valeurs.Series.Add(series1);
+            chart_Valeurs.Series.Add(series2);
+            chart_Valeurs.Size = new Size(371, 88);
+            chart_Valeurs.TabIndex = 0;
+            chart_Valeurs.Text = "chart1";
+            // 
             // OngletInventaire
             // 
-            OngletInventaire.BackColor = Color.DimGray;
+            OngletInventaire.BackColor = Color.FromArgb(73, 82, 97);
             OngletInventaire.Controls.Add(tabControl_Inventaire);
             OngletInventaire.Location = new Point(4, 24);
             OngletInventaire.Name = "OngletInventaire";
@@ -648,7 +772,7 @@
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             dgv_Inventaire.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dgv_Inventaire.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv_Inventaire.Columns.AddRange(new DataGridViewColumn[] { IndexInventaire, Type, Marque, Nom, Annee, Prix, DateEntree, DateSortie, Commentaire });
+            dgv_Inventaire.Columns.AddRange(new DataGridViewColumn[] { IndexInventaire, TypeInventaire, MarqueInventaire, NomInventaire, AnneeInventaire, PrixInventaire, QuantiteInventaire, DateEntreeInventaire, DateSortieInventaire, CommentaireInventaire });
             dgv_Inventaire.Dock = DockStyle.Fill;
             dgv_Inventaire.EditMode = DataGridViewEditMode.EditOnEnter;
             dgv_Inventaire.GridColor = Color.FromArgb(64, 64, 64);
@@ -661,6 +785,7 @@
             dgv_Inventaire.CellClick += dgv_Inventaire_CellClick;
             dgv_Inventaire.CellDoubleClick += dgv_Inventaire_CellDoubleClick;
             dgv_Inventaire.CellValueChanged += dgv_Inventaire_CellValueChanged;
+            dgv_Inventaire.DataError += dgv_Inventaire_DataError;
             dgv_Inventaire.RowsAdded += dgv_Inventaire_RowsAdded;
             dgv_Inventaire.Scroll += dgv_Inventaire_Scroll;
             dgv_Inventaire.SelectionChanged += dgv_Inventaire_SelectionChanged;
@@ -673,61 +798,67 @@
             IndexInventaire.ReadOnly = true;
             IndexInventaire.Width = 40;
             // 
-            // Type
+            // TypeInventaire
             // 
-            Type.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Type.HeaderText = "Type";
-            Type.Items.AddRange(new object[] { "Périphérique", "Processeur", "Pâte thermique" });
-            Type.MaxDropDownItems = 100;
-            Type.Name = "Type";
-            Type.Resizable = DataGridViewTriState.True;
-            Type.SortMode = DataGridViewColumnSortMode.Automatic;
+            TypeInventaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            TypeInventaire.HeaderText = "Type";
+            TypeInventaire.Items.AddRange(new object[] { "Périphérique", "Processeur", "Pâte thermique" });
+            TypeInventaire.MaxDropDownItems = 100;
+            TypeInventaire.Name = "TypeInventaire";
+            TypeInventaire.Resizable = DataGridViewTriState.True;
+            TypeInventaire.SortMode = DataGridViewColumnSortMode.Automatic;
             // 
-            // Marque
+            // MarqueInventaire
             // 
-            Marque.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Marque.HeaderText = "Marque";
-            Marque.Items.AddRange(new object[] { "Asus", "Logitech", "Nividia", "Intel", "Acer", "Lenovo" });
-            Marque.MaxDropDownItems = 100;
-            Marque.Name = "Marque";
-            Marque.Resizable = DataGridViewTriState.True;
-            Marque.SortMode = DataGridViewColumnSortMode.Automatic;
+            MarqueInventaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            MarqueInventaire.HeaderText = "Marque";
+            MarqueInventaire.Items.AddRange(new object[] { "Asus", "Logitech", "Nividia", "Intel", "Acer", "Lenovo" });
+            MarqueInventaire.MaxDropDownItems = 100;
+            MarqueInventaire.Name = "MarqueInventaire";
+            MarqueInventaire.Resizable = DataGridViewTriState.True;
+            MarqueInventaire.SortMode = DataGridViewColumnSortMode.Automatic;
             // 
-            // Nom
+            // NomInventaire
             // 
-            Nom.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Nom.HeaderText = "Nom";
-            Nom.Name = "Nom";
+            NomInventaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            NomInventaire.HeaderText = "Nom";
+            NomInventaire.Name = "NomInventaire";
             // 
-            // Annee
+            // AnneeInventaire
             // 
-            Annee.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Annee.HeaderText = "Année";
-            Annee.Name = "Annee";
+            AnneeInventaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            AnneeInventaire.HeaderText = "Année";
+            AnneeInventaire.Name = "AnneeInventaire";
             // 
-            // Prix
+            // PrixInventaire
             // 
-            Prix.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Prix.HeaderText = "Prix";
-            Prix.Name = "Prix";
+            PrixInventaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            PrixInventaire.HeaderText = "Prix TTC";
+            PrixInventaire.Name = "PrixInventaire";
             // 
-            // DateEntree
+            // QuantiteInventaire
             // 
-            DateEntree.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            DateEntree.HeaderText = "Date d'entrée";
-            DateEntree.Name = "DateEntree";
+            QuantiteInventaire.HeaderText = "Quantité";
+            QuantiteInventaire.Name = "QuantiteInventaire";
             // 
-            // DateSortie
+            // DateEntreeInventaire
             // 
-            DateSortie.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            DateSortie.HeaderText = "Date de sortie";
-            DateSortie.Name = "DateSortie";
+            DateEntreeInventaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            DateEntreeInventaire.HeaderText = "Date d'entrée";
+            DateEntreeInventaire.Name = "DateEntreeInventaire";
+            DateEntreeInventaire.ReadOnly = true;
             // 
-            // Commentaire
+            // DateSortieInventaire
             // 
-            Commentaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Commentaire.HeaderText = "Commentaire";
-            Commentaire.Name = "Commentaire";
+            DateSortieInventaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            DateSortieInventaire.HeaderText = "Date de sortie";
+            DateSortieInventaire.Name = "DateSortieInventaire";
+            // 
+            // CommentaireInventaire
+            // 
+            CommentaireInventaire.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            CommentaireInventaire.HeaderText = "Commentaire";
+            CommentaireInventaire.Name = "CommentaireInventaire";
             // 
             // tab_Marque
             // 
@@ -921,7 +1052,7 @@
             // 
             // OngletFactureNette
             // 
-            OngletFactureNette.BackColor = Color.DimGray;
+            OngletFactureNette.BackColor = Color.FromArgb(73, 82, 97);
             OngletFactureNette.Controls.Add(tabControl_Facture);
             OngletFactureNette.Location = new Point(4, 24);
             OngletFactureNette.Name = "OngletFactureNette";
@@ -1204,7 +1335,7 @@
             // 
             // OngletSitesFavoris
             // 
-            OngletSitesFavoris.BackColor = Color.DimGray;
+            OngletSitesFavoris.BackColor = Color.FromArgb(73, 82, 97);
             OngletSitesFavoris.Controls.Add(tableLayoutPanel8);
             OngletSitesFavoris.Location = new Point(4, 24);
             OngletSitesFavoris.Name = "OngletSitesFavoris";
@@ -1251,19 +1382,18 @@
             tableLayoutPanel4.Controls.Add(txt_AjoutSiteWebUrl, 0, 1);
             tableLayoutPanel4.Controls.Add(btn_AjouterSiteWeb, 0, 2);
             tableLayoutPanel4.Controls.Add(txt_AjoutSiteWebNom, 0, 0);
-            tableLayoutPanel4.Controls.Add(btn_SupprimerSiteWeb, 0, 5);
-            tableLayoutPanel4.Controls.Add(btn_ModifierSiteWeb, 0, 4);
+            tableLayoutPanel4.Controls.Add(btn_SupprimerSiteWeb, 0, 4);
             tableLayoutPanel4.Dock = DockStyle.Fill;
             tableLayoutPanel4.Location = new Point(518, 3);
             tableLayoutPanel4.Name = "tableLayoutPanel4";
-            tableLayoutPanel4.RowCount = 7;
+            tableLayoutPanel4.RowCount = 6;
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             tableLayoutPanel4.RowStyles.Add(new RowStyle());
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel4.Size = new Size(509, 237);
             tableLayoutPanel4.TabIndex = 3;
             // 
@@ -1320,7 +1450,7 @@
             btn_SupprimerSiteWeb.Dock = DockStyle.Fill;
             btn_SupprimerSiteWeb.Enabled = false;
             btn_SupprimerSiteWeb.ForeColor = Color.FromArgb(48, 50, 54);
-            btn_SupprimerSiteWeb.Location = new Point(3, 213);
+            btn_SupprimerSiteWeb.Location = new Point(3, 163);
             btn_SupprimerSiteWeb.Name = "btn_SupprimerSiteWeb";
             btn_SupprimerSiteWeb.Size = new Size(503, 44);
             btn_SupprimerSiteWeb.TabIndex = 11;
@@ -1328,27 +1458,18 @@
             btn_SupprimerSiteWeb.UseVisualStyleBackColor = false;
             btn_SupprimerSiteWeb.Click += btn_SupprimerSiteWeb_Click;
             // 
-            // btn_ModifierSiteWeb
-            // 
-            btn_ModifierSiteWeb.BackColor = SystemColors.Control;
-            btn_ModifierSiteWeb.Dock = DockStyle.Fill;
-            btn_ModifierSiteWeb.Enabled = false;
-            btn_ModifierSiteWeb.ForeColor = Color.FromArgb(48, 50, 54);
-            btn_ModifierSiteWeb.Location = new Point(3, 163);
-            btn_ModifierSiteWeb.Name = "btn_ModifierSiteWeb";
-            btn_ModifierSiteWeb.Size = new Size(503, 44);
-            btn_ModifierSiteWeb.TabIndex = 10;
-            btn_ModifierSiteWeb.Text = "Modifier";
-            btn_ModifierSiteWeb.UseVisualStyleBackColor = false;
-            // 
             // OngletPlanning
             // 
-            OngletPlanning.BackColor = Color.DimGray;
+            OngletPlanning.BackColor = Color.FromArgb(73, 82, 97);
             OngletPlanning.Location = new Point(4, 24);
             OngletPlanning.Name = "OngletPlanning";
             OngletPlanning.Size = new Size(1030, 243);
             OngletPlanning.TabIndex = 3;
             OngletPlanning.Text = "Planning";
+            // 
+            // inventaireMarqueBindingSource1
+            // 
+            inventaireMarqueBindingSource1.DataSource = typeof(Model.InventaireMarque);
             // 
             // inventaireMarqueBindingSource
             // 
@@ -1419,6 +1540,13 @@
             tlp_Main.ResumeLayout(false);
             tlp_Millieu.ResumeLayout(false);
             tabControl_Onglets.ResumeLayout(false);
+            OngletTableauDeBord.ResumeLayout(false);
+            tableLayoutPanel9.ResumeLayout(false);
+            tableLayoutPanel10.ResumeLayout(false);
+            tableLayoutPanel12.ResumeLayout(false);
+            tableLayoutPanel12.PerformLayout();
+            tableLayoutPanel13.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)chart_Valeurs).EndInit();
             OngletInventaire.ResumeLayout(false);
             tabControl_Inventaire.ResumeLayout(false);
             tab_Inventaire.ResumeLayout(false);
@@ -1446,6 +1574,7 @@
             tableLayoutPanel8.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
             tableLayoutPanel4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)inventaireMarqueBindingSource1).EndInit();
             ((System.ComponentModel.ISupportInitialize)inventaireMarqueBindingSource).EndInit();
             tableLayoutPrincipal.ResumeLayout(false);
             tableLayoutPanel3.ResumeLayout(false);
@@ -1513,15 +1642,6 @@
         private TabPage OngletInventaire;
         private TabPage OngletFactureNette;
         private DataGridView dgv_Facture;
-        private DataGridViewTextBoxColumn IndexInventaire;
-        private DataGridViewComboBoxColumn Type;
-        private DataGridViewComboBoxColumn Marque;
-        private DataGridViewTextBoxColumn Nom;
-        private DataGridViewTextBoxColumn Annee;
-        private DataGridViewTextBoxColumn Prix;
-        private DataGridViewTextBoxColumn DateEntree;
-        private DataGridViewTextBoxColumn DateSortie;
-        private DataGridViewTextBoxColumn Commentaire;
         private TabPage OngletSitesFavoris;
         private TabPage OngletPlanning;
         private ToolStripButton btn_RetourArriere;
@@ -1531,7 +1651,6 @@
         private TableLayoutPanel tableLayoutPanel4;
         private TextBox txt_AjoutSiteWebUrl;
         private Button btn_SupprimerSiteWeb;
-        private Button btn_ModifierSiteWeb;
         private Button btn_AjouterSiteWeb;
         private TextBox txt_AjoutSiteWebNom;
         private TabControl tabControl_Facture;
@@ -1562,5 +1681,23 @@
         private ToolStripMenuItem toolStripMenuItem1;
         private BindingSource inventaireMarqueBindingSource;
         private Button btn_AccederSiteWeb;
+        private TableLayoutPanel tableLayoutPanel9;
+        private DataGridViewTextBoxColumn IndexInventaire;
+        private DataGridViewComboBoxColumn TypeInventaire;
+        private DataGridViewComboBoxColumn MarqueInventaire;
+        private DataGridViewTextBoxColumn NomInventaire;
+        private DataGridViewTextBoxColumn AnneeInventaire;
+        private DataGridViewTextBoxColumn PrixInventaire;
+        private DataGridViewTextBoxColumn QuantiteInventaire;
+        private DataGridViewTextBoxColumn DateEntreeInventaire;
+        private DataGridViewTextBoxColumn DateSortieInventaire;
+        private DataGridViewTextBoxColumn CommentaireInventaire;
+        private TableLayoutPanel tableLayoutPanel10;
+        private TableLayoutPanel tableLayoutPanel11;
+        private TableLayoutPanel tableLayoutPanel12;
+        private Label label3;
+        private TableLayoutPanel tableLayoutPanel13;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart_Valeurs;
+        private BindingSource inventaireMarqueBindingSource1;
     }
 }

@@ -49,6 +49,7 @@ namespace FranceInformatiqueInventaire.dal
         /// <returns>Une liste des instances de l'entité InventaireLigne récupérées grace au curseur SQL.</returns>
         public List<InventaireLigne> RecupererTableInventaire(string connectionTexteTemp)
         {
+            bool existenceColonneQuantite = false;
             connectionTexte = connectionTexteTemp;
             List<InventaireLigne> inventaireLignes = new List<InventaireLigne>();
             int id;
@@ -57,16 +58,23 @@ namespace FranceInformatiqueInventaire.dal
             string nom;
             string annee;
             float prix;
+            int quantite = 1; //Si la colonne n'existe pas dans la sauvegarde alors on déclare que la quantité est à 1 par défaut
             string dateEntree;
             string dateSortie;
             string commentaire;
             using (SQLiteConnection connection = new SQLiteConnection(connectionTexte))
             {
                 connection.Open();
+                using (SQLiteCommand commandVerifExistenceQuantite = new SQLiteCommand("SELECT COUNT(*) AS CNTREC FROM pragma_table_info('tablename') WHERE name='quantite'", connection))
+                {
+                    object result = commandVerifExistenceQuantite.ExecuteScalar();
+                    existenceColonneQuantite =  result != null;
+                }
                 using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Inventaire", connection))
                 {
                     using (SQLiteDataReader curseur = command.ExecuteReader())
                     {
+                        //Les noms de colonnes de la table ne sont pas les mêmes que les Names de la dataGridView inventaire.
                         while (curseur.Read())
                         {
                             id = curseur.GetInt32(curseur.GetOrdinal("Id"));
@@ -75,10 +83,14 @@ namespace FranceInformatiqueInventaire.dal
                             nom = curseur.GetString(curseur.GetOrdinal("Nom"));
                             annee = curseur.GetString(curseur.GetOrdinal("Annee"));
                             prix = curseur.IsDBNull(curseur.GetOrdinal("Prix")) ? -1f : curseur.GetFloat(curseur.GetOrdinal("Prix"));
+                            if (existenceColonneQuantite)
+                            {
+                                quantite = curseur.IsDBNull(curseur.GetOrdinal("Quantite")) ? 1 : curseur.GetInt32(curseur.GetOrdinal("Quantite"));
+                            }
                             dateEntree = curseur.GetString(curseur.GetOrdinal("DateEntree"));
                             dateSortie = curseur.GetString(curseur.GetOrdinal("DateSortie"));
                             commentaire = curseur.GetString(curseur.GetOrdinal("Commentaire"));
-                            InventaireLigne nouvelleLigne = new InventaireLigne(id, type, marque, nom, annee, prix, dateEntree, dateSortie, commentaire);
+                            InventaireLigne nouvelleLigne = new InventaireLigne(id, type, marque, nom, annee, prix, quantite, dateEntree, dateSortie, commentaire);
                             inventaireLignes.Add(nouvelleLigne);
                         }
                     }
@@ -274,10 +286,10 @@ namespace FranceInformatiqueInventaire.dal
                 connection.Open();
                 using (SQLiteTransaction transaction = connection.BeginTransaction())
                 {
-                    using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE [Inventaire] ([Id] bigint NOT NULL, [Type] text,[Marque] text, [Nom] text, [Annee] text, [Prix] real, [DateEntree] text, [DateSortie] text, [Commentaire] text, CONSTRAINT [sqlite_master_PK_Inventaire] PRIMARY KEY ([Id]));", connection, transaction))
+                    using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE [Inventaire] ([Id] bigint NOT NULL, [Type] text,[Marque] text, [Nom] text, [Annee] text, [Prix] real, [Quantite] real,[DateEntree] text, [DateSortie] text, [Commentaire] text, CONSTRAINT [sqlite_master_PK_Inventaire] PRIMARY KEY ([Id]));", connection, transaction))
                     {
                         command.ExecuteNonQuery();
-                        using (SQLiteCommand command2 = new SQLiteCommand("INSERT INTO Inventaire (Id, Type, Marque, Nom, Annee, Prix, DateEntree, DateSortie, Commentaire) VALUES (@Id, @Type, @Marque, @Nom, @Annee, @Prix, @DateEntree, @DateSortie, @Commentaire)", connection, transaction))
+                        using (SQLiteCommand command2 = new SQLiteCommand("INSERT INTO Inventaire (Id, Type, Marque, Nom, Annee, Prix, Quantite, DateEntree, DateSortie, Commentaire) VALUES (@Id, @Type, @Marque, @Nom, @Annee, @Prix, @Quantite, @DateEntree, @DateSortie, @Commentaire)", connection, transaction))
                         {
                             for (int i = 0; i < inventaireActuelle.Count; i++)
                             {
@@ -295,6 +307,7 @@ namespace FranceInformatiqueInventaire.dal
                                 {
                                     command2.Parameters.AddWithValue("@Prix", DBNull.Value);
                                 }
+                                command2.Parameters.AddWithValue("@Quantite", inventaireLigne.quantite);
                                 command2.Parameters.AddWithValue("@DateEntree", inventaireLigne.dateEntree);
                                 command2.Parameters.AddWithValue("@DateSortie", inventaireLigne.dateSortie);
                                 command2.Parameters.AddWithValue("@Commentaire", inventaireLigne.commentaire);

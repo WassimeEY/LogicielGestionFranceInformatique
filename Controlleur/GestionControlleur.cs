@@ -1,7 +1,9 @@
 ﻿using FranceInformatiqueInventaire.dal;
+using FranceInformatiqueInventaire.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -121,7 +123,7 @@ namespace FranceInformatiqueInventaire.Controlleur
                 dgv_Inventaire.Enabled = true;
             }
         }
-
+        
         /// <summary>
         ///  Permet de rechercher dans l'inventaire en supprimant les rows de la dataGridView inventaire qui ne contiennent pas l'élément recherché, on parcours chaque colonne ou une colonne spécifique selon le filtre choisi.
         /// </summary>
@@ -576,5 +578,40 @@ namespace FranceInformatiqueInventaire.Controlleur
             }
         }
 
+
+
+        public string AssemblerPrestationNomPourcentage(string nomSepare, float pourcentageSepare)
+        {
+            return nomSepare + " (" + pourcentageSepare * 100 + "%)";
+        }
+
+        public (string, float) SeparerPrestationNomPourcentage(string stringOriginal)
+        {
+            string nomSepare = stringOriginal;
+            string strPourcentageSepare;
+            float pourcentageSepare;
+            nomSepare = nomSepare.Substring(0, nomSepare.IndexOf('(') - 1);
+            strPourcentageSepare = stringOriginal.Substring(stringOriginal.IndexOf('(') + 1, (stringOriginal.IndexOf(')') - stringOriginal.IndexOf('(')) - 2);
+            pourcentageSepare = float.Parse(strPourcentageSepare) / 100;
+            return (nomSepare, pourcentageSepare);
+        }
+
+
+        public void AccederSiteWebSelected(string url)
+        {
+            try
+            {
+                ProcessStartInfo psInfo = new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                };
+                Process.Start(psInfo);
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("L'url de ce site web ne semble pas fonctionner", "Erreur URL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }

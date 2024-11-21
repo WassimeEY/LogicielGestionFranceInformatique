@@ -14,11 +14,12 @@ namespace FranceInformatiqueInventaire.Model
         public string nom;
         public string annee;
         public float prix;
+        public int quantite;
         public string dateEntree;
         public string dateSortie;
         public string commentaire;
 
-        public InventaireLigne(int id, string type, string marque, string nom, string annee, float prix, string dateEntree, string dateSortie, string commentaire)
+        public InventaireLigne(int id, string type, string marque, string nom, string annee, float prix, int quantite, string dateEntree, string dateSortie, string commentaire)
         {
             this.id = id;
             this.type = type;
@@ -26,6 +27,7 @@ namespace FranceInformatiqueInventaire.Model
             this.nom = nom;
             this.annee = annee;
             this.prix = prix;
+            this.quantite = quantite;
             this.dateEntree = dateEntree;
             this.dateSortie = dateSortie;
             this.commentaire = commentaire;
