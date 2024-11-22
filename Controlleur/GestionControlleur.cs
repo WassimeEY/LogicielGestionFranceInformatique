@@ -1,5 +1,6 @@
 ﻿using FranceInformatiqueInventaire.dal;
 using FranceInformatiqueInventaire.Model;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static FranceInformatiqueInventaire.Model.EnumPeriodes;
 
 namespace FranceInformatiqueInventaire.Controlleur
 {
@@ -611,6 +613,79 @@ namespace FranceInformatiqueInventaire.Controlleur
             catch (Exception exc)
             {
                 MessageBox.Show("L'url de ce site web ne semble pas fonctionner", "Erreur URL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        public bool DateComprisDansPeriode(DateTime dateAverif, DateTime debutPeriode, DateTime finPeriode)
+        {
+            return (dateAverif >= debutPeriode) && (dateAverif <= finPeriode);
+        }
+
+        public DateTime ModifierDateDepuisPeriode(DateTime date, EnumPeriodes periode, bool ajouterPeriode = false)
+        {
+            int multiplicateur = -1;
+            if (ajouterPeriode)
+            {
+                multiplicateur = 1;
+            }
+            switch (periode)
+            {
+                case EnumPeriodes.SEMAINE:
+                    return date.AddDays(7 * multiplicateur);
+                case EnumPeriodes.MOIS:
+                    return date.AddMonths(1 * multiplicateur);
+                case EnumPeriodes.ANNEE:
+                    return date.AddYears(1 * multiplicateur);
+                default:
+                    return DateTime.MinValue;
+            }
+        }
+
+        public DateTime PremierJourPeriode(DateTime date, EnumPeriodes periode)
+        {
+            string dateStr;
+            switch (periode)
+            {
+                case EnumPeriodes.SEMAINE:
+                    while(date.DayOfWeek.ToString() != "Monday")
+                    {
+                        date = date.AddDays(-1);
+                    }
+                    return date;
+                case EnumPeriodes.MOIS:
+                    dateStr = date.ToString();
+                    dateStr = "01" + dateStr.Substring(2);
+                    return DateTime.Parse(dateStr);
+                case EnumPeriodes.ANNEE:
+                    dateStr = date.ToString();
+                    dateStr = "01/01" + dateStr.Substring(5);
+                    return DateTime.Parse(dateStr);
+                default:
+                    return DateTime.MinValue;
+            }
+        }
+
+        public DateTime DernierJourPeriode(DateTime date, EnumPeriodes periode)
+        {
+            string dateStr;
+            switch (periode)
+            {
+                case EnumPeriodes.SEMAINE:
+                    while (date.DayOfWeek.ToString() != "Friday")
+                    {
+                        date = date.AddDays(1);
+                    }
+                    return date;
+                case EnumPeriodes.MOIS:
+                    dateStr = date.ToString();
+                    dateStr = DateTime.DaysInMonth(date.Year, date.Month) + dateStr.Substring(2);
+                    return DateTime.Parse(dateStr);
+                case EnumPeriodes.ANNEE:
+                    dateStr = date.ToString();
+                    dateStr = DateTime.DaysInMonth(date.Year, 12) + "/12" + dateStr.Substring(5);
+                    return DateTime.Parse(dateStr);
+                default:
+                    return DateTime.MinValue;
             }
         }
     }

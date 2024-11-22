@@ -13,6 +13,8 @@ using System.ComponentModel;
 using FranceInformatiqueInventaire.Model;
 using System.Diagnostics;
 using System.Windows.Forms.DataVisualization.Charting;
+using static FranceInformatiqueInventaire.Model.EnumPeriodes;
+using static FranceInformatiqueInventaire.Model.EnumJourSemaineFR;
 
 namespace FranceInformatiqueInventaire
 {
@@ -94,7 +96,6 @@ namespace FranceInformatiqueInventaire
             label_CopyrightVersion.Text = label_CopyrightVersion.Text.Insert(label_CopyrightVersion.Text.LastIndexOf('©') + 2, DateTime.Now.Year.ToString());
             lb_SitesFav.DataSource = sitesFavorisCharge;
             lb_Prestation.DataSource = prestationsCharge;
-            InitialiserLinearChartValeurs();
         }
 
         /// <summary>
@@ -308,7 +309,7 @@ namespace FranceInformatiqueInventaire
                     }
                     TSMenuItem_Fichier_Sauvegarder.Enabled = true;
                     btn_Sauvegarder.Enabled = true;
-                    InitialiserLinearChartValeurs();
+                    InitialiserLinearChartFacture(EnumPeriodes.ANNEE);
                 }
             }
         }
@@ -467,23 +468,23 @@ namespace FranceInformatiqueInventaire
             dgv_Inventaire.Enabled = false;
             for (int i = 0; i < dgv_Inventaire.Rows.Count; i++)
             {
-                id = (int)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["IndexInventaire"].Value, dgv_Inventaire.Columns[0].Name);
-                type = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["TypeInventaire"].Value, dgv_Inventaire.Columns[1].Name);
-                marque = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["MarqueInventaire"].Value, dgv_Inventaire.Columns[2].Name);
-                nom = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["NomInventaire"].Value, dgv_Inventaire.Columns[3].Name);
-                annee = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["AnneeInventaire"].Value, dgv_Inventaire.Columns[4].Name);
-                if (dgv_Inventaire.Rows[i].Cells[5].Value != null && dgv_Inventaire.Rows[i].Cells["PrixInventaire"].Value != "")
+                id = (int)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["IndexInventaire"].Value, "IndexInventaire");
+                type = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["TypeInventaire"].Value, "TypeInventaire");
+                marque = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["MarqueInventaire"].Value, "MarqueInventaire");
+                nom = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["NomInventaire"].Value, "NomInventaire");
+                annee = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["AnneeInventaire"].Value, "AnneeInventaire");
+                if (dgv_Inventaire.Rows[i].Cells["PrixInventaire"].Value != null && dgv_Inventaire.Rows[i].Cells["PrixInventaire"].Value != "")
                 {
-                    prix = (float)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["PrixInventaire"].Value.ToString(), dgv_Inventaire.Columns[5].Name); ;
+                    prix = (float)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["PrixInventaire"].Value.ToString(), "PrixInventaire"); ;
                 }
                 else
                 {
                     prix = -1;
                 } 
-                quantite = (int)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["QuantiteInventaire"].Value, dgv_Inventaire.Columns[5].Name);
-                dateEntree = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["DateEntreeInventaire"].Value, dgv_Inventaire.Columns[6].Name);
-                dateSortie = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["DateSortieInventaire"].Value, dgv_Inventaire.Columns[7].Name);
-                commentaire = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["CommentaireInventaire"].Value, dgv_Inventaire.Columns[8].Name);
+                quantite = (int)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["QuantiteInventaire"].Value, "QuantiteInventaire");
+                dateEntree = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["DateEntreeInventaire"].Value, "DateEntreeInventaire");
+                dateSortie = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["DateSortieInventaire"].Value, "DateSortieInventaire");
+                commentaire = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["CommentaireInventaire"].Value, "CommentaireInventaire");
                 InventaireLigne nouvelleLigne = new InventaireLigne(id, type, marque, nom, annee, prix, quantite, dateEntree, dateSortie, commentaire);
                 inventaireLignes.Add(nouvelleLigne);
             }
@@ -2087,19 +2088,55 @@ namespace FranceInformatiqueInventaire
             e.ThrowException = true;
         }
 
-        public void InitialiserLinearChartValeurs()
+        public void InitialiserLinearChartFacture(EnumPeriodes periode)
         {
-            ChartArea chartArea = new ChartArea();
-            chartArea.AxisX.Title = "Dates";
+            chart_Valeurs.ChartAreas.Clear();
+            chart_Valeurs.Series.Clear();
+            ChartArea chartArea = new ChartArea("ChartAreaFacture");
+            chartArea.AxisX.Title = "Période";
             chartArea.AxisY.Title = "Valeur en €";
+            chartArea.AxisY.LabelStyle.Format = "{0:0}€";
+            chartArea.AxisX.Interval = 1;
+            chartArea.AxisX.LabelStyle.Angle = 45;
             chart_Valeurs.ChartAreas.Add(chartArea);
-            Series series = chart_Valeurs.Series["Valeur de l'inventaire"];
-            series.Points.Clear();
+            Series series = new Series("Revenu TTC des factures émises");
             series.ChartType = SeriesChartType.Line;
-            series.Name = "Valeur de l'inventaire";
-            foreach(DataGridViewRow factureRow in factureRowsCharge)
+            series.ChartArea = "ChartAreaFacture";
+            series.Name = "Revenu TTC des factures émises";
+            chart_Valeurs.Series.Add(series);
+            DateTime dateDebutPeriode = gestionControlleurRef.PremierJourPeriode(DateTime.Today, EnumPeriodes.SEMAINE);
+            DateTime dateFinPeriode = gestionControlleurRef.DernierJourPeriode(dateDebutPeriode, EnumPeriodes.SEMAINE);
+            DateTime dateParcourus = dateDebutPeriode;
+            DateTime dateRecup;
+            Dictionary<DateTime, float> sommeParDate = new Dictionary<DateTime, float>();
+            int i = 0;
+            foreach (DataGridViewRow factureRow in factureRowsCharge)
             {
-                series.Points.AddXY(factureRow.Cells["DateFacture"].Value, factureRow.Cells["PrixTTC"].Value);
+                DateTime.TryParse(factureRow.Cells["DateFacture"].Value.ToString() ?? "", out dateRecup);
+                if (dateRecup.Year != 1 && gestionControlleurRef.DateComprisDansPeriode(dateRecup, dateDebutPeriode, dateFinPeriode))
+                {
+                    if (sommeParDate.ContainsKey(dateRecup))
+                    {
+                        sommeParDate[dateRecup] = sommeParDate[dateRecup] + float.Parse(factureRow.Cells["PrixTTC"].Value.ToString() ?? "0");
+                    }
+                    else
+                    {
+                        sommeParDate.Add(dateRecup, float.Parse(factureRow.Cells["PrixTTC"].Value.ToString().Replace('€', ' ') ?? "0"));
+                    }
+                }
+                i++;
+            }
+            while (gestionControlleurRef.DateComprisDansPeriode(dateParcourus, dateDebutPeriode, dateFinPeriode))
+            {
+                if (sommeParDate.ContainsKey(dateParcourus))
+                {
+                    series.Points.AddXY(dateParcourus, sommeParDate[dateParcourus]);
+                }
+                else
+                {
+                    series.Points.AddXY(dateParcourus, 0);
+                }
+                dateParcourus = dateParcourus.AddDays(1);
             }
         }
     }

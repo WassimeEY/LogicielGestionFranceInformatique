@@ -286,7 +286,7 @@ namespace FranceInformatiqueInventaire.dal
                 connection.Open();
                 using (SQLiteTransaction transaction = connection.BeginTransaction())
                 {
-                    using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE [Inventaire] ([Id] bigint NOT NULL, [Type] text,[Marque] text, [Nom] text, [Annee] text, [Prix] real, [Quantite] real,[DateEntree] text, [DateSortie] text, [Commentaire] text, CONSTRAINT [sqlite_master_PK_Inventaire] PRIMARY KEY ([Id]));", connection, transaction))
+                    using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE [Inventaire] ([Id] bigint NOT NULL, [Type] text,[Marque] text, [Nom] text, [Annee] text, [Prix] real, [Quantite] bigint NOT NULL,[DateEntree] text, [DateSortie] text, [Commentaire] text, CONSTRAINT [sqlite_master_PK_Inventaire] PRIMARY KEY ([Id]));", connection, transaction))
                     {
                         command.ExecuteNonQuery();
                         using (SQLiteCommand command2 = new SQLiteCommand("INSERT INTO Inventaire (Id, Type, Marque, Nom, Annee, Prix, Quantite, DateEntree, DateSortie, Commentaire) VALUES (@Id, @Type, @Marque, @Nom, @Annee, @Prix, @Quantite, @DateEntree, @DateSortie, @Commentaire)", connection, transaction))
