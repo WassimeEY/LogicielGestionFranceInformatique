@@ -31,10 +31,8 @@
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormGestion));
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
@@ -94,6 +92,10 @@
             tableLayoutPanel14 = new TableLayoutPanel();
             label4 = new Label();
             label3 = new Label();
+            tableLayoutPanel17 = new TableLayoutPanel();
+            tableLayoutPanel18 = new TableLayoutPanel();
+            label7 = new Label();
+            cb_Periode = new ComboBox();
             OngletInventaire = new TabPage();
             tabControl_Inventaire = new TabControl();
             tab_Inventaire = new TabPage();
@@ -178,6 +180,8 @@
             tableLayoutPanel13.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)chart_Valeurs).BeginInit();
             tableLayoutPanel14.SuspendLayout();
+            tableLayoutPanel17.SuspendLayout();
+            tableLayoutPanel18.SuspendLayout();
             OngletInventaire.SuspendLayout();
             tabControl_Inventaire.SuspendLayout();
             tab_Inventaire.SuspendLayout();
@@ -635,6 +639,7 @@
             tableLayoutPanel9.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 75F));
             tableLayoutPanel9.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             tableLayoutPanel9.Controls.Add(tableLayoutPanel10, 0, 0);
+            tableLayoutPanel9.Controls.Add(tableLayoutPanel17, 1, 0);
             tableLayoutPanel9.Dock = DockStyle.Fill;
             tableLayoutPanel9.Location = new Point(0, 0);
             tableLayoutPanel9.Name = "tableLayoutPanel9";
@@ -693,13 +698,10 @@
             chartArea1.Name = "ChartArea1";
             chart1.ChartAreas.Add(chartArea1);
             chart1.Dock = DockStyle.Fill;
-            legend1.Name = "Legend1";
-            chart1.Legends.Add(legend1);
             chart1.Location = new Point(234, 3);
             chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Legend = "Legend1";
             series1.Name = "Valeur de l'inventaire";
             chart1.Series.Add(series1);
             chart1.Size = new Size(579, 168);
@@ -779,13 +781,10 @@
             chartArea2.Name = "ChartArea1";
             chart_Valeurs.ChartAreas.Add(chartArea2);
             chart_Valeurs.Dock = DockStyle.Fill;
-            legend2.Name = "Legend1";
-            chart_Valeurs.Legends.Add(legend2);
             chart_Valeurs.Location = new Point(234, 3);
             chart_Valeurs.Name = "chart_Valeurs";
             series2.ChartArea = "ChartArea1";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Legend = "Legend1";
             series2.Name = "Factures émises";
             chart_Valeurs.Series.Add(series2);
             chart_Valeurs.Size = new Size(579, 169);
@@ -829,6 +828,59 @@
             label3.Size = new Size(197, 31);
             label3.TabIndex = 0;
             label3.Text = "Revenu TTC des factures émises";
+            // 
+            // tableLayoutPanel17
+            // 
+            tableLayoutPanel17.ColumnCount = 1;
+            tableLayoutPanel17.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel17.Controls.Add(tableLayoutPanel18, 0, 0);
+            tableLayoutPanel17.Dock = DockStyle.Fill;
+            tableLayoutPanel17.Location = new Point(837, 3);
+            tableLayoutPanel17.Name = "tableLayoutPanel17";
+            tableLayoutPanel17.RowCount = 3;
+            tableLayoutPanel17.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel17.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel17.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel17.Size = new Size(273, 373);
+            tableLayoutPanel17.TabIndex = 1;
+            // 
+            // tableLayoutPanel18
+            // 
+            tableLayoutPanel18.ColumnCount = 2;
+            tableLayoutPanel18.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel18.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel18.Controls.Add(label7, 0, 0);
+            tableLayoutPanel18.Controls.Add(cb_Periode, 1, 0);
+            tableLayoutPanel18.Dock = DockStyle.Fill;
+            tableLayoutPanel18.Location = new Point(3, 3);
+            tableLayoutPanel18.Name = "tableLayoutPanel18";
+            tableLayoutPanel18.RowCount = 1;
+            tableLayoutPanel18.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel18.Size = new Size(267, 24);
+            tableLayoutPanel18.TabIndex = 0;
+            // 
+            // label7
+            // 
+            label7.Anchor = AnchorStyles.Left;
+            label7.AutoSize = true;
+            label7.ForeColor = Color.Transparent;
+            label7.Location = new Point(3, 4);
+            label7.Name = "label7";
+            label7.Size = new Size(47, 15);
+            label7.TabIndex = 0;
+            label7.Text = "Période";
+            // 
+            // cb_Periode
+            // 
+            cb_Periode.Dock = DockStyle.Fill;
+            cb_Periode.DropDownStyle = ComboBoxStyle.DropDownList;
+            cb_Periode.FormattingEnabled = true;
+            cb_Periode.Items.AddRange(new object[] { "Semaine", "Mois", "Année" });
+            cb_Periode.Location = new Point(56, 3);
+            cb_Periode.Name = "cb_Periode";
+            cb_Periode.Size = new Size(208, 23);
+            cb_Periode.TabIndex = 1;
+            cb_Periode.SelectedIndexChanged += cb_Periode_SelectedIndexChanged;
             // 
             // OngletInventaire
             // 
@@ -1664,6 +1716,9 @@
             ((System.ComponentModel.ISupportInitialize)chart_Valeurs).EndInit();
             tableLayoutPanel14.ResumeLayout(false);
             tableLayoutPanel14.PerformLayout();
+            tableLayoutPanel17.ResumeLayout(false);
+            tableLayoutPanel18.ResumeLayout(false);
+            tableLayoutPanel18.PerformLayout();
             OngletInventaire.ResumeLayout(false);
             tabControl_Inventaire.ResumeLayout(false);
             tab_Inventaire.ResumeLayout(false);
@@ -1823,5 +1878,9 @@
         private TableLayoutPanel tableLayoutPanel16;
         private Label label5;
         private Label label6;
+        private TableLayoutPanel tableLayoutPanel17;
+        private TableLayoutPanel tableLayoutPanel18;
+        private Label label7;
+        private ComboBox cb_Periode;
     }
 }

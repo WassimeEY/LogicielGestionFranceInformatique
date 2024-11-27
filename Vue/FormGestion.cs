@@ -14,7 +14,6 @@ using FranceInformatiqueInventaire.Model;
 using System.Diagnostics;
 using System.Windows.Forms.DataVisualization.Charting;
 using static FranceInformatiqueInventaire.Model.EnumPeriodes;
-using static FranceInformatiqueInventaire.Model.EnumJourSemaineFR;
 
 namespace FranceInformatiqueInventaire
 {
@@ -86,8 +85,9 @@ namespace FranceInformatiqueInventaire
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            ChangerContenuCbFiltre(ongletPrincipal.INVENTAIRE);
+            MajCbFiltre(true);
             cb_FiltreRecherche.SelectedIndex = 0;
+            cb_Periode.SelectedIndex = 0;
             this.ActiveControl = null;
             InitialiserCouleurThemeMenuItem();
             DefinirMarqueCharge();
@@ -309,7 +309,7 @@ namespace FranceInformatiqueInventaire
                     }
                     TSMenuItem_Fichier_Sauvegarder.Enabled = true;
                     btn_Sauvegarder.Enabled = true;
-                    InitialiserLinearChartFacture(EnumPeriodes.ANNEE);
+                    InitialiserLinearChartFacture();
                 }
             }
         }
@@ -480,7 +480,7 @@ namespace FranceInformatiqueInventaire
                 else
                 {
                     prix = -1;
-                } 
+                }
                 quantite = (int)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["QuantiteInventaire"].Value, "QuantiteInventaire");
                 dateEntree = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["DateEntreeInventaire"].Value, "DateEntreeInventaire");
                 dateSortie = (string)GetCellValueOuDefaultValue(dgv_Inventaire.Rows[i].Cells["DateSortieInventaire"].Value, "DateSortieInventaire");
@@ -765,9 +765,8 @@ namespace FranceInformatiqueInventaire
             {
                 case 0:
                     txt_Recherche.PlaceholderText = "Rechercher dans l'inventaire";
-                    ChangerContenuCbFiltre(ongletPrincipal.INVENTAIRE);
-                    cb_FiltreRecherche.Visible = true;
-                    lbl_Filtre.Visible = true;
+                    MajCbFiltre(true);
+                    
                     break;
                 case 1:
                     txt_Recherche.PlaceholderText = "Rechercher dans les marques";
@@ -1014,24 +1013,33 @@ namespace FranceInformatiqueInventaire
         /// </summary>
         private void txt_RechercheInventaire_TextChanged(object sender, EventArgs e)
         {
-            if (ongletPrincipalActuel == ongletPrincipal.INVENTAIRE)
+            switch (ongletPrincipalActuel)
             {
-                switch (tabControl_Inventaire.SelectedIndex)
-                {
-                    case 0:
-                        gestionControlleurRef.RechercherInventaire(txt_Recherche.Text);
-                        break;
-                    case 1:
-                        gestionControlleurRef.RechercherMarque(txt_Recherche.Text);
-                        break;
-                    case 2:
-                        gestionControlleurRef.RechercherType(txt_Recherche.Text);
-                        break;
-                }
-            }
-            else if (ongletPrincipalActuel == ongletPrincipal.FACTURES)
-            {
-                gestionControlleurRef.RechercherFacture(txt_Recherche.Text);
+                case ongletPrincipal.INVENTAIRE:
+                    switch (tabControl_Inventaire.SelectedIndex)
+                    {
+                        case 0:
+                            gestionControlleurRef.RechercherInventaire(txt_Recherche.Text);
+                            break;
+                        case 1:
+                            gestionControlleurRef.RechercherMarque(txt_Recherche.Text);
+                            break;
+                        case 2:
+                            gestionControlleurRef.RechercherType(txt_Recherche.Text);
+                            break;
+                    }
+                    break;
+                case ongletPrincipal.FACTURES:
+                    switch (tabControl_Facture.SelectedIndex)
+                    {
+                        case 0:
+                            gestionControlleurRef.RechercherFacture(txt_Recherche.Text);
+                            break;
+                        case 1:
+                            gestionControlleurRef.rec(txt_Recherche.Text);
+                            break;
+                    }
+                    break;
             }
         }
 
@@ -1419,20 +1427,39 @@ namespace FranceInformatiqueInventaire
         private void tabControl_Onglets_SelectedIndexChanged(object sender, EventArgs e)
         {
             ongletPrincipalActuel = (ongletPrincipal)tabControl_Onglets.SelectedIndex;
-            if (ongletPrincipalActuel == ongletPrincipal.INVENTAIRE)
+            switch (ongletPrincipalActuel)
             {
-                ChangerContenuCbFiltre(ongletPrincipal.INVENTAIRE);
-                tabControl_Inventaire_Selecting(null, null);
-                dgv_Inventaire_SelectionChanged(null, null);
-                btn_CollerLigne.Enabled = (rowsInventaireCopiee.Count != 0);
-            }
-            else if (ongletPrincipalActuel == ongletPrincipal.FACTURES)
-            {
-                ChangerContenuCbFiltre(ongletPrincipal.FACTURES);
-                DefinirVisibiliteToolStrip(visibiliteToolstrip.MODIFDGV);
-                tabControl_FactureOnglet_SelectedIndexChanged(null, null);
-                dgv_Facture_SelectionChanged(null, null);
-                btn_CollerLigne.Enabled = (rowsFactureCopiee.Count != 0);
+                case ongletPrincipal.TABDEBORD:
+                    DefinirVisibiliteToolStrip(visibiliteToolstrip.CACHEAVECFOND);
+                    MajCbFiltre(false);
+                    txt_Recherche.Visible = false;
+                    lbl_RechercheInventaire.Visible = false;
+                    break;
+                case ongletPrincipal.INVENTAIRE:
+                    DefinirVisibiliteToolStrip(visibiliteToolstrip.MODIFDGV);
+                    MajCbFiltre(true);
+                    tabControl_Inventaire_Selecting(null, null);
+                    dgv_Inventaire_SelectionChanged(null, null);
+                    txt_Recherche.Visible = true;
+                    lbl_RechercheInventaire.Visible = true;
+                    btn_CollerLigne.Enabled = (rowsInventaireCopiee.Count != 0);
+                    break;
+                case ongletPrincipal.FACTURES:
+                    DefinirVisibiliteToolStrip(visibiliteToolstrip.MODIFDGV);
+                    MajCbFiltre(true);
+                    tabControl_FactureOnglet_SelectedIndexChanged(null, null);
+                    dgv_Facture_SelectionChanged(null, null);
+                    txt_Recherche.Visible = true;
+                    lbl_RechercheInventaire.Visible = true;
+                    btn_CollerLigne.Enabled = (rowsFactureCopiee.Count != 0);
+                    break;
+                case ongletPrincipal.SITESFAV:
+                    DefinirVisibiliteToolStrip(visibiliteToolstrip.CACHEAVECFOND);
+                    MajCbFiltre(false);
+                    txt_Recherche.Visible = true;
+                    txt_Recherche.PlaceholderText = "Rechercher dans les sites favoris";
+                    lbl_RechercheInventaire.Visible = true;
+                    break;
             }
         }
 
@@ -1517,14 +1544,20 @@ namespace FranceInformatiqueInventaire
             }
         }
 
-        private void ChangerContenuCbFiltre(ongletPrincipal onglet, bool clear = true)
+        private void MajCbFiltre(bool rendreVisible, bool clear = true)
         {
+            cb_FiltreRecherche.Visible = rendreVisible;
+            lbl_Filtre.Visible = rendreVisible;
+            if (!rendreVisible)
+            {
+                return;
+            }
             if (clear)
             {
                 cb_FiltreRecherche.Items.Clear();
             }
             cb_FiltreRecherche.Items.Add("Pas de filtre");
-            switch (onglet)
+            switch (ongletPrincipalActuel)
             {
                 case ongletPrincipal.INVENTAIRE:
                     for (int i = 1; i < dgv_Inventaire.Columns.Count; i++)
@@ -1680,9 +1713,9 @@ namespace FranceInformatiqueInventaire
         {
             string cellQuantiteTexte = (string)(dgv.CurrentCell.Value ?? " ");
             if (!cellQuantiteTexte.All(char.IsDigit) || float.Parse(cellQuantiteTexte) <= 0f)
-                {
-                    dgv.CurrentCell.Value = 1;
-                }
+            {
+                dgv.CurrentCell.Value = 1;
+            }
         }
 
         public void GererInputPrix(DataGridView dgv)
@@ -1938,7 +1971,7 @@ namespace FranceInformatiqueInventaire
             {
                 case 0:
                     txt_Recherche.PlaceholderText = "Rechercher dans les factures";
-                    ChangerContenuCbFiltre(ongletPrincipal.FACTURES);
+                    MajCbFiltre(true);
                     cb_FiltreRecherche.Visible = true;
                     lbl_Filtre.Visible = true;
                     break;
@@ -2088,26 +2121,50 @@ namespace FranceInformatiqueInventaire
             e.ThrowException = true;
         }
 
-        public void InitialiserLinearChartFacture(EnumPeriodes periode)
+        public void InitialiserLinearChartFacture()
         {
+            EnumPeriodes periode = SEMAINE;
+            switch (cb_Periode.SelectedItem.ToString())
+            {
+                case "Semaine":
+                    periode = SEMAINE;
+                    break;
+                case "Mois":
+                    periode = MOIS;
+                    break;
+                case "Année":
+                    periode = ANNEE;
+                    break;
+            }
+            string formatDate = "dd/MM/yy";
+            switch (periode)
+            {
+                case ANNEE:
+                    formatDate = "MM/yy";
+                    break;
+            }
+            DateTime dateDebutPeriode = gestionControlleurRef.PremierJourPeriode(DateTime.Today, periode);
+            DateTime dateFinPeriode = gestionControlleurRef.DernierJourPeriode(dateDebutPeriode, periode);
+            DateTime dateParcourus;
+            DateTime dateRecup;
             chart_Valeurs.ChartAreas.Clear();
             chart_Valeurs.Series.Clear();
             ChartArea chartArea = new ChartArea("ChartAreaFacture");
             chartArea.AxisX.Title = "Période";
             chartArea.AxisY.Title = "Valeur en €";
             chartArea.AxisY.LabelStyle.Format = "{0:0}€";
-            chartArea.AxisX.Interval = 1;
             chartArea.AxisX.LabelStyle.Angle = 45;
+            chartArea.AxisX.LabelStyle.Format = formatDate;
+            chartArea.AxisX.Interval = 1;
+            chartArea.AxisX.IntervalType = gestionControlleurRef.ConversionPeriodeAdateTimeIntervalType(periode);
+            chartArea.AxisX.Minimum = dateDebutPeriode.ToOADate();
+            chartArea.AxisX.Maximum = dateFinPeriode.ToOADate();
             chart_Valeurs.ChartAreas.Add(chartArea);
             Series series = new Series("Revenu TTC des factures émises");
             series.ChartType = SeriesChartType.Line;
             series.ChartArea = "ChartAreaFacture";
             series.Name = "Revenu TTC des factures émises";
             chart_Valeurs.Series.Add(series);
-            DateTime dateDebutPeriode = gestionControlleurRef.PremierJourPeriode(DateTime.Today, EnumPeriodes.SEMAINE);
-            DateTime dateFinPeriode = gestionControlleurRef.DernierJourPeriode(dateDebutPeriode, EnumPeriodes.SEMAINE);
-            DateTime dateParcourus = dateDebutPeriode;
-            DateTime dateRecup;
             Dictionary<DateTime, float> sommeParDate = new Dictionary<DateTime, float>();
             int i = 0;
             foreach (DataGridViewRow factureRow in factureRowsCharge)
@@ -2125,19 +2182,73 @@ namespace FranceInformatiqueInventaire
                     }
                 }
                 i++;
-            }
-            while (gestionControlleurRef.DateComprisDansPeriode(dateParcourus, dateDebutPeriode, dateFinPeriode))
+            } 
+            switch (periode)
             {
-                if (sommeParDate.ContainsKey(dateParcourus))
-                {
-                    series.Points.AddXY(dateParcourus, sommeParDate[dateParcourus]);
-                }
-                else
-                {
-                    series.Points.AddXY(dateParcourus, 0);
-                }
-                dateParcourus = dateParcourus.AddDays(1);
+                case ANNEE:
+                    int mois = 1;
+                    Dictionary<int, float> sommeMensuelleParMois = new Dictionary<int, float>();
+                    chart_Valeurs.ChartAreas[0].AxisX.Minimum = DateTime.Parse("01/01/" + DateTime.Now.Year).ToOADate();
+                    chart_Valeurs.ChartAreas[0].AxisX.Maximum = DateTime.Parse("01/12/" + DateTime.Now.Year).ToOADate();
+                    while (mois <= 12)
+                    {
+                        DateTime debutMois = DateTime.Parse("01/" + mois.ToString("00") + "/" + DateTime.Now.Year);
+                        DateTime finMois = debutMois.AddDays(DateTime.DaysInMonth(DateTime.Now.Year, mois) - 1);
+                        dateParcourus = debutMois;
+                        while (gestionControlleurRef.DateComprisDansPeriode(dateParcourus, debutMois, finMois))
+                        {
+                            if (sommeParDate.ContainsKey(dateParcourus))
+                            {
+                                if (sommeMensuelleParMois.ContainsKey(mois))
+                                {
+                                    sommeMensuelleParMois[mois] = sommeMensuelleParMois[mois] + sommeParDate[dateParcourus];
+                                }
+                                else
+                                {
+                                    sommeMensuelleParMois.Add(mois, sommeParDate[dateParcourus]);
+                                }
+                            }
+                            dateParcourus = dateParcourus.AddDays(1);
+                        }
+                        if (sommeMensuelleParMois.ContainsKey(mois)) 
+                        {
+                            series.Points.AddXY(debutMois, sommeMensuelleParMois[mois]);
+                        }
+                        else
+                        {
+                            series.Points.AddXY(debutMois, 0);
+                        }
+                        mois++;
+                    }
+                    return;
+                default:
+                    dateParcourus = dateDebutPeriode;
+                    while (gestionControlleurRef.DateComprisDansPeriode(dateParcourus, dateDebutPeriode, dateFinPeriode))
+                    {
+                        if (sommeParDate.ContainsKey(dateParcourus))
+                        {
+                            series.Points.AddXY(dateParcourus, sommeParDate[dateParcourus]);
+                        }
+                        else
+                        {
+                            series.Points.AddXY(dateParcourus, 0);
+                        }
+                        if (periode != ANNEE)
+                        {
+                            dateParcourus = dateParcourus.AddDays(1);
+                        }
+                        else
+                        {
+                            dateParcourus = dateParcourus.AddMonths(1);
+                        }
+                    }
+                    return;
             }
+        }
+
+        private void cb_Periode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            InitialiserLinearChartFacture();
         }
     }
 }
