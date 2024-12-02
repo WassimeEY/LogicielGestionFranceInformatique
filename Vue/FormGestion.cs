@@ -57,6 +57,8 @@ namespace FranceInformatiqueInventaire
         private Rectangle rectangleDtpFactureDate;
         private List<DataGridViewRow> rowsFactureCopiee = new List<DataGridViewRow>();
         private bool tentativeAccesSite = false;
+        private EnumPeriodes periodeActuelle = SEMAINE;
+        DateTime dateBaseDecalage = DateTime.Today;
 
         public FormGestion()
         {
@@ -80,7 +82,7 @@ namespace FranceInformatiqueInventaire
 
             //Preferences :
             TSMenuItem_Preferences_InsertionLigne_Cb.SelectedIndex = 0;
-            gestionControlleurRef = new GestionControlleur(this, dgv_Inventaire, txt_Recherche, btn_CollerLigne, bddManagerRef, TSMenuItem_Fichier_Sauvegarder, inventaireRowsCharge, rowsInventaireCopiee, cb_FiltreRecherche, lb_Marque, lb_Type, marquesCharge, typesCharge, couperLignes, dgv_Facture, factureRowsCharge, rowsFactureCopiee);
+            gestionControlleurRef = new GestionControlleur(this, dgv_Inventaire, txt_Recherche, btn_CollerLigne, bddManagerRef, TSMenuItem_Fichier_Sauvegarder, inventaireRowsCharge, rowsInventaireCopiee, cb_FiltreRecherche, lb_Marque, lb_Type, marquesCharge, typesCharge, couperLignes, dgv_Facture, factureRowsCharge, rowsFactureCopiee, lb_Prestation, prestationsCharge);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -96,6 +98,8 @@ namespace FranceInformatiqueInventaire
             label_CopyrightVersion.Text = label_CopyrightVersion.Text.Insert(label_CopyrightVersion.Text.LastIndexOf('©') + 2, DateTime.Now.Year.ToString());
             lb_SitesFav.DataSource = sitesFavorisCharge;
             lb_Prestation.DataSource = prestationsCharge;
+            tabControl_Onglets_SelectedIndexChanged(null, null);
+            cb_Periode.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -309,7 +313,8 @@ namespace FranceInformatiqueInventaire
                     }
                     TSMenuItem_Fichier_Sauvegarder.Enabled = true;
                     btn_Sauvegarder.Enabled = true;
-                    InitialiserLinearChartFacture();
+                    InitialiserGraphiqueTabDeBord(true);
+                    InitialiserGraphiqueTabDeBord(false);
                 }
             }
         }
@@ -766,17 +771,15 @@ namespace FranceInformatiqueInventaire
                 case 0:
                     txt_Recherche.PlaceholderText = "Rechercher dans l'inventaire";
                     MajCbFiltre(true);
-                    
+
                     break;
                 case 1:
                     txt_Recherche.PlaceholderText = "Rechercher dans les marques";
-                    cb_FiltreRecherche.Visible = false;
-                    lbl_Filtre.Visible = false;
+                    MajCbFiltre(false);
                     break;
                 case 2:
                     txt_Recherche.PlaceholderText = "Rechercher dans les types";
-                    cb_FiltreRecherche.Visible = false;
-                    lbl_Filtre.Visible = false;
+                    MajCbFiltre(false);
                     break;
             }
         }
@@ -1034,9 +1037,6 @@ namespace FranceInformatiqueInventaire
                     {
                         case 0:
                             gestionControlleurRef.RechercherFacture(txt_Recherche.Text);
-                            break;
-                        case 1:
-                            gestionControlleurRef.rec(txt_Recherche.Text);
                             break;
                     }
                     break;
@@ -1972,13 +1972,11 @@ namespace FranceInformatiqueInventaire
                 case 0:
                     txt_Recherche.PlaceholderText = "Rechercher dans les factures";
                     MajCbFiltre(true);
-                    cb_FiltreRecherche.Visible = true;
-                    lbl_Filtre.Visible = true;
                     break;
                 case 1:
-                    txt_Recherche.PlaceholderText = "Rechercher dans les prestations";
-                    cb_FiltreRecherche.Visible = false;
-                    lbl_Filtre.Visible = false;
+                    MajCbFiltre(false);
+                    txt_Recherche.Visible = false;
+                    lbl_RechercheInventaire.Visible = false;
                     break;
             }
         }
@@ -2042,6 +2040,7 @@ namespace FranceInformatiqueInventaire
             changerFormTitre(true);
             TSMenuItem_Fichier_Sauvegarder.Enabled = false;
             btn_Sauvegarder.Enabled = false;
+            cb_Periode.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -2121,8 +2120,12 @@ namespace FranceInformatiqueInventaire
             e.ThrowException = true;
         }
 
-        public void InitialiserLinearChartFacture()
+        public void InitialiserGraphiqueTabDeBord(bool chartFacture, DateTime dateBase = new DateTime())
         {
+            if (dateBase.Year == 1)
+            {
+                dateBase = DateTime.Today;
+            }
             EnumPeriodes periode = SEMAINE;
             switch (cb_Periode.SelectedItem.ToString())
             {
@@ -2143,13 +2146,43 @@ namespace FranceInformatiqueInventaire
                     formatDate = "MM/yy";
                     break;
             }
-            DateTime dateDebutPeriode = gestionControlleurRef.PremierJourPeriode(DateTime.Today, periode);
+            DateTime dateDebutPeriode = gestionControlleurRef.PremierJourPeriode(dateBase, periode);
             DateTime dateFinPeriode = gestionControlleurRef.DernierJourPeriode(dateDebutPeriode, periode);
             DateTime dateParcourus;
             DateTime dateRecup;
-            chart_Valeurs.ChartAreas.Clear();
-            chart_Valeurs.Series.Clear();
-            ChartArea chartArea = new ChartArea("ChartAreaFacture");
+            string chartAreaName;
+            string seriesName;
+            string dateColonneName;
+            string prixColonneName;
+            int multiplicateurPrix = 1;
+            float somme = 0;
+            Label lbl_Total;
+            Chart chart;
+            List<DataGridViewRow> listeDgv = new List<DataGridViewRow>();
+            if (chartFacture)
+            {
+                chartAreaName = "ChartAreaFacture";
+                seriesName = "Revenu TTC des factures émises";
+                listeDgv = factureRowsCharge;
+                dateColonneName = "DateFacture";
+                prixColonneName = "PrixTTC";
+                chart = chart_Facture;
+                lbl_Total = lbl_RevenuTTCFactures;
+            }
+            else
+            {
+                chartAreaName = "ChartAreaInventaire";
+                seriesName = "Valeur TTC de l'inventaire";
+                listeDgv = inventaireRowsCharge;
+                dateColonneName = "DateEntreeInventaire";
+                prixColonneName = "PrixInventaire";
+                chart = chart_Inventaire;
+                lbl_Total = lbl_ValeurInventaire;
+            }
+            chart.ChartAreas.Clear();
+            chart.Series.Clear();
+
+            ChartArea chartArea = new ChartArea(chartAreaName);
             chartArea.AxisX.Title = "Période";
             chartArea.AxisY.Title = "Valeur en €";
             chartArea.AxisY.LabelStyle.Format = "{0:0}€";
@@ -2159,37 +2192,41 @@ namespace FranceInformatiqueInventaire
             chartArea.AxisX.IntervalType = gestionControlleurRef.ConversionPeriodeAdateTimeIntervalType(periode);
             chartArea.AxisX.Minimum = dateDebutPeriode.ToOADate();
             chartArea.AxisX.Maximum = dateFinPeriode.ToOADate();
-            chart_Valeurs.ChartAreas.Add(chartArea);
-            Series series = new Series("Revenu TTC des factures émises");
+            chart.ChartAreas.Add(chartArea);
+            Series series = new Series(seriesName);
             series.ChartType = SeriesChartType.Line;
-            series.ChartArea = "ChartAreaFacture";
-            series.Name = "Revenu TTC des factures émises";
-            chart_Valeurs.Series.Add(series);
+            series.ChartArea = chartAreaName;
+            series.Name = seriesName;
+            chart.Series.Add(series);
             Dictionary<DateTime, float> sommeParDate = new Dictionary<DateTime, float>();
             int i = 0;
-            foreach (DataGridViewRow factureRow in factureRowsCharge)
+            foreach (DataGridViewRow row in listeDgv)
             {
-                DateTime.TryParse(factureRow.Cells["DateFacture"].Value.ToString() ?? "", out dateRecup);
+                if (!chartFacture)
+                {
+                    multiplicateurPrix = int.Parse(row.Cells["QuantiteInventaire"].Value.ToString() ?? "1");
+                }
+                DateTime.TryParse(row.Cells[dateColonneName].Value.ToString() ?? "", out dateRecup);
                 if (dateRecup.Year != 1 && gestionControlleurRef.DateComprisDansPeriode(dateRecup, dateDebutPeriode, dateFinPeriode))
                 {
                     if (sommeParDate.ContainsKey(dateRecup))
                     {
-                        sommeParDate[dateRecup] = sommeParDate[dateRecup] + float.Parse(factureRow.Cells["PrixTTC"].Value.ToString() ?? "0");
+                        sommeParDate[dateRecup] = sommeParDate[dateRecup] + (float.Parse(row.Cells[prixColonneName].Value.ToString().Replace('€', ' ') ?? "0") * multiplicateurPrix);
                     }
                     else
                     {
-                        sommeParDate.Add(dateRecup, float.Parse(factureRow.Cells["PrixTTC"].Value.ToString().Replace('€', ' ') ?? "0"));
+                        sommeParDate.Add(dateRecup, float.Parse(row.Cells[prixColonneName].Value.ToString().Replace('€', ' ') ?? "0") * multiplicateurPrix);
                     }
                 }
                 i++;
-            } 
+            }
             switch (periode)
             {
                 case ANNEE:
                     int mois = 1;
                     Dictionary<int, float> sommeMensuelleParMois = new Dictionary<int, float>();
-                    chart_Valeurs.ChartAreas[0].AxisX.Minimum = DateTime.Parse("01/01/" + DateTime.Now.Year).ToOADate();
-                    chart_Valeurs.ChartAreas[0].AxisX.Maximum = DateTime.Parse("01/12/" + DateTime.Now.Year).ToOADate();
+                    chart.ChartAreas[0].AxisX.Minimum = DateTime.Parse("01/01/" + dateBase.Year).ToOADate();
+                    chart.ChartAreas[0].AxisX.Maximum = DateTime.Parse("01/12/" + dateBase.Year).ToOADate();
                     while (mois <= 12)
                     {
                         DateTime debutMois = DateTime.Parse("01/" + mois.ToString("00") + "/" + DateTime.Now.Year);
@@ -2210,7 +2247,7 @@ namespace FranceInformatiqueInventaire
                             }
                             dateParcourus = dateParcourus.AddDays(1);
                         }
-                        if (sommeMensuelleParMois.ContainsKey(mois)) 
+                        if (sommeMensuelleParMois.ContainsKey(mois))
                         {
                             series.Points.AddXY(debutMois, sommeMensuelleParMois[mois]);
                         }
@@ -2220,6 +2257,11 @@ namespace FranceInformatiqueInventaire
                         }
                         mois++;
                     }
+                    foreach (var item in sommeMensuelleParMois)
+                    {
+                        somme = somme + item.Value;
+                    }
+                    lbl_Total.Text = (int)somme + "€";
                     return;
                 default:
                     dateParcourus = dateDebutPeriode;
@@ -2233,22 +2275,86 @@ namespace FranceInformatiqueInventaire
                         {
                             series.Points.AddXY(dateParcourus, 0);
                         }
-                        if (periode != ANNEE)
-                        {
-                            dateParcourus = dateParcourus.AddDays(1);
-                        }
-                        else
-                        {
-                            dateParcourus = dateParcourus.AddMonths(1);
-                        }
+                        dateParcourus = dateParcourus.AddDays(1);
                     }
+                    foreach (var item in sommeParDate)
+                    {
+                        somme = somme + item.Value;
+                    }
+                    lbl_Total.Text = (int)somme + "€";
                     return;
             }
         }
 
         private void cb_Periode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            InitialiserLinearChartFacture();
+            GererChangementPeriode((EnumPeriodes)cb_Periode.SelectedIndex + 1);
+        }
+
+        private void GererChangementPeriode(EnumPeriodes nouvellePeriode)
+        {
+            periodeActuelle = nouvellePeriode;
+            string btnText = "";
+            switch (nouvellePeriode)
+            {
+                case SEMAINE:
+                    btnText = " d'une semaine";
+                    break;
+                case MOIS:
+                    btnText = " d'un mois";
+                    break;
+                case ANNEE:
+                    btnText = " d'une année";
+                    break;
+            }
+            btn_AvancerPeriodeFacture.Text = "Avancer" + btnText;
+            btn_ReculerPeriodeFacture.Text = "Reculer" + btnText;
+            btn_AvancerPeriodeInventaire.Text = "Avancer" + btnText;
+            btn_ReculerPeriodeInventaire.Text = "Reculer" + btnText;
+            InitialiserGraphiqueTabDeBord(true);
+            InitialiserGraphiqueTabDeBord(false);
+        }
+
+        private void AjoutDecalagePeriode(bool chartFacture, bool reculer)
+        {
+            int multiplicateur = 1;
+            if (reculer)
+            {
+                multiplicateur = -1;
+            }
+            switch (periodeActuelle)
+            {
+                case SEMAINE:
+                    dateBaseDecalage = dateBaseDecalage.AddDays(7 * multiplicateur);
+                    break;
+                case MOIS:
+                    dateBaseDecalage = dateBaseDecalage.AddMonths(1 * multiplicateur);
+                    break;
+                case ANNEE:
+                    dateBaseDecalage = dateBaseDecalage.AddYears(1 * multiplicateur);
+                    break;
+            }
+            InitialiserGraphiqueTabDeBord(chartFacture, dateBaseDecalage);
+        }
+
+        private void btn_ReculerPeriodeFacture_Click(object sender, EventArgs e)
+        {
+            AjoutDecalagePeriode(true, true);
+        }
+
+        private void btn_AvancerPeriodeFacture_Click(object sender, EventArgs e)
+        {
+            AjoutDecalagePeriode(true, false);
+        }
+
+        private void btn_ReculerPeriodeInventaire_Click(object sender, EventArgs e)
+        {
+            AjoutDecalagePeriode(false, true);
+        }
+
+        private void btn_AvancerPeriodeInventaire_Click(object sender, EventArgs e)
+        {
+            AjoutDecalagePeriode(false, false);
         }
     }
 }

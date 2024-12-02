@@ -34,10 +34,11 @@ namespace FranceInformatiqueInventaire.Controlleur
         private ListBox lb_Prestation;
         private List<string> marquesCharge = new List<string>();
         private List<string> typesCharge = new List<string>();
+        private List<FacturePrestation> prestationsCharge = new List<FacturePrestation>();
         private bool couperLignes;
         private List<DataGridViewRow> rowsFactureCopiee = new List<DataGridViewRow>(); 
 
-        public GestionControlleur(FormGestion formGestionRef, DataGridView dgv_Inventaire, TextBox txt_Recherche, ToolStripButton btn_CollerLigne, BddManager bddManagerRef, ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder, List<DataGridViewRow> inventaireRowsCharge, List<DataGridViewRow> rowsInventaireCopiee, ComboBox cb_FiltreRecherche, ListBox lb_Marque, ListBox lb_Type, List<string> marquesCharge, List<string> typesCharge, bool couperLignes, DataGridView dgv_Facture, List<DataGridViewRow>  factureRowsCharge, List<DataGridViewRow> rowsFactureCopiee, ListBox lb_Prestation)
+        public GestionControlleur(FormGestion formGestionRef, DataGridView dgv_Inventaire, TextBox txt_Recherche, ToolStripButton btn_CollerLigne, BddManager bddManagerRef, ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder, List<DataGridViewRow> inventaireRowsCharge, List<DataGridViewRow> rowsInventaireCopiee, ComboBox cb_FiltreRecherche, ListBox lb_Marque, ListBox lb_Type, List<string> marquesCharge, List<string> typesCharge, bool couperLignes, DataGridView dgv_Facture, List<DataGridViewRow>  factureRowsCharge, List<DataGridViewRow> rowsFactureCopiee, ListBox lb_Prestation, List<FacturePrestation> prestationsCharge)
         {
             this.formGestionRef = formGestionRef;
             this.dgv_Inventaire = dgv_Inventaire;
@@ -57,6 +58,7 @@ namespace FranceInformatiqueInventaire.Controlleur
             this.factureRowsCharge = factureRowsCharge;
             this.rowsFactureCopiee = rowsFactureCopiee;
             this.lb_Prestation = lb_Prestation;
+            this.prestationsCharge = prestationsCharge;
         }
 
         /// <summary>
@@ -275,47 +277,6 @@ namespace FranceInformatiqueInventaire.Controlleur
             }
         }
 
-        /// <summary>
-        ///  Permet de rechercher dans les prestations en supprimant les lignes de la listBox prestation qui ne contiennent pas l'élément recherché.
-        /// </summary>
-        /// <param name="texteARechercher">Le texte qui sera recherché dans les lignes.</param>
-        public void RechercherPrestation(string texteARechercher)
-        {
-            texteARechercher = texteARechercher.ToLower();
-            bool trouverTexteDansRow = false;
-            lb_Prestation.Items.Clear();
-            foreach (var item in prestationsCharge)
-            {
-                lb_Prestation.Items.Add(item);
-            }
-            List<int> indexsRowASupprimer = new List<int>();
-            for (int i = 0; i < lb_Prestation.Items.Count; i++)
-            {
-                var item = lb_Prestation.Items[i];
-                if (!(item == null))
-                {
-                    string itemText = (item.ToString()) ?? "";
-                    itemText = itemText.ToLower();
-                    if (itemText.Contains(texteARechercher))
-                    {
-                        trouverTexteDansRow = true;
-                    }
-                }
-                if (!trouverTexteDansRow)
-                {
-                    if (!(indexsRowASupprimer.Contains(i)))
-                    {
-                        indexsRowASupprimer.Insert(0, i);
-                    }
-                }
-                trouverTexteDansRow = false;
-            }
-            foreach (int i in indexsRowASupprimer)
-            {
-                lb_Marque.Items.RemoveAt(i);
-            }
-
-        }
 
         /// <summary>
         ///  Permet d'insérer une ligne dans la dataGridView inventaire, insérer avant ou après la ligne séléctionné selon l'option choisi.
