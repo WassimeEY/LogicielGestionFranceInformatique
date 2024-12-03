@@ -14,6 +14,7 @@ using FranceInformatiqueInventaire.Model;
 using System.Diagnostics;
 using System.Windows.Forms.DataVisualization.Charting;
 using static FranceInformatiqueInventaire.Model.EnumPeriodes;
+using Microsoft.VisualBasic;
 
 namespace FranceInformatiqueInventaire
 {
@@ -313,10 +314,17 @@ namespace FranceInformatiqueInventaire
                     }
                     TSMenuItem_Fichier_Sauvegarder.Enabled = true;
                     btn_Sauvegarder.Enabled = true;
-                    InitialiserGraphiqueTabDeBord(true);
-                    InitialiserGraphiqueTabDeBord(false);
+                    MajGraphiquesTabDeBord();
                 }
             }
+        }
+
+        private void MajGraphiquesTabDeBord()
+        {
+            MajGraphiqueLineaireTabDeBord(true);
+            MajGraphiqueLineaireTabDeBord(false);
+            MajGraphiqueDonutTabDeBord(true);
+            MajGraphiqueDonutTabDeBord(false);
         }
 
         /// <summary>
@@ -1430,6 +1438,7 @@ namespace FranceInformatiqueInventaire
             switch (ongletPrincipalActuel)
             {
                 case ongletPrincipal.TABDEBORD:
+                    MajGraphiquesTabDeBord();
                     DefinirVisibiliteToolStrip(visibiliteToolstrip.CACHEAVECFOND);
                     MajCbFiltre(false);
                     txt_Recherche.Visible = false;
@@ -2120,7 +2129,59 @@ namespace FranceInformatiqueInventaire
             e.ThrowException = true;
         }
 
-        public void InitialiserGraphiqueTabDeBord(bool chartFacture, DateTime dateBase = new DateTime())
+
+        private void cb_Periode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            GererChangementPeriode((EnumPeriodes)cb_Periode.SelectedIndex + 1);
+        }
+
+        private void GererChangementPeriode(EnumPeriodes nouvellePeriode)
+        {
+            periodeActuelle = nouvellePeriode;
+            string btnText = "";
+            switch (nouvellePeriode)
+            {
+                case SEMAINE:
+                    btnText = " d'une semaine";
+                    break;
+                case MOIS:
+                    btnText = " d'un mois";
+                    break;
+                case ANNEE:
+                    btnText = " d'une année";
+                    break;
+            }
+            btn_AvancerPeriodeFacture.Text = "Avancer" + btnText;
+            btn_ReculerPeriodeFacture.Text = "Reculer" + btnText;
+            btn_AvancerPeriodeInventaire.Text = "Avancer" + btnText;
+            btn_ReculerPeriodeInventaire.Text = "Reculer" + btnText;
+            MajGraphiqueLineaireTabDeBord(true);
+            MajGraphiqueLineaireTabDeBord(false);
+        }
+
+        private void AjoutDecalagePeriode(bool chartFacture, bool reculer)
+        {
+            int multiplicateur = 1;
+            if (reculer)
+            {
+                multiplicateur = -1;
+            }
+            switch (periodeActuelle)
+            {
+                case SEMAINE:
+                    dateBaseDecalage = dateBaseDecalage.AddDays(7 * multiplicateur);
+                    break;
+                case MOIS:
+                    dateBaseDecalage = dateBaseDecalage.AddMonths(1 * multiplicateur);
+                    break;
+                case ANNEE:
+                    dateBaseDecalage = dateBaseDecalage.AddYears(1 * multiplicateur);
+                    break;
+            }
+            MajGraphiqueLineaireTabDeBord(chartFacture, dateBaseDecalage);
+        }
+
+        public void MajGraphiqueLineaireTabDeBord(bool chartFacture, DateTime dateBase = new DateTime())
         {
             if (dateBase.Year == 1)
             {
@@ -2181,7 +2242,6 @@ namespace FranceInformatiqueInventaire
             }
             chart.ChartAreas.Clear();
             chart.Series.Clear();
-
             ChartArea chartArea = new ChartArea(chartAreaName);
             chartArea.AxisX.Title = "Période";
             chartArea.AxisY.Title = "Valeur en €";
@@ -2286,55 +2346,83 @@ namespace FranceInformatiqueInventaire
             }
         }
 
-        private void cb_Periode_SelectedIndexChanged(object sender, EventArgs e)
+        public void MajGraphiqueDonutTabDeBord(bool chartDonutType)
         {
-            GererChangementPeriode((EnumPeriodes)cb_Periode.SelectedIndex + 1);
-        }
-
-        private void GererChangementPeriode(EnumPeriodes nouvellePeriode)
-        {
-            periodeActuelle = nouvellePeriode;
-            string btnText = "";
-            switch (nouvellePeriode)
+            string seriesName;
+            Chart chart;
+            ListBox.ObjectCollection listeItems;
+            List<DataGridViewRow> listeDgv = inventaireRowsCharge;
+            string cellName;
+            string temp;
+            int i = 0;
+            int lenCompteurParElementExistant = 0;
+            if (chartDonutType)
             {
-                case SEMAINE:
-                    btnText = " d'une semaine";
-                    break;
-                case MOIS:
-                    btnText = " d'un mois";
-                    break;
-                case ANNEE:
-                    btnText = " d'une année";
-                    break;
+                seriesName = "Répartition des types d'objet dans l'inventaire";
+                listeItems = lb_Type.Items;
+                chart = chartDonut_Type;
+                cellName = "TypeInventaire";
             }
-            btn_AvancerPeriodeFacture.Text = "Avancer" + btnText;
-            btn_ReculerPeriodeFacture.Text = "Reculer" + btnText;
-            btn_AvancerPeriodeInventaire.Text = "Avancer" + btnText;
-            btn_ReculerPeriodeInventaire.Text = "Reculer" + btnText;
-            InitialiserGraphiqueTabDeBord(true);
-            InitialiserGraphiqueTabDeBord(false);
-        }
-
-        private void AjoutDecalagePeriode(bool chartFacture, bool reculer)
-        {
-            int multiplicateur = 1;
-            if (reculer)
+            else
             {
-                multiplicateur = -1;
+                seriesName = "Répartition des marques dans l'inventaire";
+                listeItems = lb_Marque.Items;
+                chart = chartDonut_Marque;
+                cellName = "MarqueInventaire";
             }
-            switch (periodeActuelle)
+            chart.ChartAreas.Clear();
+            chart.Series.Clear();
+            ChartArea chartArea = new ChartArea("Pourcentage");
+            chartArea.Area3DStyle.Enable3D = true;
+            chart.ChartAreas.Add(chartArea);
+            Series series = new Series(seriesName);
+            series.ChartType = SeriesChartType.Doughnut;
+            series.ChartArea = "Pourcentage";
+            series.Name = seriesName;
+            chart.Series.Add(series);
+            Dictionary<string, int> compteurParElement = new Dictionary<string, int>();
+            foreach (DataGridViewRow row in listeDgv)
             {
-                case SEMAINE:
-                    dateBaseDecalage = dateBaseDecalage.AddDays(7 * multiplicateur);
-                    break;
-                case MOIS:
-                    dateBaseDecalage = dateBaseDecalage.AddMonths(1 * multiplicateur);
-                    break;
-                case ANNEE:
-                    dateBaseDecalage = dateBaseDecalage.AddYears(1 * multiplicateur);
-                    break;
+                temp = row.Cells[cellName].Value.ToString() ?? "";
+                if(temp != "")
+                {
+                    if (compteurParElement.ContainsKey(temp))
+                    {
+                        compteurParElement[temp] = compteurParElement[temp] + 1;
+                    }
+                    else
+                    {
+                        compteurParElement.Add(temp, 1);
+                    }
+                }
             }
-            InitialiserGraphiqueTabDeBord(chartFacture, dateBaseDecalage);
+            foreach (string item in listeItems)
+            {
+                if (compteurParElement.ContainsKey(item))
+                {
+                    lenCompteurParElementExistant += compteurParElement[item];
+                }
+                else
+                {
+                    compteurParElement.Add(item, 0);
+                }
+            }
+            foreach (KeyValuePair<string, int> pair in compteurParElement)
+            {
+                if(pair.Value > 0)
+                {
+                    series.Points.AddXY(i, pair.Value);
+                    series.Points[i].Label = (Math.Round((decimal)(((float)pair.Value / lenCompteurParElementExistant) * 100), 2)) + "%";
+                    series.Points[i].LegendText = pair.Key;
+                    i++;
+                }
+                else
+                {
+                    series.Points.AddXY(i, 0);
+                    series.Points[i].LegendText = pair.Key;
+                    i++;
+                }
+            }
         }
 
         private void btn_ReculerPeriodeFacture_Click(object sender, EventArgs e)

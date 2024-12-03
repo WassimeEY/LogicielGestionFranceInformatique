@@ -34,6 +34,12 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
@@ -99,9 +105,11 @@
             btn_ReculerPeriodeFacture = new Button();
             btn_AvancerPeriodeFacture = new Button();
             tableLayoutPanel17 = new TableLayoutPanel();
+            chartDonut_Marque = new System.Windows.Forms.DataVisualization.Charting.Chart();
             tableLayoutPanel18 = new TableLayoutPanel();
             label7 = new Label();
             cb_Periode = new ComboBox();
+            chartDonut_Type = new System.Windows.Forms.DataVisualization.Charting.Chart();
             OngletInventaire = new TabPage();
             tabControl_Inventaire = new TabControl();
             tab_Inventaire = new TabPage();
@@ -188,7 +196,9 @@
             tableLayoutPanel14.SuspendLayout();
             tableLayoutPanel20.SuspendLayout();
             tableLayoutPanel17.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)chartDonut_Marque).BeginInit();
             tableLayoutPanel18.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)chartDonut_Type).BeginInit();
             OngletInventaire.SuspendLayout();
             tabControl_Inventaire.SuspendLayout();
             tab_Inventaire.SuspendLayout();
@@ -921,9 +931,12 @@
             // 
             // tableLayoutPanel17
             // 
+            tableLayoutPanel17.BackColor = Color.FromArgb(83, 92, 107);
             tableLayoutPanel17.ColumnCount = 1;
             tableLayoutPanel17.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel17.Controls.Add(chartDonut_Marque, 0, 2);
             tableLayoutPanel17.Controls.Add(tableLayoutPanel18, 0, 0);
+            tableLayoutPanel17.Controls.Add(chartDonut_Type, 0, 1);
             tableLayoutPanel17.Dock = DockStyle.Fill;
             tableLayoutPanel17.Location = new Point(882, 3);
             tableLayoutPanel17.Name = "tableLayoutPanel17";
@@ -934,8 +947,28 @@
             tableLayoutPanel17.Size = new Size(288, 449);
             tableLayoutPanel17.TabIndex = 1;
             // 
+            // chartDonut_Marque
+            // 
+            chartArea3.Area3DStyle.Enable3D = true;
+            chartArea3.Name = "ChartArea1";
+            chartDonut_Marque.ChartAreas.Add(chartArea3);
+            chartDonut_Marque.Dock = DockStyle.Fill;
+            legend1.Name = "Legend1";
+            chartDonut_Marque.Legends.Add(legend1);
+            chartDonut_Marque.Location = new Point(3, 242);
+            chartDonut_Marque.Name = "chartDonut_Marque";
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            chartDonut_Marque.Series.Add(series3);
+            chartDonut_Marque.Size = new Size(282, 204);
+            chartDonut_Marque.TabIndex = 2;
+            chartDonut_Marque.Text = "chart2";
+            // 
             // tableLayoutPanel18
             // 
+            tableLayoutPanel18.BackColor = Color.FromArgb(83, 92, 107);
             tableLayoutPanel18.ColumnCount = 2;
             tableLayoutPanel18.ColumnStyles.Add(new ColumnStyle());
             tableLayoutPanel18.ColumnStyles.Add(new ColumnStyle());
@@ -971,6 +1004,25 @@
             cb_Periode.Size = new Size(223, 23);
             cb_Periode.TabIndex = 1;
             cb_Periode.SelectedIndexChanged += cb_Periode_SelectedIndexChanged;
+            // 
+            // chartDonut_Type
+            // 
+            chartArea4.Area3DStyle.Enable3D = true;
+            chartArea4.Name = "ChartArea1";
+            chartDonut_Type.ChartAreas.Add(chartArea4);
+            chartDonut_Type.Dock = DockStyle.Fill;
+            legend2.Name = "Legend1";
+            chartDonut_Type.Legends.Add(legend2);
+            chartDonut_Type.Location = new Point(3, 33);
+            chartDonut_Type.Name = "chartDonut_Type";
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
+            series4.Legend = "Legend1";
+            series4.Name = "Series1";
+            chartDonut_Type.Series.Add(series4);
+            chartDonut_Type.Size = new Size(282, 203);
+            chartDonut_Type.TabIndex = 1;
+            chartDonut_Type.Text = "chart1";
             // 
             // OngletInventaire
             // 
@@ -1800,8 +1852,10 @@
             tableLayoutPanel14.PerformLayout();
             tableLayoutPanel20.ResumeLayout(false);
             tableLayoutPanel17.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)chartDonut_Marque).EndInit();
             tableLayoutPanel18.ResumeLayout(false);
             tableLayoutPanel18.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)chartDonut_Type).EndInit();
             OngletInventaire.ResumeLayout(false);
             tabControl_Inventaire.ResumeLayout(false);
             tab_Inventaire.ResumeLayout(false);
@@ -1970,5 +2024,7 @@
         private TableLayoutPanel tableLayoutPanel20;
         private Button btn_ReculerPeriodeFacture;
         private Button btn_AvancerPeriodeFacture;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartDonut_Marque;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartDonut_Type;
     }
 }
