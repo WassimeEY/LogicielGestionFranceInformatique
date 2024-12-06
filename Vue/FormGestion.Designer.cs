@@ -47,8 +47,6 @@
             testToolStripMenuItem = new ToolStripMenuItem();
             TSMenuItem_Fichier_Nouveau = new ToolStripMenuItem();
             TSMenuItem_Fichier_Ouvrir = new ToolStripMenuItem();
-            TSMenuItem_FichiersRecents = new ToolStripMenuItem();
-            toolStripMenuItem1 = new ToolStripMenuItem();
             TSMenuItem_Fichier_Sauvegarder = new ToolStripMenuItem();
             TSMenuItem_Fichier_SauvegarderSous = new ToolStripMenuItem();
             préférencesToolStripMenuItem = new ToolStripMenuItem();
@@ -78,15 +76,13 @@
             toolStripSeparator2 = new ToolStripSeparator();
             btn_Sauvegarder = new ToolStripButton();
             btn_SauvegarderSous = new ToolStripButton();
-            btn_Retablir = new ToolStripButton();
-            btn_RetourArriere = new ToolStripButton();
             tlp_Main = new TableLayoutPanel();
             tlp_Millieu = new TableLayoutPanel();
             tabControl_Onglets = new TabControl();
             OngletTableauDeBord = new TabPage();
             tableLayoutPanel9 = new TableLayoutPanel();
-            tableLayoutPanel10 = new TableLayoutPanel();
-            tableLayoutPanel11 = new TableLayoutPanel();
+            tableLayoutPanel_TabBord = new TableLayoutPanel();
+            tableLayoutPanel_TabBord2 = new TableLayoutPanel();
             tableLayoutPanel15 = new TableLayoutPanel();
             chart_Inventaire = new System.Windows.Forms.DataVisualization.Charting.Chart();
             tableLayoutPanel16 = new TableLayoutPanel();
@@ -184,8 +180,8 @@
             tabControl_Onglets.SuspendLayout();
             OngletTableauDeBord.SuspendLayout();
             tableLayoutPanel9.SuspendLayout();
-            tableLayoutPanel10.SuspendLayout();
-            tableLayoutPanel11.SuspendLayout();
+            tableLayoutPanel_TabBord.SuspendLayout();
+            tableLayoutPanel_TabBord2.SuspendLayout();
             tableLayoutPanel15.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)chart_Inventaire).BeginInit();
             tableLayoutPanel16.SuspendLayout();
@@ -241,7 +237,7 @@
             // 
             // testToolStripMenuItem
             // 
-            testToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { TSMenuItem_Fichier_Nouveau, TSMenuItem_Fichier_Ouvrir, TSMenuItem_FichiersRecents, TSMenuItem_Fichier_Sauvegarder, TSMenuItem_Fichier_SauvegarderSous });
+            testToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { TSMenuItem_Fichier_Nouveau, TSMenuItem_Fichier_Ouvrir, TSMenuItem_Fichier_Sauvegarder, TSMenuItem_Fichier_SauvegarderSous });
             testToolStripMenuItem.ForeColor = SystemColors.Control;
             testToolStripMenuItem.Name = "testToolStripMenuItem";
             testToolStripMenuItem.Size = new Size(54, 20);
@@ -260,19 +256,6 @@
             TSMenuItem_Fichier_Ouvrir.Size = new Size(166, 22);
             TSMenuItem_Fichier_Ouvrir.Text = "Ouvrir";
             TSMenuItem_Fichier_Ouvrir.Click += TSMenuItem_Fichier_Ouvrir_Click;
-            // 
-            // TSMenuItem_FichiersRecents
-            // 
-            TSMenuItem_FichiersRecents.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItem1 });
-            TSMenuItem_FichiersRecents.Name = "TSMenuItem_FichiersRecents";
-            TSMenuItem_FichiersRecents.Size = new Size(166, 22);
-            TSMenuItem_FichiersRecents.Text = "Fichiers récents";
-            // 
-            // toolStripMenuItem1
-            // 
-            toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(253, 22);
-            toolStripMenuItem1.Text = "Les fichiers récents seront listés ici";
             // 
             // TSMenuItem_Fichier_Sauvegarder
             // 
@@ -460,7 +443,7 @@
             // 
             ts_Inventaire.BackColor = Color.FromArgb(73, 82, 97);
             ts_Inventaire.Dock = DockStyle.Fill;
-            ts_Inventaire.Items.AddRange(new ToolStripItem[] { btn_AjouterLigne, btn_SupprimerLigne, btn_ViderLigne, btn_InsererLigne, btn_CopierLigne, btn_CouperLigne, btn_CollerLigne, toolStripSeparator2, btn_Sauvegarder, btn_SauvegarderSous, btn_Retablir, btn_RetourArriere });
+            ts_Inventaire.Items.AddRange(new ToolStripItem[] { btn_AjouterLigne, btn_SupprimerLigne, btn_ViderLigne, btn_InsererLigne, btn_CopierLigne, btn_CouperLigne, btn_CollerLigne, toolStripSeparator2, btn_Sauvegarder, btn_SauvegarderSous });
             ts_Inventaire.Location = new Point(0, 0);
             ts_Inventaire.Name = "ts_Inventaire";
             ts_Inventaire.Size = new Size(608, 29);
@@ -520,7 +503,7 @@
             btn_CopierLigne.Name = "btn_CopierLigne";
             btn_CopierLigne.Size = new Size(23, 26);
             btn_CopierLigne.Text = "Copier";
-            btn_CopierLigne.Click += btn_CopierLigneInventaire_Click;
+            btn_CopierLigne.Click += btn_CopierLigne_Click;
             // 
             // btn_CouperLigne
             // 
@@ -542,7 +525,7 @@
             btn_CollerLigne.Name = "btn_CollerLigne";
             btn_CollerLigne.Size = new Size(23, 26);
             btn_CollerLigne.Text = "Coller";
-            btn_CollerLigne.Click += btn_CollerLigneInventaire_Click;
+            btn_CollerLigne.Click += btn_CollerLigne_Click;
             // 
             // toolStripSeparator2
             // 
@@ -569,27 +552,6 @@
             btn_SauvegarderSous.Size = new Size(23, 26);
             btn_SauvegarderSous.Text = "Sauvegarder sous";
             btn_SauvegarderSous.Click += btn_SauvegarderSous_Click;
-            // 
-            // btn_Retablir
-            // 
-            btn_Retablir.Alignment = ToolStripItemAlignment.Right;
-            btn_Retablir.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_Retablir.Image = (Image)resources.GetObject("btn_Retablir.Image");
-            btn_Retablir.ImageTransparentColor = Color.Magenta;
-            btn_Retablir.Name = "btn_Retablir";
-            btn_Retablir.Size = new Size(23, 26);
-            btn_Retablir.Text = "Rétablir";
-            // 
-            // btn_RetourArriere
-            // 
-            btn_RetourArriere.Alignment = ToolStripItemAlignment.Right;
-            btn_RetourArriere.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            btn_RetourArriere.Image = (Image)resources.GetObject("btn_RetourArriere.Image");
-            btn_RetourArriere.ImageTransparentColor = Color.Magenta;
-            btn_RetourArriere.Name = "btn_RetourArriere";
-            btn_RetourArriere.RightToLeft = RightToLeft.No;
-            btn_RetourArriere.Size = new Size(23, 26);
-            btn_RetourArriere.Text = "Retour en arrière";
             // 
             // tlp_Main
             // 
@@ -654,7 +616,7 @@
             tableLayoutPanel9.ColumnCount = 2;
             tableLayoutPanel9.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 75F));
             tableLayoutPanel9.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutPanel9.Controls.Add(tableLayoutPanel10, 0, 0);
+            tableLayoutPanel9.Controls.Add(tableLayoutPanel_TabBord, 0, 0);
             tableLayoutPanel9.Controls.Add(tableLayoutPanel17, 1, 0);
             tableLayoutPanel9.Dock = DockStyle.Fill;
             tableLayoutPanel9.Location = new Point(0, 0);
@@ -664,35 +626,35 @@
             tableLayoutPanel9.Size = new Size(1173, 455);
             tableLayoutPanel9.TabIndex = 0;
             // 
-            // tableLayoutPanel10
+            // tableLayoutPanel_TabBord
             // 
-            tableLayoutPanel10.ColumnCount = 1;
-            tableLayoutPanel10.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel10.Controls.Add(tableLayoutPanel11, 0, 0);
-            tableLayoutPanel10.Controls.Add(tableLayoutPanel12, 0, 1);
-            tableLayoutPanel10.Dock = DockStyle.Fill;
-            tableLayoutPanel10.Location = new Point(3, 3);
-            tableLayoutPanel10.Name = "tableLayoutPanel10";
-            tableLayoutPanel10.RowCount = 2;
-            tableLayoutPanel10.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel10.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel10.Size = new Size(873, 449);
-            tableLayoutPanel10.TabIndex = 0;
+            tableLayoutPanel_TabBord.ColumnCount = 1;
+            tableLayoutPanel_TabBord.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel_TabBord.Controls.Add(tableLayoutPanel_TabBord2, 0, 0);
+            tableLayoutPanel_TabBord.Controls.Add(tableLayoutPanel12, 0, 1);
+            tableLayoutPanel_TabBord.Dock = DockStyle.Fill;
+            tableLayoutPanel_TabBord.Location = new Point(3, 3);
+            tableLayoutPanel_TabBord.Name = "tableLayoutPanel_TabBord";
+            tableLayoutPanel_TabBord.RowCount = 2;
+            tableLayoutPanel_TabBord.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel_TabBord.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel_TabBord.Size = new Size(873, 449);
+            tableLayoutPanel_TabBord.TabIndex = 0;
             // 
-            // tableLayoutPanel11
+            // tableLayoutPanel_TabBord2
             // 
-            tableLayoutPanel11.BackColor = Color.FromArgb(83, 92, 107);
-            tableLayoutPanel11.ColumnCount = 1;
-            tableLayoutPanel11.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel11.Controls.Add(tableLayoutPanel15, 0, 0);
-            tableLayoutPanel11.Dock = DockStyle.Fill;
-            tableLayoutPanel11.Location = new Point(3, 3);
-            tableLayoutPanel11.Name = "tableLayoutPanel11";
-            tableLayoutPanel11.RowCount = 1;
-            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel11.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel11.Size = new Size(867, 218);
-            tableLayoutPanel11.TabIndex = 2;
+            tableLayoutPanel_TabBord2.BackColor = Color.FromArgb(83, 92, 107);
+            tableLayoutPanel_TabBord2.ColumnCount = 1;
+            tableLayoutPanel_TabBord2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel_TabBord2.Controls.Add(tableLayoutPanel15, 0, 0);
+            tableLayoutPanel_TabBord2.Dock = DockStyle.Fill;
+            tableLayoutPanel_TabBord2.Location = new Point(3, 3);
+            tableLayoutPanel_TabBord2.Name = "tableLayoutPanel_TabBord2";
+            tableLayoutPanel_TabBord2.RowCount = 1;
+            tableLayoutPanel_TabBord2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel_TabBord2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel_TabBord2.Size = new Size(867, 218);
+            tableLayoutPanel_TabBord2.TabIndex = 2;
             // 
             // tableLayoutPanel15
             // 
@@ -1090,6 +1052,7 @@
             dgv_Inventaire.CellClick += dgv_Inventaire_CellClick;
             dgv_Inventaire.CellDoubleClick += dgv_Inventaire_CellDoubleClick;
             dgv_Inventaire.CellValueChanged += dgv_Inventaire_CellValueChanged;
+            dgv_Inventaire.CurrentCellDirtyStateChanged += dgv_Inventaire_CurrentCellDirtyStateChanged;
             dgv_Inventaire.DataError += dgv_Inventaire_DataError;
             dgv_Inventaire.RowsAdded += dgv_Inventaire_RowsAdded;
             dgv_Inventaire.Scroll += dgv_Inventaire_Scroll;
@@ -1823,7 +1786,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "FormGestion";
-            Text = "Logiciel de gestion FRANCEINFORMATIQUE.FR";
+            Text = "Gestion FRANCEINFORMATIQUE.FR";
             FormClosing += Form1_FormClosing;
             Load += Form1_Load;
             Resize += Form1_Resize;
@@ -1838,8 +1801,8 @@
             tabControl_Onglets.ResumeLayout(false);
             OngletTableauDeBord.ResumeLayout(false);
             tableLayoutPanel9.ResumeLayout(false);
-            tableLayoutPanel10.ResumeLayout(false);
-            tableLayoutPanel11.ResumeLayout(false);
+            tableLayoutPanel_TabBord.ResumeLayout(false);
+            tableLayoutPanel_TabBord2.ResumeLayout(false);
             tableLayoutPanel15.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)chart_Inventaire).EndInit();
             tableLayoutPanel16.ResumeLayout(false);
@@ -1952,8 +1915,6 @@
         private TabPage OngletFactureNette;
         private DataGridView dgv_Facture;
         private TabPage OngletSitesFavoris;
-        private ToolStripButton btn_RetourArriere;
-        private ToolStripButton btn_Retablir;
         private ListBox lb_SitesFav;
         private TableLayoutPanel tableLayoutPanel8;
         private TableLayoutPanel tableLayoutPanel4;
@@ -1985,8 +1946,6 @@
         private DataGridViewTextBoxColumn PrixHT;
         private DataGridViewTextBoxColumn PrixTTC;
         private DataGridViewTextBoxColumn Difference;
-        private ToolStripMenuItem TSMenuItem_FichiersRecents;
-        private ToolStripMenuItem toolStripMenuItem1;
         private BindingSource inventaireMarqueBindingSource;
         private Button btn_AccederSiteWeb;
         private TableLayoutPanel tableLayoutPanel9;
@@ -2000,7 +1959,7 @@
         private DataGridViewTextBoxColumn DateEntreeInventaire;
         private DataGridViewTextBoxColumn DateSortieInventaire;
         private DataGridViewTextBoxColumn CommentaireInventaire;
-        private TableLayoutPanel tableLayoutPanel10;
+        private TableLayoutPanel tableLayoutPanel_TabBord;
         private TableLayoutPanel tableLayoutPanel12;
         private TableLayoutPanel tableLayoutPanel13;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart_Facture;
@@ -2008,7 +1967,7 @@
         private TableLayoutPanel tableLayoutPanel14;
         private Label lbl_RevenuTTCFactures;
         private Label label3;
-        private TableLayoutPanel tableLayoutPanel11;
+        private TableLayoutPanel tableLayoutPanel_TabBord2;
         private TableLayoutPanel tableLayoutPanel15;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart_Inventaire;
         private TableLayoutPanel tableLayoutPanel16;

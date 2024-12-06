@@ -18,89 +18,39 @@ namespace FranceInformatiqueInventaire.Controlleur
     /// </summary>
     public partial class GestionControlleur
     {
-        private FormGestion formGestionRef;
-        private DataGridView dgv_Inventaire;
-        private DataGridView dgv_Facture;
-        private TextBox txt_Recherche;
-        private ToolStripButton btn_CollerLigne;
         BddManager bddManagerRef;
-        ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder;
-        private List<DataGridViewRow> inventaireRowsCharge;
-        private List<DataGridViewRow> factureRowsCharge;
-        private List<DataGridViewRow> rowsInventaireCopiee = new List<DataGridViewRow>();
-        private ComboBox cb_FiltreRecherche;
-        private ListBox lb_Marque;
-        private ListBox lb_Type;
-        private ListBox lb_Prestation;
-        private List<string> marquesCharge = new List<string>();
-        private List<string> typesCharge = new List<string>();
-        private List<FacturePrestation> prestationsCharge = new List<FacturePrestation>();
-        private bool couperLignes;
-        private List<DataGridViewRow> rowsFactureCopiee = new List<DataGridViewRow>(); 
-
-        public GestionControlleur(FormGestion formGestionRef, DataGridView dgv_Inventaire, TextBox txt_Recherche, ToolStripButton btn_CollerLigne, BddManager bddManagerRef, ToolStripMenuItem TSMenuItem_Fichier_Sauvegarder, List<DataGridViewRow> inventaireRowsCharge, List<DataGridViewRow> rowsInventaireCopiee, ComboBox cb_FiltreRecherche, ListBox lb_Marque, ListBox lb_Type, List<string> marquesCharge, List<string> typesCharge, bool couperLignes, DataGridView dgv_Facture, List<DataGridViewRow>  factureRowsCharge, List<DataGridViewRow> rowsFactureCopiee, ListBox lb_Prestation, List<FacturePrestation> prestationsCharge)
-        {
-            this.formGestionRef = formGestionRef;
-            this.dgv_Inventaire = dgv_Inventaire;
-            this.txt_Recherche = txt_Recherche;
-            this.btn_CollerLigne = btn_CollerLigne;
-            this.bddManagerRef = bddManagerRef;
-            this.TSMenuItem_Fichier_Sauvegarder = TSMenuItem_Fichier_Sauvegarder;
-            this.inventaireRowsCharge = inventaireRowsCharge;
-            this.rowsInventaireCopiee = rowsInventaireCopiee;
-            this.cb_FiltreRecherche = cb_FiltreRecherche;
-            this.lb_Marque = lb_Marque;
-            this.lb_Type = lb_Type;
-            this.marquesCharge = marquesCharge;
-            this.typesCharge = typesCharge;
-            this.couperLignes = couperLignes;
-            this.dgv_Facture = dgv_Facture;
-            this.factureRowsCharge = factureRowsCharge;
-            this.rowsFactureCopiee = rowsFactureCopiee;
-            this.lb_Prestation = lb_Prestation;
-            this.prestationsCharge = prestationsCharge;
-        }
 
         /// <summary>
-        ///  Supprime des lignes de la dataGriwView inventaire en mettant à jour certaines choses par la même occasion.
+        /// Constructeur du contrôleur pour la vue Gestion.
         /// </summary>
-        public void SupprimerLignesInventaire()
+        /// <param name="bddManagerRef"></param>
+        public GestionControlleur(BddManager bddManagerRef)
         {
-            DataGridViewSelectedRowCollection savedSelectedRows;
-            savedSelectedRows = dgv_Inventaire.SelectedRows;
-            txt_Recherche.Text = "";
-            foreach (DataGridViewRow ligne in savedSelectedRows)
-            {
-                dgv_Inventaire.Rows.Remove(ligne);
-            }
-            formGestionRef.ActualiserIndexLignesInventaire();
-            formGestionRef.DefinirInventaireRowsCharge();
+            this.bddManagerRef = bddManagerRef;
         }
+
 
         /// <summary>
         ///  Permet de récupérer le nom du fichier directement et la non le chemin complet.
         /// </summary>
         /// <returns>Retourne le nom du fichier.</returns>
-        public string GetFileNameSansChemin()
+        public string GetFileNameSansChemin(string cheminFichierOuvert)
         {
-            string temp = formGestionRef.cheminFichierOuvert.Substring(formGestionRef.cheminFichierOuvert.LastIndexOf("\\") + 1);
+            string temp = cheminFichierOuvert.Substring(cheminFichierOuvert.LastIndexOf("\\") + 1);
             return temp.Remove(temp.Count() - 3);
         }
 
         /// <summary>
-        ///  Permet d'ouvrir un fichier si la boite de dialogue de fichier a choisi un fichier, on récupérer le chemin du fichier.
+        ///  Permet d'ouvrir une boite de dialogue d'ouverture de fichier, on récupérer le chemin du fichier.
         /// </summary>
         /// <returns>Retourne le chemin du fichier choisi.</returns>
-        public string OuvrirFichierDb()
+        public string OuvrirDialogueOuvertureFichier()
         {
-            dgv_Inventaire.EndEdit();
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "SQLite Database|*.db";
             fileDialog.Title = "Choisissez le fichier à ouvrir";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                formGestionRef.cheminFichierOuvert = fileDialog.FileName;
-                formGestionRef.titreFichierOuvert = GetFileNameSansChemin();
                 return fileDialog.FileName;
             }
             else
@@ -110,47 +60,48 @@ namespace FranceInformatiqueInventaire.Controlleur
         }
 
         /// <summary>
-        ///  Ouvre une boite de dialogue de fichier, et permet de "créer" un nouveau fichier de sauvegarde.
+        ///  Permet d'ouvrir une boite de dialogue de sauvegarde de fichier, on récupére le chemin du fichier.
         /// </summary>
-        public void SauvegarderSous()
+        /// <returns>Retourne le chemin du fichier choisi.</returns>
+        public string OuvrirDialogueSaveFichier()
         {
-            dgv_Inventaire.EndEdit();
             SaveFileDialog fileDialog = new SaveFileDialog();
             fileDialog.Filter = "SQLite Database|*.db";
             fileDialog.Title = "Choisissez le nom du fichier";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-
-                dgv_Inventaire.Enabled = false;
-                formGestionRef.cheminFichierOuvert = fileDialog.FileName;
-                formGestionRef.titreFichierOuvert = GetFileNameSansChemin();
-                bddManagerRef.EcrireBdd(formGestionRef.cheminFichierOuvert);
-                formGestionRef.changerFormTitre(false);
-                TSMenuItem_Fichier_Sauvegarder.Enabled = true;
-                dgv_Inventaire.Enabled = true;
+                
+                return fileDialog.FileName;
             }
+            return "";
         }
-        
+
         /// <summary>
-        ///  Permet de rechercher dans l'inventaire en supprimant les rows de la dataGridView inventaire qui ne contiennent pas l'élément recherché, on parcours chaque colonne ou une colonne spécifique selon le filtre choisi.
+        /// Lance l'appelle de l'écriture de la bdd en contactant le bddmanager.
         /// </summary>
+        /// <param name="cheminFichier">Le chemin du fichier qui sera créé.</param>
+        public void CallEcrireBDD(string cheminFichier)
+        {
+            bddManagerRef.EcrireBdd(cheminFichier);
+        }
+
+        /// <summary>
+        /// Permet de rechercher dans les factures en supprimant les rows de la dataGridView facture qui ne contiennent pas l'élément recherché, on parcours chaque colonne ou une colonne spécifique selon le filtre choisi.
+        /// </summary>
+        /// <param name="rowsAparcourir">Les rows à parcourir.</param>
         /// <param name="texteARechercher">Le texte qui sera recherché dans les cellules.</param>
-        public void RechercherInventaire(string texteARechercher)
+        /// <param name="filtreSelectedIndex">L'index du filtre choisi pour la recherche.</param>
+        /// <returns>Liste des index à supprimer dans le dgv facture.</returns>
+        public List<int> RechercherFacture(List<DataGridViewRow> rowsAparcourir, string texteARechercher, int filtreSelectedIndex)
         {
             texteARechercher = texteARechercher.ToLower();
             bool trouverTexteDansRow = false;
-            dgv_Inventaire.Rows.Clear();
-            foreach (DataGridViewRow row in inventaireRowsCharge)
-            {
-                dgv_Inventaire.Rows.Add(row);
-            }
             List<int> indexsRowASupprimer = new List<int>();
-            for (int i = 0; i < dgv_Inventaire.Rows.Count; i++)
+            for (int i = 0; i < rowsAparcourir.Count; i++)
             {
-                int filtreSelectedIndex = cb_FiltreRecherche.SelectedIndex;
                 if (filtreSelectedIndex > 0)
                 {
-                    DataGridViewCell cell = dgv_Inventaire.Rows[i].Cells[filtreSelectedIndex];
+                    DataGridViewCell cell = rowsAparcourir[i].Cells[filtreSelectedIndex];
                     if (!(cell.Value == null))
                     {
                         string cellText = (cell.Value.ToString()) ?? "";
@@ -163,9 +114,9 @@ namespace FranceInformatiqueInventaire.Controlleur
                 }
                 else
                 {
-                    for (int e = 0; e < dgv_Inventaire.Rows[i].Cells.Count; e++)
+                    for (int e = 0; e < rowsAparcourir[i].Cells.Count; e++)
                     {
-                        DataGridViewCell cell = dgv_Inventaire.Rows[i].Cells[e];
+                        DataGridViewCell cell = rowsAparcourir[i].Cells[e];
                         if (!(cell.Value == null))
                         {
                             string cellText = (cell.Value.ToString()) ?? "";
@@ -178,7 +129,6 @@ namespace FranceInformatiqueInventaire.Controlleur
                         }
                     }
                 }
-
                 if (!trouverTexteDansRow)
                 {
                     if (!(indexsRowASupprimer.Contains(i)))
@@ -188,230 +138,26 @@ namespace FranceInformatiqueInventaire.Controlleur
                 }
                 trouverTexteDansRow = false;
             }
-            foreach (int i in indexsRowASupprimer)
-            {
-                dgv_Inventaire.Rows.RemoveAt(i);
-            }
+            return indexsRowASupprimer;
         }
 
         /// <summary>
-        ///  Permet de rechercher dans les marques en supprimant les lignes de la listBox marque qui ne contiennent pas l'élément recherché.
+        /// Permet de rechercher dans l'inventaire en supprimant les rows de la dataGridView inventaire qui ne contiennent pas l'élément recherché, on parcours chaque colonne ou une colonne spécifique selon le filtre choisi.
         /// </summary>
-        /// <param name="texteARechercher">Le texte qui sera recherché dans les lignes.</param>
-        public void RechercherMarque(string texteARechercher)
-        {
-            texteARechercher = texteARechercher.ToLower();
-            bool trouverTexteDansRow = false;
-            lb_Marque.Items.Clear();
-            foreach (var item in marquesCharge)
-            {
-                lb_Marque.Items.Add(item);
-            }
-            List<int> indexsRowASupprimer = new List<int>();
-            for (int i = 0; i < lb_Marque.Items.Count; i++)
-            {
-                var item = lb_Marque.Items[i];
-                if (!(item == null))
-                {
-                    string itemText = (item.ToString()) ?? "";
-                    itemText = itemText.ToLower();
-                    if (itemText.Contains(texteARechercher))
-                    {
-                        trouverTexteDansRow = true;
-                    }
-                }
-                if (!trouverTexteDansRow)
-                {
-                    if (!(indexsRowASupprimer.Contains(i)))
-                    {
-                        indexsRowASupprimer.Insert(0, i);
-                    }
-                }
-                trouverTexteDansRow = false;
-            }
-            foreach (int i in indexsRowASupprimer)
-            {
-                lb_Marque.Items.RemoveAt(i);
-            }
-
-        }
-
-        /// <summary>
-        ///  Permet de rechercher dans les types en supprimant les lignes de la listBox type qui ne contiennent pas l'élément recherché.
-        /// </summary>
-        /// <param name="texteARechercher">Le texte qui sera recherché dans les lignes.</param>
-        public void RechercherType(string texteARechercher)
-        {
-            texteARechercher = texteARechercher.ToLower();
-            bool trouverTexteDansRow = false;
-            lb_Type.Items.Clear();
-            foreach (var item in typesCharge)
-            {
-                lb_Type.Items.Add(item);
-            }
-            List<int> indexsRowASupprimer = new List<int>();
-            for (int i = 0; i < lb_Type.Items.Count; i++)
-            {
-                var item = lb_Type.Items[i];
-                if (!(item == null))
-                {
-                    string itemText = (item.ToString()) ?? "";
-                    itemText = itemText.ToLower();
-                    if (itemText.Contains(texteARechercher))
-                    {
-                        trouverTexteDansRow = true;
-                    }
-                }
-                if (!trouverTexteDansRow)
-                {
-                    if (!(indexsRowASupprimer.Contains(i)))
-                    {
-                        indexsRowASupprimer.Insert(0, i);
-                    }
-                }
-                trouverTexteDansRow = false;
-            }
-            foreach (int i in indexsRowASupprimer)
-            {
-                lb_Type.Items.RemoveAt(i);
-            }
-        }
-
-
-        /// <summary>
-        ///  Permet d'insérer une ligne dans la dataGridView inventaire, insérer avant ou après la ligne séléctionné selon l'option choisi.
-        /// </summary>
-        public void InsererLigneInventaire(int indexRowSelected)
-        {
-            txt_Recherche.Text = "";
-            if (formGestionRef.insertionAvant)
-            {
-                dgv_Inventaire.Rows.Insert(indexRowSelected, "");
-            }
-            else
-            {
-                dgv_Inventaire.Rows.Insert(indexRowSelected + 1, "");
-            }
-        }
-
-        /// <summary>
-        ///  Permet de récupérer et copier les rows séléctionnées dans la liste de DataGridViewRow "rowsInventaireCopiee".
-        /// </summary>
-        public void CopierLignesInventaire()
-        {
-            rowsInventaireCopiee.Clear();
-            int premierIndex = dgv_Inventaire.SelectedRows[(dgv_Inventaire.SelectedRows.Count - 1)].Index;
-            int dernierIndex = dgv_Inventaire.SelectedRows[0].Index;
-            DataGridViewRow nouvelleRow = new DataGridViewRow();
-            nouvelleRow = (DataGridViewRow)dgv_Inventaire.Rows[0].Clone();
-            foreach (DataGridViewRow row in dgv_Inventaire.SelectedRows)
-            {
-                nouvelleRow = new DataGridViewRow();
-                nouvelleRow = (DataGridViewRow)dgv_Inventaire.Rows[0].Clone();
-                for (int e = 1; e < 9; e++)
-                {
-                    nouvelleRow.Cells[e].Value = dgv_Inventaire.Rows[row.Index].Cells[e].Value;
-                }
-                rowsInventaireCopiee.Insert(0, nouvelleRow);
-            }
-            txt_Recherche.Text = "";
-            btn_CollerLigne.Enabled = true;
-        }
-
-        /// <summary>
-        ///  Permet de coller les lignes copiées dans les lignes actuellement séléctionnées.
-        /// </summary>
-        public void CollerLignesInventaire()
-        {
-            int indexPremierRowSelected = dgv_Inventaire.SelectedRows[(dgv_Inventaire.SelectedRows.Count - 1)].Index;
-            int indexDernierRowSelected = dgv_Inventaire.SelectedRows[0].Index;
-            txt_Recherche.Text = "";
-            List<DataGridViewRow> rowsAremplacer = new List<DataGridViewRow>();
-            int e = 0;
-            if (((indexDernierRowSelected - indexPremierRowSelected) + 1) == rowsInventaireCopiee.Count || dgv_Inventaire.SelectedRows.Count == 1)
-            {
-                for (int i = (dgv_Inventaire.SelectedRows.Count - 1); i > -1; i--)
-                {
-                    for (int k = 1; k < 9; k++)
-                    {
-                        dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[k].Value = rowsInventaireCopiee[e].Cells[k].Value;
-                    }
-                    e++;
-                }
-            }
-            else
-            {
-                for (int i = (dgv_Inventaire.SelectedRows.Count - 1); i > -1; i--)
-                {
-                    if (dgv_Inventaire.SelectedRows[i].Index <= (dgv_Inventaire.Rows.Count - 1) && e < rowsInventaireCopiee.Count)
-                    {
-                        for (int k = 1; k < 9; k++)
-                        {
-                            dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[k].Value = rowsInventaireCopiee[e].Cells[k].Value;
-                        }
-                        e++;
-                    }
-                }
-            }
-            formGestionRef.ActualiserIndexLignesInventaire();
-            if (couperLignes)
-            {
-                couperLignes = false;
-                btn_CollerLigne.Enabled = false;
-                rowsInventaireCopiee.Clear();
-            }
-        }
-
-        /// <summary>
-        ///  Permet de "couper" donc copier puis vider les rows copiées, on peut coller une fois après la coupe.
-        /// </summary>
-        public void CouperLignesInventaire()
-        {
-            CopierLignesInventaire();
-            for (int i = (dgv_Inventaire.SelectedRows.Count - 1); i > -1; i--)
-            {
-                for (int e = 1; e < 9; e++)
-                {
-                    dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[e].Value = "";
-                }
-            }
-            couperLignes = true;
-        }
-
-        /// <summary>
-        ///  Permet de "clear" les rows séléctionnées, de les vider.
-        /// </summary>
-        public void ViderLignesInventaire()
-        {
-            for (int i = (dgv_Inventaire.SelectedRows.Count - 1); i > -1; i--)
-            {
-                for (int e = 1; e < 9; e++)
-                {
-                    dgv_Inventaire.Rows[dgv_Inventaire.SelectedRows[i].Index].Cells[e].Value = "";
-                }
-            }
-        }
-
-        /// <summary>
-        ///  Permet de rechercher dans les factures en supprimant les rows de la dataGridView facture qui ne contiennent pas l'élément recherché, on parcours chaque colonne ou une colonne spécifique selon le filtre choisi.
-        /// </summary>
+        /// <param name="rowsAparcourir">Les rows à parcourir.</param>
         /// <param name="texteARechercher">Le texte qui sera recherché dans les cellules.</param>
-        public void RechercherFacture(string texteARechercher)
+        /// <param name="filtreSelectedIndex">L'index du filtre choisi pour la recherche.</param>
+        /// <returns>Liste des index à supprimer dans le dgv inventaire.</returns>
+        public List<int> RechercherInventaire(List<DataGridViewRow> rowsAparcourir, string texteARechercher, int filtreSelectedIndex)
         {
             texteARechercher = texteARechercher.ToLower();
             bool trouverTexteDansRow = false;
-            dgv_Facture.Rows.Clear();
-            foreach (DataGridViewRow row in factureRowsCharge)
-            {
-                dgv_Facture.Rows.Add(row);
-            }
             List<int> indexsRowASupprimer = new List<int>();
-            for (int i = 0; i < dgv_Facture.Rows.Count; i++)
+            for (int i = 0; i < rowsAparcourir.Count; i++)
             {
-                int filtreSelectedIndex = cb_FiltreRecherche.SelectedIndex;
                 if (filtreSelectedIndex > 0)
                 {
-                    DataGridViewCell cell = dgv_Facture.Rows[i].Cells[filtreSelectedIndex];
+                    DataGridViewCell cell = rowsAparcourir[i].Cells[filtreSelectedIndex];
                     if (!(cell.Value == null))
                     {
                         string cellText = (cell.Value.ToString()) ?? "";
@@ -424,9 +170,9 @@ namespace FranceInformatiqueInventaire.Controlleur
                 }
                 else
                 {
-                    for (int e = 0; e < dgv_Facture.Rows[i].Cells.Count; e++)
+                    for (int e = 0; e < rowsAparcourir[i].Cells.Count; e++)
                     {
-                        DataGridViewCell cell = dgv_Facture.Rows[i].Cells[e];
+                        DataGridViewCell cell = rowsAparcourir[i].Cells[e];
                         if (!(cell.Value == null))
                         {
                             string cellText = (cell.Value.ToString()) ?? "";
@@ -439,7 +185,6 @@ namespace FranceInformatiqueInventaire.Controlleur
                         }
                     }
                 }
-
                 if (!trouverTexteDansRow)
                 {
                     if (!(indexsRowASupprimer.Contains(i)))
@@ -449,149 +194,148 @@ namespace FranceInformatiqueInventaire.Controlleur
                 }
                 trouverTexteDansRow = false;
             }
-            foreach (int i in indexsRowASupprimer)
-            {
-                dgv_Facture.Rows.RemoveAt(i);
-            }
+            return indexsRowASupprimer;
         }
 
         /// <summary>
-        ///  Supprime des lignes de la dataGriwView facture en mettant à jour certaines choses par la même occasion.
+        /// Permet de rechercher dans les marques en supprimant les lignes de la listBox marque qui ne contiennent pas l'élément recherché.
         /// </summary>
-        public void SupprimerLignesFacture()
+        /// <param name="listBoxItems">Les items à parcourir.</param>
+        /// <param name="texteARechercher">Le texte qui sera recherché dans les lignes.</param>
+        /// <param name="filtreSelectedIndex">L'index du filtre choisi pour la recherche.</param>
+        /// <returns>Liste des index à supprimer dans la listBox marque.</returns>
+        public List<int> RechercherMarque(List<string> listBoxItems, string texteARechercher, int filtreSelectedIndex)
         {
-            DataGridViewSelectedRowCollection savedSelectedRows;
-            savedSelectedRows = dgv_Facture.SelectedRows;
-            txt_Recherche.Text = "";
-            foreach (DataGridViewRow ligne in savedSelectedRows)
+            texteARechercher = texteARechercher.ToLower();
+            bool trouverTexteDansRow = false;
+            List<int> indexsItemASupprimer = new List<int>();
+            for (int i = 0; i < listBoxItems.Count; i++)
             {
-                dgv_Facture.Rows.Remove(ligne);
-            }
-            formGestionRef.ActualiserIndexLignesFacture();
-            formGestionRef.DefinirFactureRowsCharge();
-        }
-
-        /// <summary>
-        ///  Permet d'insérer une ligne dans la dataGridView facture, insérer avant ou après la ligne séléctionné selon l'option choisi.
-        /// </summary>
-        public void InsererLigneFacture(int indexRowSelected)
-        {
-            txt_Recherche.Text = "";
-            if (formGestionRef.insertionAvant)
-            {
-                dgv_Facture.Rows.Insert(indexRowSelected, "");
-            }
-            else
-            {
-                dgv_Facture.Rows.Insert(indexRowSelected + 1, "");
-            }
-        }
-
-        /// <summary>
-        ///  Permet de récupérer et copier les rows séléctionnées dans la liste de DataGridViewRow "rowsFactureCopiee".
-        /// </summary>
-        public void CopierLignesFacture()
-        {
-            rowsFactureCopiee.Clear();
-            int premierIndex = dgv_Facture.SelectedRows[(dgv_Facture.SelectedRows.Count - 1)].Index;
-            int dernierIndex = dgv_Facture.SelectedRows[0].Index;
-            DataGridViewRow nouvelleRow = new DataGridViewRow();
-            nouvelleRow = (DataGridViewRow)dgv_Facture.Rows[0].Clone();
-            foreach (DataGridViewRow row in dgv_Facture.SelectedRows)
-            {
-                nouvelleRow = new DataGridViewRow();
-                nouvelleRow = (DataGridViewRow)dgv_Facture.Rows[0].Clone();
-                for (int e = 1; e < 5; e++)
+                var item = listBoxItems[i];
+                if (!(item == null))
                 {
-                    nouvelleRow.Cells[e].Value = dgv_Facture.Rows[row.Index].Cells[e].Value;
-                }
-                rowsFactureCopiee.Insert(0, nouvelleRow);
-            }
-            txt_Recherche.Text = "";
-            btn_CollerLigne.Enabled = true;
-        }
-
-        /// <summary>
-        ///  Permet de coller les lignes copiées dans les lignes actuellement séléctionnées.
-        /// </summary>
-        public void CollerLignesFacture()
-        {
-            int indexPremierRowSelected = dgv_Facture.SelectedRows[(dgv_Facture.SelectedRows.Count - 1)].Index;
-            int indexDernierRowSelected = dgv_Facture.SelectedRows[0].Index;
-            txt_Recherche.Text = "";
-            List<DataGridViewRow> rowsAremplacer = new List<DataGridViewRow>();
-            int e = 0;
-            if (((indexDernierRowSelected - indexPremierRowSelected) + 1) == rowsFactureCopiee.Count || dgv_Facture.SelectedRows.Count == 1)
-            {
-                for (int i = (dgv_Facture.SelectedRows.Count - 1); i > -1; i--)
-                {
-                    for (int k = 1; k < 5; k++)
+                    string itemText = (item.ToString()) ?? "";
+                    itemText = itemText.ToLower();
+                    if (itemText.Contains(texteARechercher))
                     {
-                        dgv_Facture.Rows[dgv_Facture.SelectedRows[i].Index].Cells[k].Value = rowsFactureCopiee[e].Cells[k].Value;
+                        trouverTexteDansRow = true;
                     }
-                    e++;
                 }
-            }
-            else
-            {
-                for (int i = (dgv_Facture.SelectedRows.Count - 1); i > -1; i--)
+                if (!trouverTexteDansRow)
                 {
-                    if (dgv_Facture.SelectedRows[i].Index <= (dgv_Facture.Rows.Count - 1) && e < rowsFactureCopiee.Count)
+                    if (!(indexsItemASupprimer.Contains(i)))
                     {
-                        for (int k = 1; k < 5; k++)
+                        indexsItemASupprimer.Insert(0, i);
+                    }
+                }
+                trouverTexteDansRow = false;
+            }
+            return indexsItemASupprimer;
+        }
+
+        /// <summary>
+        /// Permet de rechercher dans les types en supprimant les lignes de la listBox type qui ne contiennent pas l'élément recherché.
+        /// </summary>
+        /// <param name="listBoxItems">Les items à parcourir.</param>
+        /// <param name="texteARechercher">Le texte qui sera recherché dans les lignes.</param>
+        /// <param name="filtreSelectedIndex">L'index du filtre choisi pour la recherche.</param>
+        /// <returns>Liste des index à supprimer dans la listBox type.</returns>
+        public List<int> RechercherType(List<string> listBoxItems, string texteARechercher, int filtreSelectedIndex)
+        {
+            texteARechercher = texteARechercher.ToLower();
+            bool trouverTexteDansRow = false;
+            List<int> indexsItemASupprimer = new List<int>();
+            for (int i = 0; i < listBoxItems.Count; i++)
+            {
+                var item = listBoxItems[i];
+                if (!(item == null))
+                {
+                    string itemText = (item.ToString()) ?? "";
+                    itemText = itemText.ToLower();
+                    if (itemText.Contains(texteARechercher))
+                    {
+                        trouverTexteDansRow = true;
+                    }
+                }
+                if (!trouverTexteDansRow)
+                {
+                    if (!(indexsItemASupprimer.Contains(i)))
+                    {
+                        indexsItemASupprimer.Insert(0, i);
+                    }
+                }
+                trouverTexteDansRow = false;
+            }
+            return indexsItemASupprimer;
+        }
+
+        /// <summary>
+        /// Permet de coller les lignes copiées dans les lignes actuellement séléctionnées.
+        /// </summary>
+        /// <param name="dgvRows">La liste de rows avant toute manipulation.</param>
+        /// <param name="selectedRows">Les rows séléctionnées du dataGridView.</param>
+        /// <param name="rowsCopiee">La liste de rows qui ont étaient copiées.</param>
+        /// <param name="nbColonnesConcernees">Le nb de colonne à coller.</param>
+        /// <returns>Dictionnaire des lignes affectées avec l'index et les nouvelles rows.</returns>
+        public Dictionary<int, DataGridViewRow> GetDgvRowsApresCollageLignes(DataGridViewRowCollection dgvRows, DataGridViewSelectedRowCollection selectedRows, List<DataGridViewRow> rowsCopiee, int nbColonnesConcernees)
+        {
+            int indexPremierRowSelected = selectedRows[0].Index;
+            int indexDernierRowSelected = selectedRows[selectedRows.Count - 1].Index;
+            Dictionary<int, DataGridViewRow> nouvelleDgvRows = new Dictionary<int, DataGridViewRow>();
+            int f = 0;
+            int g = 0;
+            if (((indexDernierRowSelected - indexPremierRowSelected) + 1) == rowsCopiee.Count || selectedRows.Count == 1)
+            {
+                for (int i = 1; i > selectedRows.Count; i++)
+                {
+                    DataGridViewRow nouvelleRow = (DataGridViewRow)dgvRows[0].Clone();
+                    for (int k = 1; k < nbColonnesConcernees; k++)
+                    {
+                        if (rowsCopiee[f].Cells[k].Value != null)
                         {
-                            dgv_Facture.Rows[dgv_Facture.SelectedRows[i].Index].Cells[k].Value = rowsFactureCopiee[e].Cells[k].Value;
+                            nouvelleRow.Cells[k].Value = rowsCopiee[f].Cells[k].Value.ToString();
                         }
-                        e++;
+                        else
+                        {
+                            nouvelleRow.Cells[k].Value = "";
+                        }
+                    }
+                    nouvelleDgvRows.Add(selectedRows[i].Index, nouvelleRow);
+                    f++;
+                }
+            }
+            else
+            {
+                for (int i = (selectedRows.Count - 1); i > -1; i--)
+                {
+                    DataGridViewRow nouvelleRow = (DataGridViewRow)dgvRows[0].Clone();
+                    if (selectedRows[i].Index <= (dgvRows.Count - 1) && f < rowsCopiee.Count)
+                    {
+                        for (int k = 1; k < nbColonnesConcernees; k++)
+                        {
+                            if (rowsCopiee[f].Cells[k].Value != null)
+                            {
+                                nouvelleRow.Cells[k].Value = rowsCopiee[f].Cells[k].Value.ToString();
+                            }
+                            else
+                            {
+                                nouvelleRow.Cells[k].Value = "";
+                            }
+                        }
+                        nouvelleDgvRows.Add(selectedRows[i].Index, nouvelleRow);
+                        f++;
                     }
                 }
             }
-            formGestionRef.ActualiserIndexLignesFacture();
-            if (couperLignes)
-            {
-                couperLignes = false;
-                btn_CollerLigne.Enabled = false;
-                rowsFactureCopiee.Clear();
-            }
+            return nouvelleDgvRows;
         }
+
 
         /// <summary>
-        ///  Permet de "couper" donc copier puis vider les rows copiées, on peut coller une fois après la coupe.
+        /// Sépare le nom et le pourcentage de la prestation à partir d'un seul str.
         /// </summary>
-        public void CouperLignesFacture()
-        {
-            CopierLignesFacture();
-            for (int i = (dgv_Facture.SelectedRows.Count - 1); i > -1; i--)
-            {
-                for (int e = 1; e < 5; e++)
-                {
-                    dgv_Facture.Rows[dgv_Facture.SelectedRows[i].Index].Cells[e].Value = "";
-                }
-            }
-            couperLignes = true;
-        }
-
-        /// <summary>
-        ///  Permet de "clear" les rows séléctionnées, de les vider.
-        /// </summary>
-        public void ViderLignesFacture()
-        {
-            for (int i = (dgv_Facture.SelectedRows.Count - 1); i > -1; i--)
-            {
-                for (int e = 1; e < 5; e++)
-                {
-                    dgv_Facture.Rows[dgv_Facture.SelectedRows[i].Index].Cells[e].Value = "";
-                }
-            }
-        }
-
-
-
-        public string AssemblerPrestationNomPourcentage(string nomSepare, float pourcentageSepare)
-        {
-            return nomSepare + " (" + pourcentageSepare * 100 + "%)";
-        }
-
+        /// <param name="stringOriginal"></param>
+        /// <returns>Un tuple de string et de float, le nom et le pourcentage.</returns>
         public (string, float) SeparerPrestationNomPourcentage(string stringOriginal)
         {
             string nomSepare = stringOriginal;
@@ -603,7 +347,10 @@ namespace FranceInformatiqueInventaire.Controlleur
             return (nomSepare, pourcentageSepare);
         }
 
-
+        /// <summary>
+        /// Accéde au site web passé en paramètre.
+        /// </summary>
+        /// <param name="url">L'url du site web à ouvrir.</param>
         public void AccederSiteWebSelected(string url)
         {
             try
@@ -621,11 +368,25 @@ namespace FranceInformatiqueInventaire.Controlleur
             }
         }
 
+        /// <summary>
+        /// Permet de vérifier si une DateTime est compris dans une période.
+        /// </summary>
+        /// <param name="dateAverif">Date à vérifier.</param>
+        /// <param name="debutPeriode">Date de début de la période.</param>
+        /// <param name="finPeriode">Date de fin de la période.</param>
+        /// <returns>Le bool qui permet de connaître le résultat.</returns>
         public bool DateComprisDansPeriode(DateTime dateAverif, DateTime debutPeriode, DateTime finPeriode)
         {
             return (dateAverif >= debutPeriode) && (dateAverif <= finPeriode);
         }
 
+        /// <summary>
+        /// Ajoute ou retire une période à une date.
+        /// </summary>
+        /// <param name="date">Date à utiliser.</param>
+        /// <param name="periode">La période en question.</param>
+        /// <param name="ajouterPeriode">Permet de savoir si on ajoute ou retire une période.</param>
+        /// <returns>La nouvelle date.</returns>
         public DateTime ModifierDateDepuisPeriode(DateTime date, EnumPeriodes periode, bool ajouterPeriode = false)
         {
             int multiplicateur = -1;
@@ -646,6 +407,12 @@ namespace FranceInformatiqueInventaire.Controlleur
             }
         }
 
+        /// <summary>
+        /// Permet de connaître le premier jour de la période choisie, par exemple si on prends le 06/12/24, avec période = SEMAINE alors le premier jour sera lundi 02/12/24.
+        /// </summary>
+        /// <param name="date">La date à utiliser.</param>
+        /// <param name="periode">La période en question.</param>
+        /// <returns>La date du premier jour de la période.</returns>
         public DateTime PremierJourPeriode(DateTime date, EnumPeriodes periode)
         {
             string dateStr;
@@ -670,13 +437,19 @@ namespace FranceInformatiqueInventaire.Controlleur
             }
         }
 
+        /// <summary>
+        /// Au contraire de PremierJourPeriode(), permet de connaître le dernier jour de la période choisie, par exemple si on prends le 06/12/24, avec période = SEMAINE alors le dernier jour sera dimanche 08/12/24.
+        /// </summary>
+        /// <param name="date">La date à utiliser.</param>
+        /// <param name="periode">La période en question.</param>
+        /// <returns>La date du dernier jour de la période.</returns>
         public DateTime DernierJourPeriode(DateTime date, EnumPeriodes periode)
         {
             string dateStr;
             switch (periode)
             {
                 case EnumPeriodes.SEMAINE:
-                    while (date.DayOfWeek.ToString() != "Friday")
+                    while (date.DayOfWeek.ToString() != "Sunday")
                     {
                         date = date.AddDays(1);
                     }
@@ -694,6 +467,11 @@ namespace FranceInformatiqueInventaire.Controlleur
             }
         }
 
+        /// <summary>
+        /// Permet la conversion d'un enum periode à un DateTimeIntervalType.
+        /// </summary>
+        /// <param name="periode">La période à utiliser.</param>
+        /// <returns>La conversion.</returns>
         public DateTimeIntervalType ConversionPeriodeAdateTimeIntervalType(EnumPeriodes periode)
         {
             switch (periode)

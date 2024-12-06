@@ -267,7 +267,7 @@ namespace FranceInformatiqueInventaire.dal
         }
 
         /// <summary>
-        ///  Permet de créer et d'écrire un nouveau fichier .db qui aura toutes les données de l'inventaire, des marques, des types et autre.
+        ///  Permet de créer et d'écrire un nouveau fichier .db qui aura toutes les données de l'inventaire, des factures, des marques, des types et autre.
         /// </summary>
         /// <param name="chemin">Chemin où la création et écriture du fichier sera faite.</param>
         public void EcrireBdd(string chemin)
