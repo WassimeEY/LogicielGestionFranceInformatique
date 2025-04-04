@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FranceInformatiqueInventaire.Model
 {
+    /// <summary>
+    /// Enum de différentes périodes.
+    /// </summary>
     public enum EnumPeriodes
     {
         /// <summary>

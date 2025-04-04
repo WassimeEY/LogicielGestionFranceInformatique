@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FranceInformatiqueInventaire.Model
 {
+    /// <summary>
+    /// Classe du modèle, représentant une ligne de l'inventaire.
+    /// </summary>
     public class InventaireLigne
     {
         /// <summary>

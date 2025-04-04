@@ -1726,14 +1726,6 @@
             btn_SupprimerSiteWeb.UseVisualStyleBackColor = false;
             btn_SupprimerSiteWeb.Click += btn_SupprimerSiteWeb_Click;
             // 
-            // inventaireMarqueBindingSource1
-            // 
-            inventaireMarqueBindingSource1.DataSource = typeof(Model.InventaireMarque);
-            // 
-            // inventaireMarqueBindingSource
-            // 
-            inventaireMarqueBindingSource.DataSource = typeof(Model.InventaireMarque);
-            // 
             // tableLayoutPrincipal
             // 
             tableLayoutPrincipal.ColumnCount = 2;

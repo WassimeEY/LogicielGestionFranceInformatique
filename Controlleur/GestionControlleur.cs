@@ -283,10 +283,9 @@ namespace FranceInformatiqueInventaire.Controlleur
             int indexDernierRowSelected = selectedRows[selectedRows.Count - 1].Index;
             Dictionary<int, DataGridViewRow> nouvelleDgvRows = new Dictionary<int, DataGridViewRow>();
             int f = 0;
-            int g = 0;
             if (((indexDernierRowSelected - indexPremierRowSelected) + 1) == rowsCopiee.Count || selectedRows.Count == 1)
             {
-                for (int i = 1; i > selectedRows.Count; i++)
+                for (int i = 0; i < selectedRows.Count; i++)
                 {
                     DataGridViewRow nouvelleRow = (DataGridViewRow)dgvRows[0].Clone();
                     for (int k = 1; k < nbColonnesConcernees; k++)
@@ -364,7 +363,7 @@ namespace FranceInformatiqueInventaire.Controlleur
             }
             catch (Exception exc)
             {
-                MessageBox.Show("L'url de ce site web ne semble pas fonctionner", "Erreur URL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("L'url de ce site web ne semble pas fonctionner: " + exc.Message, "Erreur URL", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

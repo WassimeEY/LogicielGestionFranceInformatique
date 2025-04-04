@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FranceInformatiqueInventaire.Model
 {
+    /// <summary>
+    /// Classe du modèle, représentant un type d'objet.
+    /// </summary>
     public class InventaireType
     {
         /// <summary>

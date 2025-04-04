@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FranceInformatiqueInventaire.Model
 {
+    /// <summary>
+    /// Classe du modèle, représentant une facture.
+    /// </summary>
     public class FactureLigne
     {
         /// <summary>

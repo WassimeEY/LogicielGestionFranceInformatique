@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FranceInformatiqueInventaire.Model
 {
+    /// <summary>
+    /// Classe du modèle, représentant un site favoris sous forme de nom et d'URL.
+    /// </summary>
     public class SiteFavorisLigne
     {
         /// <summary>

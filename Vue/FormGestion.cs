@@ -18,8 +18,17 @@ using Microsoft.VisualBasic;
 
 namespace FranceInformatiqueInventaire
 {
+    /// <summary>
+    /// Enum représentant la visibilité du toolstrip.
+    /// </summary>
     public enum visibiliteToolstrip {VISIBLE,CACHE,CACHEAVECFOND,MODIFDGV};
+    /// <summary>
+    /// Enum représentant la position (page) dans l'application.
+    /// </summary>
     public enum ongletPrincipal { TABDEBORD, INVENTAIRE, FACTURES, SITESFAV};
+    /// <summary>
+    /// Enum représentant le type de recherche effectuée.
+    /// </summary>
     public enum typeRecherche { INVENTAIRE, MARQUE, TYPE, FACTURES};
 
     /// <summary>
@@ -62,6 +71,9 @@ namespace FranceInformatiqueInventaire
         private EnumPeriodes periodeActuelle = SEMAINE;
         DateTime dateBaseDecalage = DateTime.Today;
 
+        /// <summary>
+        /// Classe du forumulaire principal.
+        /// </summary>
         public FormGestion()
         {
             InitializeComponent();

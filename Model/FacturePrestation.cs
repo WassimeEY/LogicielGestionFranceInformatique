@@ -7,6 +7,9 @@ using System.Windows.Forms.VisualStyles;
 
 namespace FranceInformatiqueInventaire.Model
 {
+    /// <summary>
+    /// Classe du modèle, représentant une prestation utilisable dans une facture.
+    /// </summary>
     public class FacturePrestation
     {
         /// <summary>
